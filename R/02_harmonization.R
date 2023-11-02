@@ -7,7 +7,7 @@ library(BiocGenerics)
 library(tidyverse)
 
 ## Scaling based methods
-norm.TMM <- function(object) {
+harmon.TMM <- function(object) {
   raw <- object@raw.data$data
   groups <- object@raw.data$label
 
@@ -16,12 +16,12 @@ norm.TMM <- function(object) {
                      genes = rownames(raw))
   d <- calcNormFactors(dat.DGE, method = "TMM")
   scaling.factor <- d$samples$norm.factors * d$samples$lib.size / 1e6
-  dat.normed <- cpm(d)
-  object@norm.data$TMM <- list(dat.normed = dat.normed, scaling.factor = scaling.factor)
+  dat.harmonized <- cpm(d)
+  object@harmon.data$TMM <- list(dat.harmonized = dat.harmonized, scaling.factor = scaling.factor)
   return(object)
 }
 
-norm.TC <- function(object) {
+harmon.TC <- function(object) {
   raw <- object@raw.data$data
   groups <- object@raw.data$label
 
@@ -29,12 +29,12 @@ norm.TC <- function(object) {
                      group = factor(groups),
                      genes = rownames(raw))
   scaling.factor <- dat.DGE$samples$lib.size/1e6
-  dat.normed <- cpm(dat.DGE, normalized.lib.sizes = F)
-  object@norm.data$TC <- list(dat.normed = dat.normed, scaling.factor = scaling.factor)
+  dat.harmonized <- cpm(dat.DGE, normalized.lib.sizes = F)
+  object@harmon.data$TC <- list(dat.harmonized = dat.harmonized, scaling.factor = scaling.factor)
   return(object)
 }
 
-norm.UQ <- function(object) {
+harmon.UQ <- function(object) {
   raw <- object@raw.data$data
   groups <- object@raw.data$label
 
@@ -43,12 +43,12 @@ norm.UQ <- function(object) {
                      genes = rownames(raw))
   q.factor <- apply(dat.DGE$counts, 2, function(x) quantile(x[x != 0], probs = 0.75))
   scaling.factor <- q.factor/1e6
-  dat.normed <- t(t(raw)/scaling.factor)
-  object@norm.data$UQ <- list(dat.normed = dat.normed, scaling.factor = scaling.factor)
+  dat.harmonized <- t(t(raw)/scaling.factor)
+  object@harmon.data$UQ <- list(dat.harmonized = dat.harmonized, scaling.factor = scaling.factor)
   return(object)
 }
 
-norm.med <- function(object) {
+harmon.med <- function(object) {
   raw <- object@raw.data$data
   groups <- object@raw.data$label
 
@@ -57,12 +57,12 @@ norm.med <- function(object) {
                      genes = rownames(raw))
   m.factor <- apply(dat.DGE$counts, 2, function(x) median(x[x != 0]))
   scaling.factor <- m.factor/1e6
-  dat.normed <- t(t(raw)/scaling.factor)
-  object@norm.data$med <- list(dat.normed = dat.normed, scaling.factor = scaling.factor)
+  dat.harmonized <- t(t(raw)/scaling.factor)
+  object@harmon.data$med <- list(dat.harmonized = dat.harmonized, scaling.factor = scaling.factor)
   return(object)
 }
 
-norm.DESeq <- function(object) {
+harmon.DESeq <- function(object) {
   raw <- object@raw.data$data
   groups <- object@raw.data$label
 
@@ -71,33 +71,33 @@ norm.DESeq <- function(object) {
   dat.DGE <- DESeq2::DESeqDataSetFromMatrix(countData = raw, colData = condition, design = ~ Condition)
   dat.DGE <- DESeq2::estimateSizeFactors(dat.DGE)
   scaling.factor <- DESeq2::sizeFactors(dat.DGE)
-  dat.normed <- DESeq2::counts(dat.DGE, normalized = T)
-  object@norm.data$DESeq <- list(dat.normed = dat.normed, scaling.factor = scaling.factor)
+  dat.harmonized <- DESeq2::counts(dat.DGE, normalized = T)
+  object@harmon.data$DESeq <- list(dat.harmonized = dat.harmonized, scaling.factor = scaling.factor)
   return(object)
 }
 
-norm.PoissonSeq <- function(object) {
+harmon.PoissonSeq <- function(object) {
   raw <- object@raw.data$data
 
   scaling.factor <- PoissonSeq::PS.Est.Depth(raw)
-  dat.normed <- t(t(raw)/scaling.factor)
-  object@norm.data$PoissonSeq <- list(dat.normed = dat.normed)
+  dat.harmonized <- t(t(raw)/scaling.factor)
+  object@harmon.data$PoissonSeq <- list(dat.harmonized = dat.harmonized)
   return(object)
 }
 
 
 ## model-based methods
-norm.QN <- function(object){
+harmon.QN <- function(object){
   raw <- object@raw.data$data
 
-  dat.normed <- preprocessCore::normalize.quantiles(as.matrix(raw))
-  colnames(dat.normed) <- colnames(raw)
-  rownames(dat.normed) <- rownames(raw)
-  object@norm.data$QN <- list(dat.normed = dat.normed)
+  dat.harmonized <- preprocessCore::normalize.quantiles(as.matrix(raw))
+  colnames(dat.harmonized) <- colnames(raw)
+  rownames(dat.harmonized) <- rownames(raw)
+  object@harmon.data$QN <- list(dat.harmonized = dat.harmonized)
   return(object)
 }
 
-norm.SVA <- function(object){ ### methods need biological label
+harmon.SVA <- function(object){ ### methods need biological label
   dat.sva <- object@raw.data$data
   dat.sva <- dat.sva[rowSums(dat.sva) > 0,]
   groups <- object@raw.data$label
@@ -112,12 +112,12 @@ norm.SVA <- function(object){ ### methods need biological label
   hat <- solve(t(adjust) %*% adjust) %*% t(adjust)
   beta <- (hat %*% t(dat.sva))
   P <- ncol(mod1)
-  dat.normed <- dat.sva - t(as.matrix(adjust[,-c(1:P)]) %*% beta[-c(1:P),])
-  object@norm.data$SVA <- list(dat.normed = dat.normed, adjust.factor = svseq)
+  dat.harmonized <- dat.sva - t(as.matrix(adjust[,-c(1:P)]) %*% beta[-c(1:P),])
+  object@harmon.data$SVA <- list(dat.harmonized = dat.harmonized, adjust.factor = svseq)
   return(object)
 }
 
-norm.RUVg <- function(object) { ### methods need biological label
+harmon.RUVg <- function(object) { ### methods need biological label
   dat.ruv <- object@raw.data$data
   groups <- object@raw.data$label
 
@@ -136,12 +136,12 @@ norm.RUVg <- function(object) { ### methods need biological label
   top <- topTags(lrt, n = nrow(set))$table
   spikes <- rownames(set)[which(!(rownames(set) %in% rownames(top)[1:(0.15*nrow(dat.ruv))]))]
   t <- RUVg(set, spikes, k = 1)
-  dat.normed <- normCounts(t)
-  object@norm.data$RUVg <- list(dat.normed = dat.normed, adjust.factor = t$W)
+  dat.harmonized <- normCounts(t)
+  object@harmon.data$RUVg <- list(dat.harmonized = dat.harmonized, adjust.factor = t$W)
   return(object)
 }
 
-norm.RUVs <- function(object) { ### methods need biological label
+harmon.RUVs <- function(object) { ### methods need biological label
   dat.ruv <- object@raw.data$data
   groups <- object@raw.data$label
 
@@ -162,12 +162,12 @@ norm.RUVs <- function(object) { ### methods need biological label
   differences <- makeGroups(condition)
   controls <- rownames(dat.ruv)
   t <- RUVs(set, controls, k = 1, differences)
-  dat.normed <- normCounts(t)
-  object@norm.data$RUVs <- list(dat.normed = dat.normed, adjust.factor = t$W)
+  dat.harmonized <- normCounts(t)
+  object@harmon.data$RUVs <- list(dat.harmonized = dat.harmonized, adjust.factor = t$W)
   return(object)
 }
 
-norm.RUVr <- function(object) { ### methods need biological label
+harmon.RUVr <- function(object) { ### methods need biological label
   dat.ruv <- object@raw.data$data
   groups <- object@raw.data$label
 
@@ -195,32 +195,32 @@ norm.RUVr <- function(object) { ### methods need biological label
   setUQ <- betweenLaneNormalization(set, which = "upper")
   controls <- rownames(dat.ruv)
   t <- RUVr(setUQ, controls, k = 1, res)
-  dat.normed <- normCounts(t)
-  object@norm.data$RUVr <- list(dat.normed = dat.normed, adjust.factor = t$W)
+  dat.harmonized <- normCounts(t)
+  object@harmon.data$RUVr <- list(dat.harmonized = dat.harmonized, adjust.factor = t$W)
   return(object)
 }
 
-norm.ComBat.Seq <- function(object, batches){ ### methods need batch information
+harmon.ComBat.Seq <- function(object, batches){ ### methods need batch information
   dat.combat <- object@raw.data$data
-  dat.normed <- sva::ComBat_seq(dat.combat, batch = batches)
-  object@norm.data$ComBat.Seq <- list(dat.normed = dat.normed) #### returns the count matrix
+  dat.harmonized <- sva::ComBat_seq(dat.combat, batch = batches)
+  object@harmon.data$ComBat.Seq <- list(dat.harmonized = dat.harmonized) #### returns the count matrix
   return(object)
 }
 
 
 # ## normalization for all
-# norm.all <- function(object){
-#   object@norm.data$Raw$dat.normed <- object@raw.data$data
-#   object <- norm.TC(object)
-#   object <- norm.UQ(object)
-#   object <- norm.med(object)
-#   object <- norm.TMM(object)
-#   object <- norm.DESeq(object)
-#   object <- norm.PoissonSeq(object)
-#   object <- norm.QN(object)
-#   object <- norm.RUVg(object)
-#   object <- norm.RUVs(object)
-#   object <- norm.RUVr(object)
+# harmon.all <- function(object){
+#   object@harmon.data$Raw$dat.harmonized <- object@raw.data$data
+#   object <- harmon.TC(object)
+#   object <- harmon.UQ(object)
+#   object <- harmon.med(object)
+#   object <- harmon.TMM(object)
+#   object <- harmon.DESeq(object)
+#   object <- harmon.PoissonSeq(object)
+#   object <- harmon.QN(object)
+#   object <- harmon.RUVg(object)
+#   object <- harmon.RUVs(object)
+#   object <- harmon.RUVr(object)
 #
 #   return(object)
 # }

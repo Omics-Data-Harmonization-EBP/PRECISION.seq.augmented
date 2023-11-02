@@ -2,7 +2,7 @@ precision <- methods::setClass(
   "precision",
   slots = c(
     raw.data = "list",
-    norm.data = "list",
+    harmon.data = "list",
     cluster.result = "list"
   )
 )

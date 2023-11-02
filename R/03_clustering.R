@@ -9,11 +9,11 @@ memory.limit(size=1800000)
 cluster.kmeans <- function(object, k = NULL){
   if(is.null(k)){k = length(unique(object@raw.data$label))}
 
-  dat.list <- lapply(object@norm.data, function(x) {
-    if(any(x$dat.normed < 0)){
-      x$dat.normed
+  dat.list <- lapply(object@harmon.data, function(x) {
+    if(any(x$dat.harmonized < 0)){
+      x$dat.harmonized
     } else{
-      log2(x$dat.normed + 1)
+      log2(x$dat.harmonized + 1)
     }})
   dat.list <- lapply(dat.list, function(x) scale(t(x)) %>% t %>% na.omit %>% t)
 
@@ -25,11 +25,11 @@ cluster.kmeans <- function(object, k = NULL){
 cluster.hc <- function(object, k = NULL){
   if(is.null(k)){k = length(unique(object@raw.data$label))}
 
-  dat.list <- lapply(object@norm.data, function(x) {
-    if(any(x$dat.normed < 0)){
-      x$dat.normed
+  dat.list <- lapply(object@harmon.data, function(x) {
+    if(any(x$dat.harmonized < 0)){
+      x$dat.harmonized
     } else{
-      log2(x$dat.normed + 1)
+      log2(x$dat.harmonized + 1)
     }})
   dat.list <- lapply(dat.list, function(x) scale(t(x)) %>% t %>% na.omit %>% t)
 
@@ -47,11 +47,11 @@ cluster.hc <- function(object, k = NULL){
 cluster.som <- function(object, k = NULL){
   if(is.null(k)){k = length(unique(object@raw.data$label))}
 
-  dat.list <- lapply(object@norm.data, function(x) {
-    if(any(x$dat.normed < 0)){
-      x$dat.normed
+  dat.list <- lapply(object@harmon.data, function(x) {
+    if(any(x$dat.harmonized < 0)){
+      x$dat.harmonized
     } else{
-      log2(x$dat.normed + 1)
+      log2(x$dat.harmonized + 1)
     }})
   dat.list <- lapply(dat.list, function(x) scale(t(x)) %>% t %>% na.omit %>% t)
 
@@ -63,11 +63,11 @@ cluster.som <- function(object, k = NULL){
 cluster.mnm <- function(object, k = NULL){
   if(is.null(k)){k = length(unique(object@raw.data$label))}
 
-  dat.list <- lapply(object@norm.data, function(x) {
-    if(any(x$dat.normed < 0)){
-      x$dat.normed
+  dat.list <- lapply(object@harmon.data, function(x) {
+    if(any(x$dat.harmonized < 0)){
+      x$dat.harmonized
     } else{
-      log2(x$dat.normed + 1)
+      log2(x$dat.harmonized + 1)
     }})
   dat.list <- lapply(dat.list, function(x) scale(t(x)) %>% t %>% na.omit %>% t)
 
@@ -150,11 +150,11 @@ RSKC.permute <- function (x, K = NULL, nperms = 25, wbounds = NULL, alpha = 0.1,
 cluster.rskmeans <- function(object, k = NULL){
   if(is.null(k)){k = length(unique(object@raw.data$label))}
 
-  dat.list <- lapply(object@norm.data, function(x) {
-    if(any(x$dat.normed < 0)){
-      x$dat.normed
+  dat.list <- lapply(object@harmon.data, function(x) {
+    if(any(x$dat.harmonized < 0)){
+      x$dat.harmonized
     } else{
-      log2(x$dat.normed + 1)
+      log2(x$dat.harmonized + 1)
     }})
   dat.list <- lapply(dat.list, function(x) scale(t(x)) %>% t %>% na.omit %>% t)
 
@@ -174,11 +174,11 @@ cluster.rskmeans <- function(object, k = NULL){
 cluster.pam.euclidean <- function(object, k = NULL){
   if(is.null(k)){k = length(unique(object@raw.data$label))}
 
-  dat.list <- lapply(object@norm.data, function(x) {
-    if(any(x$dat.normed < 0)){
-      x$dat.normed
+  dat.list <- lapply(object@harmon.data, function(x) {
+    if(any(x$dat.harmonized < 0)){
+      x$dat.harmonized
     } else{
-      log2(x$dat.normed + 1)
+      log2(x$dat.harmonized + 1)
     }})
   dat.list <- lapply(dat.list, function(x) scale(t(x)) %>% t %>% na.omit %>% t)
 
@@ -189,11 +189,11 @@ cluster.pam.euclidean <- function(object, k = NULL){
 cluster.pam.pearson <- function(object, k = NULL){
   if(is.null(k)){k = length(unique(object@raw.data$label))}
 
-  dat.list <- lapply(object@norm.data, function(x) {
-    if(any(x$dat.normed < 0)){
-      x$dat.normed
+  dat.list <- lapply(object@harmon.data, function(x) {
+    if(any(x$dat.harmonized < 0)){
+      x$dat.harmonized
     } else{
-      log2(x$dat.normed + 1)
+      log2(x$dat.harmonized + 1)
     }})
   dat.list <- lapply(dat.list, function(x) scale(t(x)) %>% t %>% na.omit %>% t)
 
@@ -205,11 +205,11 @@ cluster.pam.pearson <- function(object, k = NULL){
 cluster.pam.spearman <- function(object, k = NULL){
   if(is.null(k)){k = length(unique(object@raw.data$label))}
 
-  dat.list <- lapply(object@norm.data, function(x) {
-    if(any(x$dat.normed < 0)){
-      x$dat.normed
+  dat.list <- lapply(object@harmon.data, function(x) {
+    if(any(x$dat.harmonized < 0)){
+      x$dat.harmonized
     } else{
-      log2(x$dat.normed + 1)
+      log2(x$dat.harmonized + 1)
     }})
   dat.list <- lapply(dat.list, function(x) scale(t(x)) %>% t %>% na.omit %>% t)
 
