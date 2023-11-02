@@ -90,7 +90,7 @@ norm.PoissonSeq <- function(object) {
 norm.QN <- function(object){
   raw <- object@raw.data$data
 
-  dat.normed <- preprocessCore::normalize.quantiles(raw)
+  dat.normed <- preprocessCore::normalize.quantiles(as.matrix(raw))
   colnames(dat.normed) <- colnames(raw)
   rownames(dat.normed) <- rownames(raw)
   object@norm.data$QN <- list(dat.normed = dat.normed)
