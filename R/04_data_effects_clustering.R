@@ -33,7 +33,7 @@ handling.effects <- function(clean.input, benchmark, test, group, d){
 
   effects <- log.test - log.benchmark
   log.benchmark.handled <- log2(clean.input + 1)
-  log.benchmark.handled <- log.benchmark.handled + effects * d
+  log.benchmark.handled <- log.benchmark.handled + effects[,sample(ncol(effects))] * d
   log.benchmark.handled[log.benchmark.handled > 25] <- 25
   log.benchmark.handled[log.benchmark.handled < 0] <- 0
 
