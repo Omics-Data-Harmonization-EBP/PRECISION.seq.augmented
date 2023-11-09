@@ -7,46 +7,82 @@ library(BiocGenerics)
 library(tidyverse)
 
 ## Scaling based methods
-harmon.TMM <- function(object) {
-  raw <- object@raw.data$data
-  groups <- object@raw.data$label
-
+TMM <- function(raw, groups) {
   dat.DGE <- DGEList(counts = raw,
                      group = factor(groups),
                      genes = rownames(raw))
   d <- calcNormFactors(dat.DGE, method = "TMM")
   scaling.factor <- d$samples$norm.factors * d$samples$lib.size / 1e6
   dat.harmonized <- cpm(d)
-  object@harmon.data$TMM <- list(dat.harmonized = dat.harmonized, scaling.factor = scaling.factor)
+  res <- list(dat.harmonized = dat.harmonized, scaling.factor = scaling.factor)
+  return(res)
+}
+harmon.TMM <- function(object, task){
+  if(task == "cluster"){
+    object@harmon.cluster.data$TMM <- TMM(raw = object@raw.cluster.data$data,
+                                          groups = object@raw.cluster.data$label)
+  }
+  if(task == "classification"){
+    object@harmon.train.data$TMM <- TMM(raw = object@raw.train.data$data,
+                                        groups = object@raw.train.data$label)
+    object@harmon.test.data$TMM <- TMM(raw = object@raw.test.data$data,
+                                       groups = object@raw.test.data$label)
+  }
   return(object)
 }
 
-harmon.TC <- function(object) {
-  raw <- object@raw.data$data
-  groups <- object@raw.data$label
 
+
+TC <- function(raw, groups) {
   dat.DGE <- DGEList(counts = raw,
                      group = factor(groups),
                      genes = rownames(raw))
   scaling.factor <- dat.DGE$samples$lib.size/1e6
   dat.harmonized <- cpm(dat.DGE, normalized.lib.sizes = F)
-  object@harmon.data$TC <- list(dat.harmonized = dat.harmonized, scaling.factor = scaling.factor)
+  res <- list(dat.harmonized = dat.harmonized, scaling.factor = scaling.factor)
+  return(res)
+}
+harmon.TC <- function(object){
+  if(task == "cluster"){
+    object@harmon.cluster.data$TC <- TC(raw = object@raw.cluster.data$data,
+                                          groups = object@raw.cluster.data$label)
+  }
+  if(task == "classification"){
+    object@harmon.train.data$TC <- TC(raw = object@raw.train.data$data,
+                                      groups = object@raw.train.data$label)
+    object@harmon.test.data$TC <- TC(raw = object@raw.test.data$data,
+                                    groups = object@raw.test.data$label)
+  }
   return(object)
 }
 
-harmon.UQ <- function(object) {
-  raw <- object@raw.data$data
-  groups <- object@raw.data$label
 
+
+UQ <- function(raw, groups) {
   dat.DGE <- DGEList(counts = raw,
                      group = factor(groups),
                      genes = rownames(raw))
   q.factor <- apply(dat.DGE$counts, 2, function(x) quantile(x[x != 0], probs = 0.75))
   scaling.factor <- q.factor/1e6
   dat.harmonized <- t(t(raw)/scaling.factor)
-  object@harmon.data$UQ <- list(dat.harmonized = dat.harmonized, scaling.factor = scaling.factor)
+  res <- list(dat.harmonized = dat.harmonized, scaling.factor = scaling.factor)
+  return(res)
+}
+harmon.UQ <- function(object){
+  if(task == "cluster"){
+    object@harmon.cluster.data$UQ <- UQ(raw = object@raw.cluster.data$data,
+                                        groups = object@raw.cluster.data$label)
+  }
+  if(task == "classification"){
+    object@harmon.train.data$UQ <- UQ(raw = object@raw.train.data$data,
+                                      groups = object@raw.train.data$label)
+    object@harmon.test.data$UQ <- UQ(raw = object@raw.test.data$data,
+                                     groups = object@raw.test.data$label)
+  }
   return(object)
 }
+
+
 
 harmon.med <- function(object) {
   raw <- object@raw.data$data

@@ -7,15 +7,16 @@ precision <- methods::setClass(
     harmon.test.data = "list",
     classification.train.result = "list",
     classification.test.result = "list",
-    raw.data = "list",
-    harmon.data = "list",
+
+    raw.cluster.data = "list",
+    harmon.cluster.data = "list",
     cluster.result = "list"
   )
 )
 
 create_precision.cluster <- function(data, label) {
   object <- methods::new(Class = "precision",
-                         raw.data = list(data = data, label = label))
+                         raw.cluster.data = list(data = data, label = label))
   return(object)
 }
 
