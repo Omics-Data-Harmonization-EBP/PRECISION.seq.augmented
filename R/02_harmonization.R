@@ -7,7 +7,7 @@ library(BiocGenerics)
 library(tidyverse)
 
 ## Scaling based methods
-TMM <- function(raw, groups) {
+harmon.method.TMM <- function(raw, groups) {
   dat.DGE <- DGEList(counts = raw,
                      group = factor(groups),
                      genes = rownames(raw))
@@ -17,23 +17,19 @@ TMM <- function(raw, groups) {
   res <- list(dat.harmonized = dat.harmonized, scaling.factor = scaling.factor)
   return(res)
 }
-harmon.TMM <- function(object, task){
-  if(task == "cluster"){
-    object@harmon.cluster.data$TMM <- TMM(raw = object@raw.cluster.data$data,
-                                          groups = object@raw.cluster.data$label)
-  }
-  if(task == "classification"){
-    object@harmon.train.data$TMM <- TMM(raw = object@raw.train.data$data,
-                                        groups = object@raw.train.data$label)
-    object@harmon.test.data$TMM <- TMM(raw = object@raw.test.data$data,
-                                       groups = object@raw.test.data$label)
+harmon.TMM <- function(object){
+  object@harmon.train.data$TMM <- harmon.method.TMM(raw = object@raw.train.data$data,
+                                                    groups = object@raw.train.data$label)
+  if(!is.null(obejct@raw.test.data)){
+    object@harmon.test.data$TMM <- harmon.method.TMM(raw = object@raw.test.data$data,
+                                                     groups = object@raw.test.data$label)
   }
   return(object)
 }
 
 
 
-TC <- function(raw, groups) {
+harmon.method.TC <- function(raw, groups) {
   dat.DGE <- DGEList(counts = raw,
                      group = factor(groups),
                      genes = rownames(raw))
@@ -43,22 +39,18 @@ TC <- function(raw, groups) {
   return(res)
 }
 harmon.TC <- function(object){
-  if(task == "cluster"){
-    object@harmon.cluster.data$TC <- TC(raw = object@raw.cluster.data$data,
-                                          groups = object@raw.cluster.data$label)
-  }
-  if(task == "classification"){
-    object@harmon.train.data$TC <- TC(raw = object@raw.train.data$data,
-                                      groups = object@raw.train.data$label)
-    object@harmon.test.data$TC <- TC(raw = object@raw.test.data$data,
-                                    groups = object@raw.test.data$label)
+  object@harmon.train.data$TC <- harmon.method.TC(raw = object@raw.train.data$data,
+                                                  groups = object@raw.train.data$label)
+  if(!is.null(obejct@raw.test.data)){
+    object@harmon.test.data$TC <- harmon.method.TC(raw = object@raw.test.data$data,
+                                                   groups = object@raw.test.data$label)
   }
   return(object)
 }
 
 
 
-UQ <- function(raw, groups) {
+harmon.method.UQ <- function(raw, groups) {
   dat.DGE <- DGEList(counts = raw,
                      group = factor(groups),
                      genes = rownames(raw))
@@ -69,61 +61,79 @@ UQ <- function(raw, groups) {
   return(res)
 }
 harmon.UQ <- function(object){
-  if(task == "cluster"){
-    object@harmon.cluster.data$UQ <- UQ(raw = object@raw.cluster.data$data,
-                                        groups = object@raw.cluster.data$label)
-  }
-  if(task == "classification"){
-    object@harmon.train.data$UQ <- UQ(raw = object@raw.train.data$data,
-                                      groups = object@raw.train.data$label)
-    object@harmon.test.data$UQ <- UQ(raw = object@raw.test.data$data,
-                                     groups = object@raw.test.data$label)
+  object@harmon.train.data$UQ <- harmon.method.UQ(raw = object@raw.train.data$data,
+                                                  groups = object@raw.train.data$label)
+  if(!is.null(obejct@raw.test.data)){
+    object@harmon.test.data$UQ <- harmon.method.UQ(raw = object@raw.test.data$data,
+                                                   groups = object@raw.test.data$label)
   }
   return(object)
 }
 
 
 
-harmon.med <- function(object) {
-  raw <- object@raw.data$data
-  groups <- object@raw.data$label
-
+harmon.method.med <- function(raw, groups) {
   dat.DGE <- DGEList(counts = raw,
                      group = factor(groups),
                      genes = rownames(raw))
   m.factor <- apply(dat.DGE$counts, 2, function(x) median(x[x != 0]))
   scaling.factor <- m.factor/1e6
   dat.harmonized <- t(t(raw)/scaling.factor)
-  object@harmon.data$med <- list(dat.harmonized = dat.harmonized, scaling.factor = scaling.factor)
+  res <- list(dat.harmonized = dat.harmonized, scaling.factor = scaling.factor)
+  return(res)
+}
+harmon.med <- function(object){
+  object@harmon.train.data$med <- harmon.method.med(raw = object@raw.train.data$data,
+                                                    groups = object@raw.train.data$label)
+  if(!is.null(obejct@raw.test.data)){
+    object@harmon.test.data$med <- harmon.method.med(raw = object@raw.test.data$data,
+                                                     groups = object@raw.test.data$label)
+  }
   return(object)
 }
 
-harmon.DESeq <- function(object) {
-  raw <- object@raw.data$data
-  groups <- object@raw.data$label
 
+
+harmon.method.DESeq <- function(raw, groups) {
   condition <- data.frame(SampleName = colnames(raw), Condition = factor(groups))
   rownames(condition) = colnames(raw)
   dat.DGE <- DESeq2::DESeqDataSetFromMatrix(countData = raw, colData = condition, design = ~ Condition)
   dat.DGE <- DESeq2::estimateSizeFactors(dat.DGE)
   scaling.factor <- DESeq2::sizeFactors(dat.DGE)
   dat.harmonized <- DESeq2::counts(dat.DGE, normalized = T)
-  object@harmon.data$DESeq <- list(dat.harmonized = dat.harmonized, scaling.factor = scaling.factor)
+  res <- list(dat.harmonized = dat.harmonized, scaling.factor = scaling.factor)
+  return(res)
+}
+harmon.DESeq <- function(object){
+  object@harmon.train.data$DESeq <- harmon.method.DESeq(raw = object@raw.train.data$data,
+                                                        groups = object@raw.train.data$label)
+  if(!is.null(obejct@raw.test.data)){
+    object@harmon.test.data$DESeq <- harmon.method.DESeq(raw = object@raw.test.data$data,
+                                                         groups = object@raw.test.data$label)
+  }
   return(object)
 }
 
-harmon.PoissonSeq <- function(object) {
-  raw <- object@raw.data$data
 
+harmon.method.PoissonSeq <- function(raw) {
   scaling.factor <- PoissonSeq::PS.Est.Depth(raw)
   dat.harmonized <- t(t(raw)/scaling.factor)
-  object@harmon.data$PoissonSeq <- list(dat.harmonized = dat.harmonized)
+  res <- list(dat.harmonized = dat.harmonized, scaling.factor = scaling.factor)
+  return(res)
+}
+harmon.PoissonSeq <- function(object){
+  object@harmon.train.data$PoissonSeq <- harmon.method.PoissonSeq(raw = object@raw.train.data$data)
+  if(!is.null(obejct@raw.test.data)){
+    object@harmon.test.data$PoissonSeq <- harmon.method.PoissonSeq(raw = object@raw.test.data$data)
+  }
   return(object)
 }
+
+
 
 
 ## model-based methods
-harmon.QN <- function(object){
+harmon.method.QN <- function(object){
   raw <- object@raw.data$data
 
   dat.harmonized <- preprocessCore::normalize.quantiles(as.matrix(raw))
@@ -132,11 +142,21 @@ harmon.QN <- function(object){
   object@harmon.data$QN <- list(dat.harmonized = dat.harmonized)
   return(object)
 }
+harmon.QN <- function(object){
+  object@harmon.train.data$QN <- harmon.method.QN(raw = object@raw.train.data$data,
+                                                  groups = object@raw.train.data$label)
+  if(!is.null(obejct@raw.test.data)){
+    object@harmon.test.data$QN <- harmon.method.QN(raw = object@raw.test.data$data,
+                                                   groups = object@raw.test.data$label)
+  }
+  return(object)
+}
 
-harmon.SVA <- function(object){ ### methods need biological label
-  dat.sva <- object@raw.data$data
+
+
+harmon.method.SVA <- function(raw, groups){ ### methods need biological label
+  dat.sva <- raw
   dat.sva <- dat.sva[rowSums(dat.sva) > 0,]
-  groups <- object@raw.data$label
 
   mod1 <- model.matrix(~ groups)
   mod0 <- model.matrix(~ 1, data.frame(mod1))
@@ -149,13 +169,23 @@ harmon.SVA <- function(object){ ### methods need biological label
   beta <- (hat %*% t(dat.sva))
   P <- ncol(mod1)
   dat.harmonized <- dat.sva - t(as.matrix(adjust[,-c(1:P)]) %*% beta[-c(1:P),])
-  object@harmon.data$SVA <- list(dat.harmonized = dat.harmonized, adjust.factor = svseq)
+  res <- list(dat.harmonized = dat.harmonized, adjust.factor = svseq)
+  return(res)
+}
+harmon.SVA <- function(object){
+  object@harmon.train.data$SVA <- harmon.method.SVA(raw = object@raw.train.data$data,
+                                                    groups = object@raw.train.data$label)
+  if(!is.null(obejct@raw.test.data)){
+    object@harmon.test.data$SVA <- harmon.method.SVA(raw = object@raw.test.data$data,
+                                                     groups = object@raw.test.data$label)
+  }
   return(object)
 }
 
-harmon.RUVg <- function(object) { ### methods need biological label
-  dat.ruv <- object@raw.data$data
-  groups <- object@raw.data$label
+
+
+harmon.method.RUVg <- function(raw, groups) { ### methods need biological label
+  dat.ruv <- raw
 
   condition <- factor(groups)
   set <- newSeqExpressionSet(as.matrix(dat.ruv),
@@ -173,13 +203,23 @@ harmon.RUVg <- function(object) { ### methods need biological label
   spikes <- rownames(set)[which(!(rownames(set) %in% rownames(top)[1:(0.15*nrow(dat.ruv))]))]
   t <- RUVg(set, spikes, k = 1)
   dat.harmonized <- normCounts(t)
-  object@harmon.data$RUVg <- list(dat.harmonized = dat.harmonized, adjust.factor = t$W)
+  res <- list(dat.harmonized = dat.harmonized, adjust.factor = t$W)
+  return(res)
+}
+harmon.RUVg <- function(object){
+  object@harmon.train.data$RUVg <- harmon.method.RUVg(raw = object@raw.train.data$data,
+                                                      groups = object@raw.train.data$label)
+  if(!is.null(obejct@raw.test.data)){
+    object@harmon.test.data$RUVg <- harmon.method.RUVg(raw = object@raw.test.data$data,
+                                                       groups = object@raw.test.data$label)
+  }
   return(object)
 }
 
-harmon.RUVs <- function(object) { ### methods need biological label
-  dat.ruv <- object@raw.data$data
-  groups <- object@raw.data$label
+
+
+harmon.RUVs <- function(raw, groups) { ### methods need biological label
+  dat.ruv <- raw
 
   condition <- factor(groups)
   set <- newSeqExpressionSet(as.matrix(dat.ruv),
@@ -199,13 +239,23 @@ harmon.RUVs <- function(object) { ### methods need biological label
   controls <- rownames(dat.ruv)
   t <- RUVs(set, controls, k = 1, differences)
   dat.harmonized <- normCounts(t)
-  object@harmon.data$RUVs <- list(dat.harmonized = dat.harmonized, adjust.factor = t$W)
+  res <- list(dat.harmonized = dat.harmonized, adjust.factor = t$W)
+  return(res)
+}
+harmon.RUVs <- function(object){
+  object@harmon.train.data$RUVs <- harmon.method.RUVs(raw = object@raw.train.data$data,
+                                                      groups = object@raw.train.data$label)
+  if(!is.null(obejct@raw.test.data)){
+    object@harmon.test.data$RUVs <- harmon.method.RUVs(raw = object@raw.test.data$data,
+                                                       groups = object@raw.test.data$label)
+  }
   return(object)
 }
 
-harmon.RUVr <- function(object) { ### methods need biological label
-  dat.ruv <- object@raw.data$data
-  groups <- object@raw.data$label
+
+
+harmon.method.RUVr <- function(raw, groups) { ### methods need biological label
+  dat.ruv <- raw
 
   condition <- factor(groups)
   set <- newSeqExpressionSet(as.matrix(dat.ruv),
@@ -232,14 +282,33 @@ harmon.RUVr <- function(object) { ### methods need biological label
   controls <- rownames(dat.ruv)
   t <- RUVr(setUQ, controls, k = 1, res)
   dat.harmonized <- normCounts(t)
-  object@harmon.data$RUVr <- list(dat.harmonized = dat.harmonized, adjust.factor = t$W)
+  res <- list(dat.harmonized = dat.harmonized, adjust.factor = t$W)
+  return(res)
+}
+harmon.RUVr <- function(object){
+  object@harmon.train.data$RUVr <- harmon.method.RUVr(raw = object@raw.train.data$data,
+                                                      groups = object@raw.train.data$label)
+  if(!is.null(obejct@raw.test.data)){
+    object@harmon.test.data$RUVr <- harmon.method.RUVr(raw = object@raw.test.data$data,
+                                                       groups = object@raw.test.data$label)
+  }
   return(object)
 }
 
-harmon.ComBat.Seq <- function(object, batches){ ### methods need batch information
-  dat.combat <- object@raw.data$data
+
+harmon.method.ComBat.Seq <- function(raw, batches){ ### methods need batch information
+  dat.combat <- raw
   dat.harmonized <- sva::ComBat_seq(dat.combat, batch = batches)
   object@harmon.data$ComBat.Seq <- list(dat.harmonized = dat.harmonized) #### returns the count matrix
+  return(object)
+}
+harmon.RUVr <- function(object, batches){
+  object@harmon.train.data$ComBat.Seq <- harmon.method.ComBat.Seq(raw = object@raw.train.data$data,
+                                                                  batches = batches)
+  if(!is.null(obejct@raw.test.data)){
+    object@harmon.test.data$ComBat.Seq <- harmon.method.ComBat.Seq(raw = object@raw.test.data$data,
+                                                                   batches = batches)
+  }
   return(object)
 }
 

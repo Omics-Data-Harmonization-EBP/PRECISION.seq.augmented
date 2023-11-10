@@ -7,9 +7,9 @@ memory.limit(size=1800000)
 
 ## Kmeans
 cluster.kmeans <- function(object, k = NULL){
-  if(is.null(k)){k = length(unique(object@raw.cluster.data$label))}
+  if(is.null(k)){k = length(unique(object@raw.train.data$label))}
 
-  dat.list <- lapply(object@harmon.cluster.data, function(x) {
+  dat.list <- lapply(object@harmon.train.data, function(x) {
     if(any(x$dat.harmonized < 0)){
       x$dat.harmonized
     } else{
@@ -23,9 +23,9 @@ cluster.kmeans <- function(object, k = NULL){
 
 ## HC
 cluster.hc <- function(object, k = NULL){
-  if(is.null(k)){k = length(unique(object@raw.cluster.data$label))}
+  if(is.null(k)){k = length(unique(object@raw.train.data$label))}
 
-  dat.list <- lapply(object@harmon.cluster.data, function(x) {
+  dat.list <- lapply(object@harmon.train.data, function(x) {
     if(any(x$dat.harmonized < 0)){
       x$dat.harmonized
     } else{
@@ -45,9 +45,9 @@ cluster.hc <- function(object, k = NULL){
 
 ## SOM
 cluster.som <- function(object, k = NULL){
-  if(is.null(k)){k = length(unique(object@raw.cluster.data$label))}
+  if(is.null(k)){k = length(unique(object@raw.train.data$label))}
 
-  dat.list <- lapply(object@harmon.cluster.data, function(x) {
+  dat.list <- lapply(object@harmon.train.data, function(x) {
     if(any(x$dat.harmonized < 0)){
       x$dat.harmonized
     } else{
@@ -61,9 +61,9 @@ cluster.som <- function(object, k = NULL){
 
 ## MNM
 cluster.mnm <- function(object, k = NULL){
-  if(is.null(k)){k = length(unique(object@raw.cluster.data$label))}
+  if(is.null(k)){k = length(unique(object@raw.train.data$label))}
 
-  dat.list <- lapply(object@harmon.cluster.data, function(x) {
+  dat.list <- lapply(object@harmon.train.data, function(x) {
     if(any(x$dat.harmonized < 0)){
       x$dat.harmonized
     } else{
@@ -148,9 +148,9 @@ RSKC.permute <- function (x, K = NULL, nperms = 25, wbounds = NULL, alpha = 0.1,
 }
 
 cluster.rskmeans <- function(object, k = NULL){
-  if(is.null(k)){k = length(unique(object@raw.cluster.data$label))}
+  if(is.null(k)){k = length(unique(object@raw.train.data$label))}
 
-  dat.list <- lapply(object@harmon.cluster.data, function(x) {
+  dat.list <- lapply(object@harmon.train.data, function(x) {
     if(any(x$dat.harmonized < 0)){
       x$dat.harmonized
     } else{
@@ -172,9 +172,9 @@ cluster.rskmeans <- function(object, k = NULL){
 
 ## pam
 cluster.pam.euclidean <- function(object, k = NULL){
-  if(is.null(k)){k = length(unique(object@raw.cluster.data$label))}
+  if(is.null(k)){k = length(unique(object@raw.train.data$label))}
 
-  dat.list <- lapply(object@harmon.cluster.data, function(x) {
+  dat.list <- lapply(object@harmon.train.data, function(x) {
     if(any(x$dat.harmonized < 0)){
       x$dat.harmonized
     } else{
@@ -187,9 +187,9 @@ cluster.pam.euclidean <- function(object, k = NULL){
 }
 
 cluster.pam.pearson <- function(object, k = NULL){
-  if(is.null(k)){k = length(unique(object@raw.cluster.data$label))}
+  if(is.null(k)){k = length(unique(object@raw.train.data$label))}
 
-  dat.list <- lapply(object@harmon.cluster.data, function(x) {
+  dat.list <- lapply(object@harmon.train.data, function(x) {
     if(any(x$dat.harmonized < 0)){
       x$dat.harmonized
     } else{
@@ -203,9 +203,9 @@ cluster.pam.pearson <- function(object, k = NULL){
 }
 
 cluster.pam.spearman <- function(object, k = NULL){
-  if(is.null(k)){k = length(unique(object@raw.cluster.data$label))}
+  if(is.null(k)){k = length(unique(object@raw.train.data$label))}
 
-  dat.list <- lapply(object@harmon.cluster.data, function(x) {
+  dat.list <- lapply(object@harmon.train.data, function(x) {
     if(any(x$dat.harmonized < 0)){
       x$dat.harmonized
     } else{

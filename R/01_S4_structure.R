@@ -1,22 +1,20 @@
 precision <- methods::setClass(
   "precision",
   slots = c(
-    raw.train.data = "list",
+    raw.train.data = "list",  ## for the clustering, we only consider the train data
     raw.test.data = "list",
     harmon.train.data = "list",
     harmon.test.data = "list",
-    classification.train.result = "list",
-    classification.test.result = "list",
 
-    raw.cluster.data = "list",
-    harmon.cluster.data = "list",
+    classification.result = "list",
     cluster.result = "list"
   )
 )
 
 create_precision.cluster <- function(data, label) {
   object <- methods::new(Class = "precision",
-                         raw.cluster.data = list(data = data, label = label))
+                         raw.train.data = list(data = data, label = label),
+                         raw.test.data = NULL)
   return(object)
 }
 
