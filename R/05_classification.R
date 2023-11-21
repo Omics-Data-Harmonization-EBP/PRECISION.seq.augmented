@@ -344,18 +344,18 @@ ranfor.predict <- function(ranfor.intcv.model, pred.obj, pred.obj.group.id){
 
 classification.ranfor <- function(trainobject, testobject, vt.k = NULL, n.k = 30, kfold = 5, folds = NULL){
 
-  dat.listtrain <- lapply(trainobject@norm.data, function(x) {
-    if(any(x$dat.normed < 0)){
-      x$dat.normed
+  dat.listtrain <- lapply(object@harmon.train.data, function(x) {
+    if(any(x$dat.harmonized < 0)){
+      x$dat.harmonized
     } else{
-      log2(x$dat.normed + 1)
+      log2(x$dat.harmonized + 1)
     }})
-
-  dat.listtest <- lapply(testobject@norm.data, function(x) {
-    if(any(x$dat.normed < 0)){
-      x$dat.normed
+  
+  dat.listtest <- lapply(object@harmon.test.data, function(x) {
+    if(any(x$dat.harmonized < 0)){
+      x$dat.harmonized
     } else{
-      log2(x$dat.normed + 1)
+      log2(x$dat.harmonized + 1)
     }})
   ranfor <- function(datatrain,datatest,labeltrain, labeltest, vt.k = NULL, n.k = 30, kfold = 5, folds = NULL){
     ranfor.intcv.model=ranfor.intcv(kfold = kfold, X=t(datatrain), y=labeltrain)
@@ -373,7 +373,7 @@ classification.ranfor <- function(trainobject, testobject, vt.k = NULL, n.k = 30
   object@classification.result$lasso <- c1
   return(object)
 }
-
+             
 ## classification methods for all
 classification.all <- function(object) {
   object <- classification.pam(object)
