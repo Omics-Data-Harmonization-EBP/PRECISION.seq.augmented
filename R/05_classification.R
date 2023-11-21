@@ -1,6 +1,6 @@
 
-
-
+library(e1071)
+library(caret)
 
 trycatch.func <- function(expr, msg = "") {
   out <- tryCatch({
@@ -92,17 +92,17 @@ pam.predict <- function(pam.intcv.model, pred.obj, pred.obj.group.id){
 classification.pam <- function(object, vt.k = NULL, n.k = 30, kfold = 5, folds = NULL){
 
   dat.listtrain <- lapply(object@harmon.train.data, function(x) {
-    if(any(x$dat.normed < 0)){
-      x$dat.normed
+    if(any(x$dat.harmonized < 0)){
+      x$dat.harmonized
     } else{
-      log2(x$dat.normed + 1)
+      log2(x$dat.harmonized + 1)
     }})
 
-  dat.listtest <- lapply(testobject@harmon.test.data, function(x) {
-    if(any(x$dat.normed < 0)){
-      x$dat.normed
+  dat.listtest <- lapply(object@harmon.test.data, function(x) {
+    if(any(x$dat.harmonized < 0)){
+      x$dat.harmonized
     } else{
-      log2(x$dat.normed + 1)
+      log2(x$dat.harmonized + 1)
     }})
 
 
@@ -123,12 +123,13 @@ classification.pam <- function(object, vt.k = NULL, n.k = 30, kfold = 5, folds =
   }
 
   c1<-lapply(1:length(dat.listtrain),function (i) pam(dat.listtrain[[i]],dat.listtest[[i]],object@raw.train.data$label,object@raw.test.data$label))
-  object@classification.train.result$pam <- lapply(c1, `[[`, 1)
-  object@classification.test.result$pam <- lapply(c1, `[[`, 2)
+  names(c1) <- c('TC','UQ','med','TMM','DESeq','PoissonSeq','QN','RUVg','RUVs','RUVr')
+  object@classification.result$pam <- c1
   return(object)
 }
 
 #knn
+
 knn.intcv <- function(kfold = 5, X, y, seed=1){
   ptm <- proc.time()
   set.seed(seed)
@@ -158,20 +159,21 @@ knn.predict <- function(knn.intcv.model, pred.obj, pred.obj.group.id){
 classification.knn <- function(object, vt.k = NULL, n.k = 30, kfold = 5, folds = NULL){
 
   dat.listtrain <- lapply(object@harmon.train.data, function(x) {
-    if(any(x$dat.normed < 0)){
-      x$dat.normed
+    if(any(x$dat.harmonized < 0)){
+      x$dat.harmonized
     } else{
-      log2(x$dat.normed + 1)
+      log2(x$dat.harmonized + 1)
     }})
 
   dat.listtest <- lapply(object@harmon.test.data, function(x) {
-    if(any(x$dat.normed < 0)){
-      x$dat.normed
+    if(any(x$dat.harmonized < 0)){
+      x$dat.harmonized
     } else{
-      log2(x$dat.normed + 1)
+      log2(x$dat.harmonized + 1)
     }})
+
   knn <- function(datatrain,datatest,labeltrain, labeltest, vt.k = NULL, n.k = 30, kfold = 5, folds = NULL){
-    knn.intcv.model=knn.intcv(kfold = kfold, X=t(datatrain), y=labeltrain, seed=1234)
+    knn.intcv.model=knn.intcv(kfold = kfold, X=t(datatrain), y=labeltrain)
     mccv=knn.intcv.model$mc
     pred.obj=t(datatest)
     pred.obj.group.id=labeltest
@@ -183,8 +185,8 @@ classification.knn <- function(object, vt.k = NULL, n.k = 30, kfold = 5, folds =
 
 
   c1<-lapply(1:length(dat.listtrain),function (i) knn(dat.listtrain[[i]],dat.listtest[[i]],object@raw.train.data$label,object@raw.test.data$label))
-  object@classification.train.result$knn <- lapply(c1, `[[`, 1)
-  object@classification.test.result$knn <- lapply(c1, `[[`, 2)
+  names(c1) <- c('TC','UQ','med','TMM','DESeq','PoissonSeq','QN','RUVg','RUVs','RUVr')
+  object@classification.result$knn <- c1
   return(object)
 }
 
@@ -213,21 +215,21 @@ svm.predict <- function(svm.intcv.model, pred.obj, pred.obj.group.id){
 
 classification.svm <- function(trainobject, testobject, vt.k = NULL, n.k = 30, kfold = 5, folds = NULL){
 
-  dat.listtrain <- lapply(trainobject@norm.data, function(x) {
-    if(any(x$dat.normed < 0)){
-      x$dat.normed
+  dat.listtrain <- lapply(object@harmon.train.data, function(x) {
+    if(any(x$dat.harmonized < 0)){
+      x$dat.harmonized
     } else{
-      log2(x$dat.normed + 1)
+      log2(x$dat.harmonized + 1)
     }})
 
-  dat.listtest <- lapply(testobject@norm.data, function(x) {
-    if(any(x$dat.normed < 0)){
-      x$dat.normed
+  dat.listtest <- lapply(object@harmon.test.data, function(x) {
+    if(any(x$dat.harmonized < 0)){
+      x$dat.harmonized
     } else{
-      log2(x$dat.normed + 1)
+      log2(x$dat.harmonized + 1)
     }})
   svm <- function(datatrain,datatest,labeltrain, labeltest, vt.k = NULL, n.k = 30, kfold = 5, folds = NULL){
-    svm.intcv.model=svm.intcv(kfold = kfold, X=t(datatrain), y=labeltrain, seed=1234)
+    svm.intcv.model=svm.intcv(kfold = kfold, X=t(datatrain), y=labeltrain)
     mccv=svm.intcv.model$mc
     pred.obj=t(datatest)
     pred.obj.group.id=labeltest
@@ -239,8 +241,8 @@ classification.svm <- function(trainobject, testobject, vt.k = NULL, n.k = 30, k
 
 
   c1<-lapply(1:length(dat.listtrain),function (i) svm(dat.listtrain[[i]],dat.listtest[[i]],object@raw.train.data$label,object@raw.test.data$label))
-  object@classification.train.result$svm <- lapply(c1, `[[`, 1)
-  object@classification.test.result$svm <- lapply(c1, `[[`, 2)
+  names(c1) <- c('TC','UQ','med','TMM','DESeq','PoissonSeq','QN','RUVg','RUVs','RUVr')
+  object@classification.result$svm <- c1
   return(object)
 }
 
@@ -250,7 +252,7 @@ classification.svm <- function(trainobject, testobject, vt.k = NULL, n.k = 30, k
 
 #lasso
 
-lasso.intcv<-function(kfold = 5, X, y, seed, alp = 1){
+lasso.intcv<-function(kfold = 5, X, y, seed = 1, alp = 1){
   ptm <- proc.time()
   set.seed(seed)
 
@@ -276,21 +278,21 @@ lasso.predict<-function(lasso.intcv.model, pred.obj, pred.obj.group.id){
 
 classification.lasso <- function(trainobject, testobject, vt.k = NULL, n.k = 30, kfold = 5, folds = NULL){
 
-  dat.listtrain <- lapply(trainobject@norm.data, function(x) {
-    if(any(x$dat.normed < 0)){
-      x$dat.normed
+  dat.listtrain <- lapply(object@harmon.train.data, function(x) {
+    if(any(x$dat.harmonized < 0)){
+      x$dat.harmonized
     } else{
-      log2(x$dat.normed + 1)
+      log2(x$dat.harmonized + 1)
     }})
 
-  dat.listtest <- lapply(testobject@norm.data, function(x) {
-    if(any(x$dat.normed < 0)){
-      x$dat.normed
+  dat.listtest <- lapply(object@harmon.test.data, function(x) {
+    if(any(x$dat.harmonized < 0)){
+      x$dat.harmonized
     } else{
-      log2(x$dat.normed + 1)
+      log2(x$dat.harmonized + 1)
     }})
   lasso <- function(datatrain,datatest,labeltrain, labeltest, vt.k = NULL, n.k = 30, kfold = 5, folds = NULL){
-    lasso.intcv.model=lasso.intcv(kfold = kfold, X=t(datatrain), y=labeltrain, seed=1234)
+    lasso.intcv.model=lasso.intcv(kfold = kfold, X=t(datatrain), y=labeltrain)
     mccv=lasso.intcv.model$mc
     pred.obj=t(datatest)
     pred.obj.group.id=labeltest
@@ -301,8 +303,8 @@ classification.lasso <- function(trainobject, testobject, vt.k = NULL, n.k = 30,
   }
 
   c1<-lapply(1:length(dat.listtrain),function (i) lasso(dat.listtrain[[i]],dat.listtest[[i]],object@raw.train.data$label,object@raw.test.data$label))
-  object@classification.train.result$lasso <- lapply(c1, `[[`, 1)
-  object@classification.test.result$lasso <- lapply(c1, `[[`, 2)
+  names(c1) <- c('TC','UQ','med','TMM','DESeq','PoissonSeq','QN','RUVg','RUVs','RUVr')
+  object@classification.result$lasso <- c1
   return(object)
 }
 
@@ -356,7 +358,7 @@ classification.ranfor <- function(trainobject, testobject, vt.k = NULL, n.k = 30
       log2(x$dat.normed + 1)
     }})
   ranfor <- function(datatrain,datatest,labeltrain, labeltest, vt.k = NULL, n.k = 30, kfold = 5, folds = NULL){
-    ranfor.intcv.model=ranfor.intcv(kfold = kfold, X=t(datatrain), y=labeltrain, seed=1234)
+    ranfor.intcv.model=ranfor.intcv(kfold = kfold, X=t(datatrain), y=labeltrain)
     mccv=ranfor.intcv.model$mc
     pred.obj=t(datatest)
     pred.obj.group.id=labeltest
@@ -367,8 +369,8 @@ classification.ranfor <- function(trainobject, testobject, vt.k = NULL, n.k = 30
   }
 
   c1<-lapply(1:length(dat.listtrain),function (i) ranfor(dat.listtrain[[i]],dat.listtest[[i]],object@raw.train.data$label,object@raw.test.data$label))
-  object@classification.train.result$ranfor <- lapply(c1, `[[`, 1)
-  object@classification.test.result$ranfor <- lapply(c1, `[[`, 2)
+  names(c1) <- c('TC','UQ','med','TMM','DESeq','PoissonSeq','QN','RUVg','RUVs','RUVr')
+  object@classification.result$lasso <- c1
   return(object)
 }
 
