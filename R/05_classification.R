@@ -370,7 +370,7 @@ classification.ranfor <- function(trainobject, testobject, vt.k = NULL, n.k = 30
 
   c1<-lapply(1:length(dat.listtrain),function (i) ranfor(dat.listtrain[[i]],dat.listtest[[i]],object@raw.train.data$label,object@raw.test.data$label))
   names(c1) <- c('TC','UQ','med','TMM','DESeq','PoissonSeq','QN','RUVg','RUVs','RUVr')
-  object@classification.result$lasso <- c1
+  object@classification.result$ranfor <- c1
   return(object)
 }
              
