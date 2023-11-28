@@ -1,8 +1,8 @@
 precision <- methods::setClass(
   "precision",
   slots = c(
-    raw.train.data = "list",  ## for the clustering, we only consider the train data
-    raw.test.data = "list",
+    raw.train.data = "ANY",  ## for the clustering, we only consider the train data, it should be a list
+    raw.test.data = "ANY",
     harmon.train.data = "list",
     harmon.test.data = "list",
 

@@ -20,7 +20,7 @@ harmon.method.TMM <- function(raw, groups) {
 harmon.TMM <- function(object){
   object@harmon.train.data$TMM <- harmon.method.TMM(raw = object@raw.train.data$data,
                                                     groups = object@raw.train.data$label)
-  if(!is.null(obejct@raw.test.data)){
+  if(!is.null(object@raw.test.data)){
     object@harmon.test.data$TMM <- harmon.method.TMM(raw = object@raw.test.data$data,
                                                      groups = object@raw.test.data$label)
   }
@@ -41,7 +41,7 @@ harmon.method.TC <- function(raw, groups) {
 harmon.TC <- function(object){
   object@harmon.train.data$TC <- harmon.method.TC(raw = object@raw.train.data$data,
                                                   groups = object@raw.train.data$label)
-  if(!is.null(obejct@raw.test.data)){
+  if(!is.null(object@raw.test.data)){
     object@harmon.test.data$TC <- harmon.method.TC(raw = object@raw.test.data$data,
                                                    groups = object@raw.test.data$label)
   }
@@ -63,7 +63,7 @@ harmon.method.UQ <- function(raw, groups) {
 harmon.UQ <- function(object){
   object@harmon.train.data$UQ <- harmon.method.UQ(raw = object@raw.train.data$data,
                                                   groups = object@raw.train.data$label)
-  if(!is.null(obejct@raw.test.data)){
+  if(!is.null(object@raw.test.data)){
     object@harmon.test.data$UQ <- harmon.method.UQ(raw = object@raw.test.data$data,
                                                    groups = object@raw.test.data$label)
   }
@@ -85,7 +85,7 @@ harmon.method.med <- function(raw, groups) {
 harmon.med <- function(object){
   object@harmon.train.data$med <- harmon.method.med(raw = object@raw.train.data$data,
                                                     groups = object@raw.train.data$label)
-  if(!is.null(obejct@raw.test.data)){
+  if(!is.null(object@raw.test.data)){
     object@harmon.test.data$med <- harmon.method.med(raw = object@raw.test.data$data,
                                                      groups = object@raw.test.data$label)
   }
@@ -107,7 +107,7 @@ harmon.method.DESeq <- function(raw, groups) {
 harmon.DESeq <- function(object){
   object@harmon.train.data$DESeq <- harmon.method.DESeq(raw = object@raw.train.data$data,
                                                         groups = object@raw.train.data$label)
-  if(!is.null(obejct@raw.test.data)){
+  if(!is.null(object@raw.test.data)){
     object@harmon.test.data$DESeq <- harmon.method.DESeq(raw = object@raw.test.data$data,
                                                          groups = object@raw.test.data$label)
   }
@@ -123,7 +123,7 @@ harmon.method.PoissonSeq <- function(raw) {
 }
 harmon.PoissonSeq <- function(object){
   object@harmon.train.data$PoissonSeq <- harmon.method.PoissonSeq(raw = object@raw.train.data$data)
-  if(!is.null(obejct@raw.test.data)){
+  if(!is.null(object@raw.test.data)){
     object@harmon.test.data$PoissonSeq <- harmon.method.PoissonSeq(raw = object@raw.test.data$data)
   }
   return(object)
@@ -133,21 +133,18 @@ harmon.PoissonSeq <- function(object){
 
 
 ## model-based methods
-harmon.method.QN <- function(object){
-  raw <- object@raw.data$data
+harmon.method.QN <- function(raw){
 
   dat.harmonized <- preprocessCore::normalize.quantiles(as.matrix(raw))
   colnames(dat.harmonized) <- colnames(raw)
   rownames(dat.harmonized) <- rownames(raw)
-  object@harmon.data$QN <- list(dat.harmonized = dat.harmonized)
-  return(object)
+  res <- list(dat.harmonized = dat.harmonized)
+  return(res)
 }
 harmon.QN <- function(object){
-  object@harmon.train.data$QN <- harmon.method.QN(raw = object@raw.train.data$data,
-                                                  groups = object@raw.train.data$label)
-  if(!is.null(obejct@raw.test.data)){
-    object@harmon.test.data$QN <- harmon.method.QN(raw = object@raw.test.data$data,
-                                                   groups = object@raw.test.data$label)
+  object@harmon.train.data$QN <- harmon.method.QN(raw = object@raw.train.data$data)
+  if(!is.null(object@raw.test.data)){
+    object@harmon.test.data$QN <- harmon.method.QN(raw = object@raw.test.data$data)
   }
   return(object)
 }
@@ -175,7 +172,7 @@ harmon.method.SVA <- function(raw, groups){ ### methods need biological label
 harmon.SVA <- function(object){
   object@harmon.train.data$SVA <- harmon.method.SVA(raw = object@raw.train.data$data,
                                                     groups = object@raw.train.data$label)
-  if(!is.null(obejct@raw.test.data)){
+  if(!is.null(object@raw.test.data)){
     object@harmon.test.data$SVA <- harmon.method.SVA(raw = object@raw.test.data$data,
                                                      groups = object@raw.test.data$label)
   }
@@ -209,7 +206,7 @@ harmon.method.RUVg <- function(raw, groups) { ### methods need biological label
 harmon.RUVg <- function(object){
   object@harmon.train.data$RUVg <- harmon.method.RUVg(raw = object@raw.train.data$data,
                                                       groups = object@raw.train.data$label)
-  if(!is.null(obejct@raw.test.data)){
+  if(!is.null(object@raw.test.data)){
     object@harmon.test.data$RUVg <- harmon.method.RUVg(raw = object@raw.test.data$data,
                                                        groups = object@raw.test.data$label)
   }
@@ -245,7 +242,7 @@ harmon.RUVs <- function(raw, groups) { ### methods need biological label
 harmon.RUVs <- function(object){
   object@harmon.train.data$RUVs <- harmon.method.RUVs(raw = object@raw.train.data$data,
                                                       groups = object@raw.train.data$label)
-  if(!is.null(obejct@raw.test.data)){
+  if(!is.null(object@raw.test.data)){
     object@harmon.test.data$RUVs <- harmon.method.RUVs(raw = object@raw.test.data$data,
                                                        groups = object@raw.test.data$label)
   }
@@ -288,7 +285,7 @@ harmon.method.RUVr <- function(raw, groups) { ### methods need biological label
 harmon.RUVr <- function(object){
   object@harmon.train.data$RUVr <- harmon.method.RUVr(raw = object@raw.train.data$data,
                                                       groups = object@raw.train.data$label)
-  if(!is.null(obejct@raw.test.data)){
+  if(!is.null(object@raw.test.data)){
     object@harmon.test.data$RUVr <- harmon.method.RUVr(raw = object@raw.test.data$data,
                                                        groups = object@raw.test.data$label)
   }
@@ -302,10 +299,10 @@ harmon.method.ComBat.Seq <- function(raw, batches){ ### methods need batch infor
   object@harmon.data$ComBat.Seq <- list(dat.harmonized = dat.harmonized) #### returns the count matrix
   return(object)
 }
-harmon.RUVr <- function(object, batches){
+harmon.ComBat.Seq <- function(object, batches){
   object@harmon.train.data$ComBat.Seq <- harmon.method.ComBat.Seq(raw = object@raw.train.data$data,
                                                                   batches = batches)
-  if(!is.null(obejct@raw.test.data)){
+  if(!is.null(object@raw.test.data)){
     object@harmon.test.data$ComBat.Seq <- harmon.method.ComBat.Seq(raw = object@raw.test.data$data,
                                                                    batches = batches)
   }
