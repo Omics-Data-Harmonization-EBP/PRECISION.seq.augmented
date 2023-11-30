@@ -134,17 +134,29 @@ harmon.PoissonSeq <- function(object){
 
 ## model-based methods
 harmon.method.QN <- function(raw){
-
+  
   dat.harmonized <- preprocessCore::normalize.quantiles(as.matrix(raw))
   colnames(dat.harmonized) <- colnames(raw)
   rownames(dat.harmonized) <- rownames(raw)
   res <- list(dat.harmonized = dat.harmonized)
   return(res)
 }
+
+harmon.method.QN.frozen <- function(rawtrain,rawtest){
+  
+  dat.harmonized <- preprocessCore::normalize.quantiles(as.matrix(rawtrain))
+  colnames(dat.harmonized) <- colnames(rawtrain)
+  rownames(dat.harmonized) <- rownames(rawtrain)
+  ref.dis <- as.numeric(sort(dat.harmonized[, 1]))
+  dat.harmonized.test <- apply(rawtest, 2, function(x){ord <- rank(x); ref.dis[ord]})
+  res <- list(dat.harmonized = dat.harmonized.test)
+  return(res)
+}
+
 harmon.QN <- function(object){
   object@harmon.train.data$QN <- harmon.method.QN(raw = object@raw.train.data$data)
   if(!is.null(object@raw.test.data)){
-    object@harmon.test.data$QN <- harmon.method.QN(raw = object@raw.test.data$data)
+    object@harmon.test.data$QN <- harmon.method.QN.frozen(rawtrain = object@raw.train.data$data,rawtest = object@raw.test.data$data)
   }
   return(object)
 }
