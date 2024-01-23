@@ -134,7 +134,7 @@ harmon.PoissonSeq <- function(object){
 
 ## model-based methods
 harmon.method.QN <- function(raw){
-  
+
   dat.harmonized <- preprocessCore::normalize.quantiles(as.matrix(raw))
   colnames(dat.harmonized) <- colnames(raw)
   rownames(dat.harmonized) <- rownames(raw)
@@ -143,7 +143,7 @@ harmon.method.QN <- function(raw){
 }
 
 harmon.method.QN.frozen <- function(rawtrain,rawtest){
-  
+
   dat.harmonized <- preprocessCore::normalize.quantiles(as.matrix(rawtrain))
   colnames(dat.harmonized) <- colnames(rawtrain)
   rownames(dat.harmonized) <- rownames(rawtrain)
@@ -227,7 +227,7 @@ harmon.RUVg <- function(object){
 
 
 
-harmon.RUVs <- function(raw, groups) { ### methods need biological label
+harmon.method.RUVs <- function(raw, groups) { ### methods need biological label
   dat.ruv <- raw
 
   condition <- factor(groups)
