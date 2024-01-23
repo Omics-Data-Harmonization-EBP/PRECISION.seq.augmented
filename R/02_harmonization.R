@@ -204,6 +204,10 @@ harmon.method.RUVg <- function(raw, groups) { ### methods need biological label
                                                         row.names = colnames(dat.ruv)))
   y <- DGEList(counts = DESeq2::counts(set), group = condition)
   y <- calcNormFactors(y, method = "upperquartile")
+  if(any(is.infinite(y$samples$norm.factors))){
+    y <- DGEList(counts = DESeq2::counts(set), group = condition)
+    y <- calcNormFactors(y, method = "none")
+  }
   y <- estimateGLMCommonDisp(y, design)
   y <- estimateGLMTagwiseDisp(y, design)
   fit <- glmFit(y, design)
@@ -238,6 +242,10 @@ harmon.method.RUVs <- function(raw, groups) { ### methods need biological label
                                                         row.names = colnames(dat.ruv)))
   y <- DGEList(counts = DESeq2::counts(set), group = condition)
   y <- calcNormFactors(y, method = "upperquartile")
+  if(any(is.infinite(y$samples$norm.factors))){
+    y <- DGEList(counts = DESeq2::counts(set), group = condition)
+    y <- calcNormFactors(y, method = "none")
+  }
   y <- estimateGLMCommonDisp(y, design)
   y <- estimateGLMTagwiseDisp(y, design)
   fit <- glmFit(y, design)
@@ -274,6 +282,10 @@ harmon.method.RUVr <- function(raw, groups) { ### methods need biological label
                                                         row.names = colnames(dat.ruv)))
   y <- DGEList(counts = DESeq2::counts(set), group = condition)
   y <- calcNormFactors(y, method = "upperquartile")
+  if(any(is.infinite(y$samples$norm.factors))){
+    y <- DGEList(counts = DESeq2::counts(set), group = condition)
+    y <- calcNormFactors(y, method = "none")
+  }
   y <- estimateGLMCommonDisp(y, design)
   y <- estimateGLMTagwiseDisp(y, design)
   fit <- glmFit(y, design)
@@ -281,15 +293,20 @@ harmon.method.RUVr <- function(raw, groups) { ### methods need biological label
   top <- topTags(lrt, n = nrow(set))$table
   spikes <- rownames(set)[which(!(rownames(set) %in% rownames(top)[1:(0.15*nrow(dat.ruv))]))]
   design <- model.matrix(~ condition, data = pData(set))
+
   y <- DGEList(counts = DESeq2::counts(set), group = condition)
   y <- calcNormFactors(y, method = "upperquartile")
+  if(any(is.infinite(y$samples$norm.factors))){
+    y <- DGEList(counts = DESeq2::counts(set), group = condition)
+    y <- calcNormFactors(y, method = "none")
+  }
   y <- estimateGLMCommonDisp(y, design)
   y <- estimateGLMTagwiseDisp(y, design)
   fit <- glmFit(y, design)
   res <- residuals(fit, type = "deviance")
   setUQ <- betweenLaneNormalization(set, which = "upper")
   controls <- rownames(dat.ruv)
-  t <- RUVr(setUQ, controls, k = 1, res)
+  t <- RUVr(x = set, cIdx = controls, k = 1, residuals =  res)
   dat.harmonized <- normCounts(t)
   res <- list(dat.harmonized = dat.harmonized, adjust.factor = t$W)
   return(res)
