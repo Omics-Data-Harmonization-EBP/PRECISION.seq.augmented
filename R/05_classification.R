@@ -213,7 +213,7 @@ svm.predict <- function(svm.intcv.model, pred.obj, pred.obj.group.id){
   return(list(pred=pred, mc=mc))
 }
 
-classification.svm <- function(trainobject, testobject, vt.k = NULL, n.k = 30, kfold = 5, folds = NULL){
+classification.svm <- function(object, vt.k = NULL, n.k = 30, kfold = 5, folds = NULL){
 
   dat.listtrain <- lapply(object@harmon.train.data, function(x) {
     if(any(x$dat.harmonized < 0)){
@@ -276,7 +276,7 @@ lasso.predict<-function(lasso.intcv.model, pred.obj, pred.obj.group.id){
   return(list(pred=pred, mc=mc, prob=prob))
 }
 
-classification.lasso <- function(trainobject, testobject, vt.k = NULL, n.k = 30, kfold = 5, folds = NULL){
+classification.lasso <- function(object, vt.k = NULL, n.k = 30, kfold = 5, folds = NULL){
 
   dat.listtrain <- lapply(object@harmon.train.data, function(x) {
     if(any(x$dat.harmonized < 0)){
@@ -342,7 +342,7 @@ ranfor.predict <- function(ranfor.intcv.model, pred.obj, pred.obj.group.id){
   return(list(pred=pred, mc=mc))
 }
 
-classification.ranfor <- function(trainobject, testobject, vt.k = NULL, n.k = 30, kfold = 5, folds = NULL){
+classification.ranfor <- function(object, vt.k = NULL, n.k = 30, kfold = 5, folds = NULL){
 
   dat.listtrain <- lapply(object@harmon.train.data, function(x) {
     if(any(x$dat.harmonized < 0)){
