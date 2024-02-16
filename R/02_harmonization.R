@@ -95,6 +95,7 @@ harmon.med <- function(object){
 
 
 harmon.method.DESeq <- function(raw, groups) {
+  colnames(raw) <- paste0("V", 1:(dim(raw)[2]))
   condition <- data.frame(SampleName = colnames(raw), Condition = factor(groups))
   rownames(condition) = colnames(raw)
   dat.DGE <- DESeq2::DESeqDataSetFromMatrix(countData = raw, colData = condition, design = ~ Condition)
@@ -149,6 +150,7 @@ harmon.method.QN.frozen <- function(rawtrain,rawtest){
   rownames(dat.harmonized) <- rownames(rawtrain)
   ref.dis <- as.numeric(sort(dat.harmonized[, 1]))
   dat.harmonized.test <- apply(rawtest, 2, function(x){ord <- rank(x); ref.dis[ord]})
+  rownames(dat.harmonized.test) <- rownames(dat.harmonized)
   res <- list(dat.harmonized = dat.harmonized.test)
   return(res)
 }
