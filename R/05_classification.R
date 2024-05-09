@@ -200,9 +200,10 @@ svm.intcv <- function(kfold = 5, X, y, seed=1){
   set.seed(seed)
 
   svm_tune = tune.svm(x = data.matrix((X)), y = factor(y), tunecontrol = tune.control(cross = kfold))
+  mc = mean(predict(svm_tune$best.model, data.matrix((X))) != factor(y))
 
   time <- proc.time() - ptm
-  return(list(mc = svm_tune$best.performance, time = time, model = svm_tune$best.model))
+  return(list(mc = mc, time = time, model = svm_tune$best.model))
 }
 
 svm.predict <- function(svm.intcv.model, pred.obj, pred.obj.group.id){
@@ -331,7 +332,7 @@ ranfor.intcv <- function(kfold = 5, X, y, seed=1){
 
 
   time <- proc.time() - ptm
-  return(list(mc = 1 - max(rf$results$Accuracy), time = time, model = rf$finalModel, cfs = NULL))
+  return(list(mc = 1 - max(rf$results$Accuracy), time = time, model = rf, cfs = NULL))
 }
 
 ranfor.predict <- function(ranfor.intcv.model, pred.obj, pred.obj.group.id){
