@@ -327,8 +327,8 @@ harmon.RUVr <- function(object){
 harmon.method.ComBat.Seq <- function(raw, batches){ ### methods need batch information
   dat.combat <- raw
   dat.harmonized <- sva::ComBat_seq(dat.combat, batch = batches)
-  object@harmon.data$ComBat.Seq <- list(dat.harmonized = dat.harmonized) #### returns the count matrix
-  return(object)
+  output <- list(dat.harmonized = dat.harmonized) #### returns the count matrix
+  return(output)
 }
 harmon.ComBat.Seq <- function(object, batches){
   object@harmon.train.data$ComBat.Seq <- harmon.method.ComBat.Seq(raw = object@raw.train.data$data,
