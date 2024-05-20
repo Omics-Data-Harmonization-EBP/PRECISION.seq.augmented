@@ -102,7 +102,7 @@ batch.effects <- function(data, groups, c = 1, confound_level = 0.6){
   n <- ncol(data)
   m <- nrow(data)
 
-  batch_means <- c(-1.5 * c, 1.5 * c, -1 * c, 1 * c,  0)
+  batch_means <- c(-0.5 * c, 2 * c, -1 * c, 3 * c,  0)
   batch_sds <- rep(1, 5)
   batch_assignments <- rep(0, n)
 
