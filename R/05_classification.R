@@ -1,7 +1,7 @@
 
 library(e1071)
 library(caret)
-
+library(ranger)
 trycatch.func <- function(expr, msg = "") {
   out <- tryCatch({
     expr
@@ -58,6 +58,7 @@ new.pamr.cv <- function (fit, data, nfold = 5, ...){
 pam.intcv <- function(X, y, vt.k = NULL, n.k = 30, kfold = 5, folds = NULL, seed=1){
 
   ptm <- proc.time()
+  
   set.seed(seed)
   data.pam  <- list(x = X, y = factor(y), geneids = rownames(X), genenames = rownames(X))
   fit.pam	<- pamr::pamr.train(data.pam, threshold=vt.k, n.threshold = n.k)
@@ -322,13 +323,14 @@ ranfor.intcv <- function(kfold = 5, X, y, seed=1){
                           number=5,
                           search = 'random')
 
-  rf <- train(x = data.matrix((X)), y = factor(y),
-              method = 'rf',
-              metric = 'Accuracy',
-              tuneLength = 5,
-              preProcess = c("center", "scale"),
-              trControl = control)
 
+  rf <- train(x = data.matrix((X)), y = factor(y),
+                    method = "ranger", 
+                    metric = 'Accuracy',
+                    tuneLength = 5,
+                    preProcess = c("center", "scale"),
+                    trControl = control)
+  
 
 
   time <- proc.time() - ptm
