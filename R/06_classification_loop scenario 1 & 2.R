@@ -46,7 +46,6 @@ parallel_bench <- function(k,c1=1,c2=1,d1=0,d2=0){
   object1 <- classification.lasso(object1)
   object1 <- classification.svm(object1)
   object1 <- classification.ranfor(object1)
-  object1 <- classification.all(object1)
   return(object1@classification.result)
 
 }
