@@ -147,11 +147,11 @@ knn.intcv <- function(kfold = 5, X, y, seed=1){
 
 
   ctrl <- trainControl(method = "repeatedcv",
-                       repeats = 3,
+                       repeats = 2,
                        number = kfold)
   knn <- train(x = data.matrix((X)), y = factor(y),
                method = "knn",
-               tuneLength = 9,
+               tuneLength = 5,
                trControl = ctrl)
 
   time <- proc.time() - ptm
@@ -378,7 +378,7 @@ ranfor.intcv <- function(kfold = 5, X, y, seed=1){
   rf <- train(x = data.matrix((X)), y = factor(y),
                     method = "ranger", 
                     metric = 'Accuracy',
-                    tuneLength = 5,
+                    tuneLength = 3,
                     preProcess = c("center", "scale"),
                     trControl = control)
   
