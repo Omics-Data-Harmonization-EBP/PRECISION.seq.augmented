@@ -1,7 +1,12 @@
-library(limma)
-set.seed(12345)
+#' @import limma
 
-## 01. biological effects, and handling effects
+#' Add biological effects to benchmark data
+#' 
+#' @param benchmark Numeric matrix of expression values
+#' @param group Factor or vector defining sample groups
+#' @param c Numeric amplification factor
+#' @return List containing modified data and group information
+#' @export
 biological.effects <- function(benchmark, group, c){
   log.benchmark <- log2(benchmark + 1)
   log.benchmark[log.benchmark > 25] <- 25
@@ -19,10 +24,22 @@ biological.effects <- function(benchmark, group, c){
 
   amp.data <- round(2^log.benchmark - 1)
 
-  return(list(data  = amp.data,
-              group = group))
+  return(list(
+    modified_data = amp.data,
+    sample_groups = group,
+    amplification_factor = c
+  ))
 }
 
+#' Add handling effects to benchmark data
+#' 
+#' @param clean.input Numeric matrix of clean input data
+#' @param benchmark Numeric matrix of benchmark data
+#' @param test Numeric matrix of test data
+#' @param group Factor or vector defining sample groups
+#' @param d Numeric effect size factor
+#' @return List containing modified data and group information
+#' @export
 handling.effects <- function(clean.input, benchmark, test, group, d){
   log.benchmark <- log2(benchmark + 1)
   log.benchmark[log.benchmark > 25] <- 25
@@ -39,12 +56,9 @@ handling.effects <- function(clean.input, benchmark, test, group, d){
 
   simulated.benchmark.handled <- round(2^log.benchmark.handled - 1)
 
-  return(list(data   = simulated.benchmark.handled,
-              group  = group))
+  return(list(
+    modified_data = simulated.benchmark.handled,
+    sample_groups = group,
+    effect_size = d
+  ))
 }
-
-
-
-
-
-
