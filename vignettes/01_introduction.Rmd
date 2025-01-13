@@ -1,0 +1,105 @@
+---
+title: "Introduction to PRECISION.seq.augmented package"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Introduction to PRECISION.seq.augmented package}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+fig_width: 6 
+fig_height: 4 
+---
+
+```{r setup, include = FALSE, message = FALSE}
+library(PRECISION.seq.augmented)
+library(tidyverse)
+library(edgeR)
+library(EDASeq)
+library(RUVSeq)
+library(mclust)
+```
+
+## Overview
+
+The PRECISION.seq.augmented package provides a comprehensive framework for clustering analysis of sequencing data through a two-stage pipeline:
+
+1. **Data Harmonization**: The first crucial step involves harmonizing the sequencing data to ensure consistency and compatibility across different samples. In this package, 
+we have 9 different data harmonization methods, including:
+  - Trimmed mean of M-values (TMM)
+  - Total count harmonization (TC)
+  - Upper quantile harmonization (UQ)
+  - Median harmonization (med)
+  - Quantile harmonization (QU)
+  - DESeq harmonization (DESeq)
+  - PossionSeq harmonization (PossionSeq)
+  - Quantile normalization (QN)
+  - Surrogate Variable Analysis (SVA)
+  - RUV normalization (RUVg, RUVr, RUVs)
+  - ComBat-Seq harmonization (ComBat-Seq)
+
+2. **Clustering Analysis**: Following data harmonization, one can perform clustering analysis using the following clustering methods:
+  - K-means clustering (kmeans)
+  - Hierarchical clustering (hc)
+  - Self-organizing map (SOM)
+  - Gaussian mixture model (MNM)
+  - PAM clustering (pam.eucledian, pam.pearson, pam.spearman)
+
+  
+## Combination of all the methods
+
+```{r eval = FALSE, message = FALSE}
+harmon.all <- function(object){
+  object@harmon.train.data$Raw$dat.harmonized <- object@raw.train.data$data
+  object <- harmon.TC(object)
+  object <- harmon.UQ(object)
+  object <- harmon.med(object)
+  object <- harmon.TMM(object)
+  object <- harmon.DESeq(object)
+  object <- harmon.PoissonSeq(object)
+  object <- harmon.QN(object)
+  object <- harmon.RUVg(object)
+  object <- harmon.RUVs(object)
+  object <- harmon.RUVr(object)
+  return(object)
+}
+
+cluster.all <- function(object){
+  object <- cluster.kmeans(object)
+  object <- cluster.hc(object)
+  object <- cluster.som(object)
+  object <- cluster.mnm(object)
+  object <- cluster.pam.euclidean(object)
+  object <- cluster.pam.pearson(object)
+  object <- cluster.pam.spearman(object)
+  return(object)
+}
+```    
+
+
+## Basic Usage
+
+Here's a basic example of how to perform clustering analysis:
+
+```{r eval = FALSE}
+# Step 0: Prepare the 'precision' object
+example_cluster <- create.precision.cluster(data = data.test, label = data.group)
+
+# Step 1: Harmonize via all the methods
+example_cluster <- harmon.all(example_cluster)
+
+# Step 2: Clustering via all the methods
+example_cluster <- cluster.all(example_cluster)
+
+# Step 4: Measure the consistency between the clustering labels and the true labels
+cluster <- c('kmeans','hc','som','mnm', 'pam.euclidean','pam.pearson','pam.spearman')
+harmon <- c('Raw','TC','UQ','med','TMM','DESeq','PoissonSeq','QN', 'RUVg','RUVs','RUVr')
+ari_indexes <- data.frame(matrix(nrow=length(cluster),ncol=length(harmon)))
+true_label <- as.factor(c(rep('MXF',27),rep('PMFH',27)))
+for (i in 1:length(cluster)){
+  for (j in 1:length(harmon)){
+    eval(parse(text=paste0('est_cluster <-', 'example_cluster@cluster.result','$',cluster[i],'$',harmon[j])))
+    ari_indexes[i,j] <- mclust::adjustedRandIndex(true_label, est_cluster)
+  }
+}
+rownames(ari_indexes) <- cluster
+colnames(ari_indexes) <- harmon
+```
