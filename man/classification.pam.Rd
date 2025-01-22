@@ -4,14 +4,14 @@
 \alias{classification.pam}
 \title{Main PAM classification function}
 \usage{
-classification.pam(object, vt.k = NULL, n.k = 30, kfold = 5, folds = NULL)
+classification.pam(object, threshold_method = "cv", vt.k = NULL, kfold = 5)
 }
 \arguments{
 \item{object}{Input object containing harmonized data}
 
-\item{vt.k}{Threshold values}
+\item{threshold_method}{Character. Either "cv" for cross-validation optimized threshold or "none" for using all genes}
 
-\item{n.k}{Number of threshold values}
+\item{vt.k}{Threshold values (only used if threshold_method = "cv")}
 
 \item{kfold}{Number of folds}
 }

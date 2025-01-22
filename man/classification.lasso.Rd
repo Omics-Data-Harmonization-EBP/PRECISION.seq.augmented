@@ -4,12 +4,14 @@
 \alias{classification.lasso}
 \title{LASSO Classification Function}
 \usage{
-classification.lasso(object, kfold = 5)
+classification.lasso(object, threshold_method = "cv", kfold = 5)
 }
 \arguments{
 \item{object}{Input object containing harmonized data}
 
-\item{kfold}{Number of folds for cross-validation}
+\item{threshold_method}{Character. Either "cv" for cross-validation optimized lambda or "none" for using all genes}
+
+\item{kfold}{Number of folds for cross-validation (only used if threshold_method = "cv")}
 }
 \value{
 Updated object with LASSO classification results

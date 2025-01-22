@@ -4,12 +4,14 @@
 \alias{classification.ranfor}
 \title{Random Forest Classification Function}
 \usage{
-classification.ranfor(object, fold = 5)
+classification.ranfor(object, threshold_method = "cv", kfold = 5)
 }
 \arguments{
 \item{object}{Input object containing harmonized data}
 
-\item{kfold}{Number of folds for cross-validation}
+\item{threshold_method}{Character. Either "cv" for cross-validation tuned parameters or "none" for default parameters}
+
+\item{kfold}{Number of folds for cross-validation (only used if threshold_method = "cv")}
 }
 \value{
 Updated object with Random Forest classification results

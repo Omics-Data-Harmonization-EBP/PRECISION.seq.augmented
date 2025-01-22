@@ -46,11 +46,14 @@ tabulate.ext.err.func <- function(pred.obj, obs.grp) {
 
 #' Main PAM classification function
 #' @param object Input object containing harmonized data
-#' @param vt.k Threshold values
-#' @param n.k Number of threshold values
+#' @param threshold_method Character. Either "cv" for cross-validation optimized threshold or "none" for using all genes
+#' @param vt.k Threshold values (only used if threshold_method = "cv")
 #' @param kfold Number of folds
 #' @return Updated object with classification results
-classification.pam <- function(object, vt.k = NULL, n.k = 30, kfold = 5, folds = NULL) {
+classification.pam <- function(object, threshold_method = "cv", vt.k = NULL, kfold = 5) {
+    # Validate threshold method
+    threshold_method <- match.arg(threshold_method, c("cv", "none"))
+    
     # Transform data with log2 if non-negative
     transform_data <- function(x) {
         if (!any(x$dat.harmonized < 0)) log2(x$dat.harmonized + 1) else x$dat.harmonized
@@ -71,15 +74,14 @@ classification.pam <- function(object, vt.k = NULL, n.k = 30, kfold = 5, folds =
     )
     
     # Run PAM classification for each harmonization method
-    object@classification.result$pam <- lapply(seq_along(datasets$data$train), function(i) {
+    object@classification.result$pam[[threshold_method]] <- lapply(seq_along(datasets$data$train), function(i) {
         # Train model
         model <- pam.intcv(
             X = datasets$data$train[[i]],
             y = datasets$labels$train,
+            threshold_method = threshold_method,
             vt.k = vt.k,
-            n.k = n.k,
-            kfold = kfold,
-            folds = folds
+            kfold = kfold
         )
         
         # Get predictions for both test sets
@@ -87,56 +89,64 @@ classification.pam <- function(object, vt.k = NULL, n.k = 30, kfold = 5, folds =
         pred2 <- pam.predict(model, datasets$data$test2[[i]], datasets$labels$test2)
         
         # Return metrics
-        c(mccv = model$mc, mcexternal1 = pred1$mc, mcexternal2 = pred2$mc)
+        list(train_class = model$pred, test1_class = pred1$pred, test2_class = pred2$pred)
     })
     
     return(object)
 }
 
 # Internal helper functions
-new.pamr.cv <- function(fit, data, nfold = 5, ...) {
-    x <- data$x[fit$gene.subset, fit$sample.subset]
-    y <- factor(if (is.null(fit$newy)) data$y[fit$sample.subset] else fit$newy[fit$sample.subset])
-    
-    cv_results <- get("nsccv", envir = asNamespace("pamr"))(
-        x = x, y = y, object = fit,
-        folds = get("balanced.folds", envir = asNamespace("pamr"))(y, nfolds = nfold),
-        survival.time = data$survival.time,
-        censoring.status = data$censoring.status,
-        ngroup.survival = fit$ngroup.survival,
-        problem.type = fit$problem.type, ...
-    )
-    
-    list2env(list(call = match.call(), newy = fit$newy, 
-                  sample.subset = fit$sample.subset), cv_results)
-    return(cv_results)
-}
-
-pam.intcv <- function(X, y, vt.k = NULL, n.k = 30, kfold = 5, folds = NULL, seed = 1) {
-    set.seed(seed)
+pam.intcv <- function(X, y, threshold_method = "cv", vt.k = NULL, kfold = 5) {
+    set.seed(42)
     start_time <- proc.time()
     
-    data.pam <- list(x = X, y = factor(y), 
+    data.pam <- list(x = as.matrix(X), y = factor(y), 
                      geneids = rownames(X), genenames = rownames(X))
     
-    fit.cv <- new.pamr.cv(
-        fit = pamr::pamr.train(data.pam, threshold = vt.k, n.threshold = n.k),
-        data = data.pam, nfold = kfold
-    )
-    
-    best.threshold <- fit.cv$threshold[max(which(fit.cv$error == min(fit.cv$error)))]
-    final_model <- pamr::pamr.train(data.pam, threshold = best.threshold, n.threshold = n.k)
+    if (threshold_method == "cv") {
+        # Train initial model with a sequence of thresholds
+        raw_model <- pamr::pamr.train(data.pam, threshold = vt.k)
+        
+        # Perform cross-validation to find best threshold
+        cv_model <- pamr::pamr.cv(
+            fit = raw_model, 
+            data = data.pam, 
+            nfold = kfold
+        )
+        
+        # Find best threshold (one with minimum CV error)
+        best.threshold <- cv_model$threshold[which.min(cv_model$error)]
+
+        # Train final model with best threshold
+        final_model <- pamr::pamr.train(data.pam, threshold = best.threshold)
+        
+        # Calculate error on training set
+        pred <- pamr::pamr.predict(final_model, X, threshold = best.threshold, type = "class")
+        mc <- mean(pred != y)
+        
+    } else {
+        # Use all genes (no threshold)
+        final_model <- pamr::pamr.train(data.pam, threshold = 0)
+        
+        # Calculate error on training set
+        pred <- pamr::pamr.predict(final_model, X, threshold = 0, type = "class")
+        mc <- mean(pred != y)
+    }
     
     list(
-        mc = min(fit.cv$error),
+        pred = pred,
+        mc = mc,
         time = proc.time() - start_time,
         model = final_model,
-        cfs = trycatch.func(pamr::pamr.listgenes(final_model, data.pam, threshold = best.threshold))
+        cfs = if(threshold_method == "cv") 
+            trycatch.func(pamr::pamr.listgenes(final_model, data.pam, threshold = best.threshold))
+            else NULL
     )
 }
 
 pam.predict <- function(pam.intcv.model, pred.obj, pred.obj.group.id) {
-    threshold <- pam.intcv.model$model$threshold
+    # Use threshold = 0 if model was trained without threshold selection
+    threshold <- if(length(pam.intcv.model$model$threshold) == 1) 0 else pam.intcv.model$model$threshold
     
     pred <- pamr::pamr.predict(
         pam.intcv.model$model,
@@ -164,12 +174,14 @@ pam.predict <- function(pam.intcv.model, pred.obj, pred.obj.group.id) {
 
 #' KNN Classification Function
 #' @param object Input object containing harmonized data
-#' @param vt.k Threshold values (not used in KNN but kept for consistency)
-#' @param n.k Number of thresholds (not used in KNN but kept for consistency)
-#' @param kfold Number of folds for cross-validation
+#' @param threshold_method Character. Either "cv" for cross-validation optimized k or "none" for fixed k=1
+#' @param kfold Number of folds for cross-validation (only used if threshold_method = "cv")
 #' @param folds Pre-specified folds (optional)
 #' @return Updated object with KNN classification results
-classification.knn <- function(object, vt.k = NULL, n.k = 30, kfold = 5, folds = NULL) {
+classification.knn <- function(object, threshold_method = "cv", kfold = 5, folds = NULL) {
+    # Validate threshold method
+    threshold_method <- match.arg(threshold_method, c("cv", "none"))
+    
     # Transform data with log2 if non-negative
     transform_data <- function(x) {
         if (!any(x$dat.harmonized < 0)) log2(x$dat.harmonized + 1) else x$dat.harmonized
@@ -190,12 +202,13 @@ classification.knn <- function(object, vt.k = NULL, n.k = 30, kfold = 5, folds =
     )
     
     # Run KNN classification for each harmonization method
-    object@classification.result$knn <- lapply(seq_along(datasets$data$train), function(i) {
+    object@classification.result$knn[[threshold_method]] <- lapply(seq_along(datasets$data$train), function(i) {
         # Train model with transposed data
         model <- knn.intcv(
             kfold = kfold,
             X = t(datasets$data$train[[i]]),
-            y = datasets$labels$train
+            y = datasets$labels$train,
+            threshold_method = threshold_method
         )
         
         # Get predictions for both test sets
@@ -203,25 +216,45 @@ classification.knn <- function(object, vt.k = NULL, n.k = 30, kfold = 5, folds =
         pred2 <- knn.predict(model, t(datasets$data$test2[[i]]), datasets$labels$test2)
         
         # Return metrics
-        c(mccv = model$mc, mcexternal1 = pred1$mc, mcexternal2 = pred2$mc)
+        list(train_class = model$pred, test1_class = pred1$pred, test2_class = pred2$pred)
     })
     
     return(object)
 }
 
 # Internal function for KNN cross-validation
-knn.intcv <- function(kfold = 5, X, y, seed = 1) {
+knn.intcv <- function(kfold = 5, X, y, threshold_method = "cv") {
     start_time <- proc.time()
-    set.seed(seed)
+    set.seed(42)
     
-    ctrl <- trainControl(method = "repeatedcv", repeats = 2, number = kfold)
-    knn_model <- train(
-        x = data.matrix(X), y = factor(y),
-        method = "knn", tuneLength = 5, trControl = ctrl
-    )
+    if (threshold_method == "cv") {
+        # Use cross-validation to find optimal k
+        ctrl <- trainControl(method = "repeatedcv", repeats = 2, number = kfold)
+        knn_model <- train(
+            x = data.matrix(X), y = factor(y),
+            method = "knn", 
+            tuneLength = 5,  # Try 5 different k values
+            trControl = ctrl
+        )
+        mc <- 1 - max(knn_model$results$Accuracy)
+    } else {
+        # Use fixed k=1 without cross-validation
+        ctrl <- trainControl(method = "none")
+        knn_model <- train(
+            x = data.matrix(X), y = factor(y),
+            method = "knn",
+            tuneGrid = data.frame(k = 1),
+            trControl = ctrl
+        )
+        
+        # Calculate error on training set
+        pred <- predict(knn_model, newdata = data.matrix(X))
+        mc <- mean(pred != y)
+    }
     
     list(
-        mc = 1 - max(knn_model$results$Accuracy),
+        pred = pred,
+        mc = mc,
         time = proc.time() - start_time,
         model = knn_model,
         cfs = NULL
@@ -241,9 +274,13 @@ knn.predict <- function(knn.intcv.model, pred.obj, pred.obj.group.id) {
 
 #' SVM Classification Function
 #' @param object Input object containing harmonized data
-#' @param kfold Number of folds for cross-validation
+#' @param threshold_method Character. Either "cv" for cross-validation tuned parameters or "none" for default parameters
+#' @param kfold Number of folds for cross-validation (only used if threshold_method = "cv")
 #' @return Updated object with SVM classification results
-classification.svm <- function(object, kfold = 5) {
+classification.svm <- function(object, threshold_method = "cv", kfold = 5) {
+    # Validate threshold method
+    threshold_method <- match.arg(threshold_method, c("cv", "none"))
+    
     # Transform data with log2 if non-negative
     transform_data <- function(x) {
         if (!any(x$dat.harmonized < 0)) {
@@ -268,12 +305,13 @@ classification.svm <- function(object, kfold = 5) {
     )
     
     # Run SVM classification for each harmonization method
-    object@classification.result$svm <- lapply(seq_along(dat.lists$train), function(i) {
+    object@classification.result$svm[[threshold_method]] <- lapply(seq_along(dat.lists$train), function(i) {
         # Train model
         svm.intcv.model <- svm.intcv(
             kfold = kfold,
             X = t(dat.lists$train[[i]]),
-            y = labels$train
+            y = labels$train,
+            threshold_method = threshold_method
         )
         
         # Get predictions for both test sets
@@ -281,27 +319,42 @@ classification.svm <- function(object, kfold = 5) {
         pred2 <- svm.predict(svm.intcv.model, t(dat.lists$test2[[i]]), labels$test2)
         
         # Return metrics
-        c(mccv = svm.intcv.model$mc, mcexternal1 = pred1$mc, mcexternal2 = pred2$mc)
+        list(train_class =  svm.intcv.model$pred, test1_class = pred1$pred, test2_class = pred2$pred)
     })
     
     return(object)
 }
 
 # Internal SVM cross-validation function
-svm.intcv <- function(kfold = 5, X, y, seed = 1) {
+svm.intcv <- function(kfold = 5, X, y, threshold_method = "cv") {
     ptm <- proc.time()
-    set.seed(seed)
+    set.seed(42)
 
-    svm_tune <- tune.svm(
-        x = data.matrix(X),
-        y = factor(y),
-        tunecontrol = tune.control(cross = kfold)
-    )
+    if (threshold_method == "cv") {
+        # Use cross-validation to tune parameters
+        svm_tune <- tune.svm(
+            x = data.matrix(X),
+            y = factor(y),
+            tunecontrol = tune.control(cross = kfold)
+        )
+        model <- svm_tune$best.model
+    } else {
+        # Use default parameters without tuning
+        model <- svm(
+            x = data.matrix(X),
+            y = factor(y),
+            kernel = "radial",  # default kernel
+            cost = 1,          # default cost parameter
+            scale = TRUE
+        )
+    }
     
-    mc <- mean(predict(svm_tune$best.model, data.matrix(X)) != factor(y))
+    # Calculate error on training set
+    mc <- mean(predict(model, data.matrix(X)) != factor(y))
     time <- proc.time() - ptm
     
-    return(list(mc = mc, time = time, model = svm_tune$best.model))
+    return(list(pred = predict(model, data.matrix(X)),
+                mc = mc, time = time, model = model))
 }
 
 # Internal SVM prediction function
@@ -318,9 +371,13 @@ svm.predict <- function(svm.intcv.model, pred.obj, pred.obj.group.id) {
 
 #' LASSO Classification Function
 #' @param object Input object containing harmonized data
-#' @param kfold Number of folds for cross-validation
+#' @param threshold_method Character. Either "cv" for cross-validation optimized lambda or "none" for using all genes
+#' @param kfold Number of folds for cross-validation (only used if threshold_method = "cv")
 #' @return Updated object with LASSO classification results
-classification.lasso <- function(object, kfold = 5) {
+classification.lasso <- function(object, threshold_method = "cv", kfold = 5) {
+    # Validate threshold method
+    threshold_method <- match.arg(threshold_method, c("cv", "none"))
+    
     # Transform data with log2 if non-negative
     transform_data <- function(x) {
         if (!any(x$dat.harmonized < 0)) {
@@ -345,12 +402,13 @@ classification.lasso <- function(object, kfold = 5) {
     )
     
     # Run LASSO classification for each harmonization method
-    object@classification.result$lasso <- lapply(seq_along(dat.lists$train), function(i) {
+    object@classification.result$lasso[[threshold_method]] <- lapply(seq_along(dat.lists$train), function(i) {
         # Train model
         lasso.model <- lasso.intcv(
             kfold = kfold,
             X = t(dat.lists$train[[i]]),
-            y = labels$train
+            y = labels$train,
+            threshold_method = threshold_method
         )
         
         # Get predictions for both test sets
@@ -358,30 +416,63 @@ classification.lasso <- function(object, kfold = 5) {
         pred2 <- lasso.predict(lasso.model, t(dat.lists$test2[[i]]), labels$test2)
         
         # Return metrics
-        c(mccv = lasso.model$mc, mcexternal1 = pred1$mc, mcexternal2 = pred2$mc)
+        list(train_class =  c(lasso.model$pred),
+             test1_class = c(pred1$pred),
+             test2_class = c(pred2$pred))
     })
     
     return(object)
 }
 
 # Internal LASSO cross-validation function
-lasso.intcv <- function(kfold = 5, X, y, seed = 1, alp = 1) {
+lasso.intcv <- function(kfold = 5, X, y, threshold_method = "cv", seed = 1, alp = 1) {
     ptm <- proc.time()
     set.seed(seed)
     
-    cv.fit <- glmnet::cv.glmnet(
-        x = data.matrix(X),
-        y = factor(y),
-        family = "binomial",
-        type.measure = "class",
-        alpha = alp,
-        nfold = kfold
-    )
+    if (threshold_method == "cv") {
+        # Use cross-validation to find optimal lambda
+        cv.fit <- glmnet::cv.glmnet(
+            x = data.matrix(X),
+            y = factor(y),
+            family = "binomial",
+            type.measure = "class",
+            alpha = alp,
+            nfold = kfold
+        )
+        lambda_value <- cv.fit$lambda.min
+        pred <- predict(cv.fit, newx = data.matrix(X), s = lambda_value, type = "class")
+        mc <- mean(pred != y)
+    } else {
+        # Use very small lambda to effectively include all genes
+        tiny_lambda <- 1e-6
+        cv.fit <- glmnet::glmnet(
+            x = data.matrix(X),
+            y = factor(y),
+            family = "binomial",
+            alpha = alp,
+            lambda = tiny_lambda
+        )
+        lambda_value <- tiny_lambda
+        
+        # Calculate error on training set
+        pred <- predict(cv.fit, newx = data.matrix(X), s = lambda_value, type = "class")
+        mc <- mean(pred != y)
+    }
     
-    mc <- cv.fit$cvm[which(cv.fit$lambda == cv.fit$lambda.1se)]
-    coefs <- trycatch.func(coef(cv.fit, s = "lambda.1se"))
+    coefs <- if(threshold_method == "cv") {
+        trycatch.func(coef(cv.fit, s = lambda_value))
+    } else {
+        trycatch.func(coef(cv.fit, s = lambda_value))
+    }
     
-    return(list(mc = mc, time = proc.time() - ptm, model = cv.fit, cfs = coefs))
+    return(list(
+        pred = pred,
+        mc = mc,
+        time = proc.time() - ptm,
+        model = cv.fit,
+        lambda = lambda_value,
+        cfs = coefs
+    ))
 }
 
 # Internal LASSO prediction function
@@ -389,7 +480,7 @@ lasso.predict <- function(lasso.intcv.model, pred.obj, pred.obj.group.id) {
     pred <- predict(
         lasso.intcv.model$model,
         newx = pred.obj,
-        s = lasso.intcv.model$model$lambda.1se,
+        s = lasso.intcv.model$lambda,
         type = "class"
     )
     
@@ -397,7 +488,7 @@ lasso.predict <- function(lasso.intcv.model, pred.obj, pred.obj.group.id) {
     prob <- predict(
         lasso.intcv.model$model,
         newx = pred.obj,
-        s = lasso.intcv.model$model$lambda.1se
+        s = lasso.intcv.model$lambda
     )
     
     return(list(pred = pred, mc = mc, prob = prob))
@@ -409,9 +500,13 @@ lasso.predict <- function(lasso.intcv.model, pred.obj, pred.obj.group.id) {
 
 #' Random Forest Classification Function
 #' @param object Input object containing harmonized data
-#' @param kfold Number of folds for cross-validation
+#' @param threshold_method Character. Either "cv" for cross-validation tuned parameters or "none" for default parameters
+#' @param kfold Number of folds for cross-validation (only used if threshold_method = "cv")
 #' @return Updated object with Random Forest classification results
-classification.ranfor <- function(object, fold = 5) {
+classification.ranfor <- function(object, threshold_method = "cv", kfold = 5) {
+    # Validate threshold method
+    threshold_method <- match.arg(threshold_method, c("cv", "none"))
+    
     # Transform data with log2 if non-negative
     transform_data <- function(x) {
         if (!any(x$dat.harmonized < 0)) {
@@ -436,12 +531,13 @@ classification.ranfor <- function(object, fold = 5) {
     )
     
     # Run Random Forest classification for each harmonization method
-    object@classification.result$ranfor <- lapply(seq_along(dat.lists$train), function(i) {
+    object@classification.result$ranfor[[threshold_method]] <- lapply(seq_along(dat.lists$train), function(i) {
         # Train model
         ranfor.model <- ranfor.intcv(
             kfold = kfold,
             X = t(dat.lists$train[[i]]),
-            y = labels$train
+            y = labels$train,
+            threshold_method = threshold_method
         )
         
         # Get predictions for both test sets
@@ -449,35 +545,64 @@ classification.ranfor <- function(object, fold = 5) {
         pred2 <- ranfor.predict(ranfor.model, t(dat.lists$test2[[i]]), labels$test2)
         
         # Return metrics
-        c(mccv = ranfor.model$mc, mcexternal1 = pred1$mc, mcexternal2 = pred2$mc)
+        list(train_class =  c(ranfor.model$pred),
+             test1_class = c(pred1$pred),
+             test2_class = c(pred2$pred))
     })
     
     return(object)
 }
 
 # Internal Random Forest cross-validation function
-ranfor.intcv <- function(kfold = 5, X, y, seed = 1) {
+ranfor.intcv <- function(kfold = 5, X, y, threshold_method = "cv", seed = 1) {
     ptm <- proc.time()
     set.seed(seed)
     
-    control <- trainControl(
-        method = 'cv',
-        number = 5,
-        search = 'random'
-    )
-    
-    rf <- train(
-        x = data.matrix(X),
-        y = factor(y),
-        method = "ranger",
-        metric = 'Accuracy',
-        tuneLength = 3,
-        preProcess = c("center", "scale"),
-        trControl = control
-    )
+    if (threshold_method == "cv") {
+        # Use cross-validation to tune parameters
+        control <- trainControl(
+            method = 'cv',
+            number = kfold,
+            search = 'random'
+        )
+        
+        rf <- train(
+            x = data.matrix(X),
+            y = factor(y),
+            method = "ranger",
+            metric = 'Accuracy',
+            tuneLength = 3,
+            preProcess = c("center", "scale"),
+            trControl = control
+        )
+        
+        mc <- 1 - max(rf$results$Accuracy)
+    } else {
+        # Use default parameters without tuning
+        control <- trainControl(method = "none")
+        
+        rf <- train(
+            x = data.matrix(X),
+            y = factor(y),
+            method = "ranger",
+            metric = 'Accuracy',
+            tuneGrid = data.frame(
+                mtry = floor(sqrt(ncol(X))),  # default mtry for classification
+                splitrule = "gini",
+                min.node.size = 1
+            ),
+            preProcess = c("center", "scale"),
+            trControl = control
+        )
+        
+        # Calculate error on training set
+        pred <- predict(rf, newdata = data.matrix(X))
+        mc <- mean(pred != y)
+    }
     
     return(list(
-        mc = 1 - max(rf$results$Accuracy),
+        pred = pred,
+        mc = mc,
         time = proc.time() - ptm,
         model = rf,
         cfs = NULL
@@ -490,16 +615,4 @@ ranfor.predict <- function(ranfor.intcv.model, pred.obj, pred.obj.group.id) {
     mc <- tabulate.ext.err.func(pred, pred.obj.group.id)
     
     return(list(pred = pred, mc = mc))
-}
-
-
-## classification methods for all
-classification.all <- function(object) {
-  object <- classification.pam(object)
-  object <- classification.knn(object)
-  object <- classification.lasso(object)
-  object <- classification.svm(object)
-  object <- classification.ranfor(object)
-
-  return(object)
 }

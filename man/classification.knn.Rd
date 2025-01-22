@@ -4,16 +4,14 @@
 \alias{classification.knn}
 \title{KNN Classification Function}
 \usage{
-classification.knn(object, vt.k = NULL, n.k = 30, kfold = 5, folds = NULL)
+classification.knn(object, threshold_method = "cv", kfold = 5, folds = NULL)
 }
 \arguments{
 \item{object}{Input object containing harmonized data}
 
-\item{vt.k}{Threshold values (not used in KNN but kept for consistency)}
+\item{threshold_method}{Character. Either "cv" for cross-validation optimized k or "none" for fixed k=1}
 
-\item{n.k}{Number of thresholds (not used in KNN but kept for consistency)}
-
-\item{kfold}{Number of folds for cross-validation}
+\item{kfold}{Number of folds for cross-validation (only used if threshold_method = "cv")}
 
 \item{folds}{Pre-specified folds (optional)}
 }

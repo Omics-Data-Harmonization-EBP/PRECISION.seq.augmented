@@ -4,12 +4,14 @@
 \alias{classification.svm}
 \title{SVM Classification Function}
 \usage{
-classification.svm(object, kfold = 5)
+classification.svm(object, threshold_method = "cv", kfold = 5)
 }
 \arguments{
 \item{object}{Input object containing harmonized data}
 
-\item{kfold}{Number of folds for cross-validation}
+\item{threshold_method}{Character. Either "cv" for cross-validation tuned parameters or "none" for default parameters}
+
+\item{kfold}{Number of folds for cross-validation (only used if threshold_method = "cv")}
 }
 \value{
 Updated object with SVM classification results

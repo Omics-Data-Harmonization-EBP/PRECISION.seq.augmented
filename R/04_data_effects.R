@@ -25,8 +25,8 @@ biological.effects <- function(benchmark, group, c){
   amp.data <- round(2^log.benchmark - 1)
 
   return(list(
-    modified_data = amp.data,
-    sample_groups = group,
+    data = amp.data,
+    group = group,
     amplification_factor = c
   ))
 }
@@ -57,8 +57,8 @@ handling.effects <- function(clean.input, benchmark, test, group, d){
   simulated.benchmark.handled <- round(2^log.benchmark.handled - 1)
 
   return(list(
-    modified_data = simulated.benchmark.handled,
-    sample_groups = group,
+    data = simulated.benchmark.handled,
+    group = group,
     effect_size = d
   ))
 }

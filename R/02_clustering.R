@@ -47,10 +47,14 @@ cluster.kmeans <- function(object, k = NULL) {
 #' 
 #' @param object An object containing harmonized training data
 #' @param k Integer. Number of clusters. If NULL, uses the number of unique labels in training data
+#' @param distance Character. Distance measure to use: "euclidean", "pearson", or "spearman"
 #' 
 #' @return Updated object with hierarchical clustering results
 #' @export
-cluster.hc <- function(object, k = NULL) {
+cluster.hc <- function(object, k = NULL, distance = "euclidean") {
+  # Validate distance parameter
+  distance <- match.arg(distance, c("euclidean", "pearson", "spearman"))
+  
   # Get k from labels if not specified
   if (is.null(k)) {
     k <- length(unique(object@raw.train.data$label))
@@ -60,14 +64,18 @@ cluster.hc <- function(object, k = NULL) {
   dat.list <- .preprocess.data(object@harmon.train.data)
   
   # Define internal hierarchical clustering function
-  hc <- function(data, group) {
-    dist_mat <- dist(data, method = "euclidean")
+  hc <- function(data, group, dist_method) {
+    if (dist_method == "euclidean") {
+      dist_mat <- dist(data, method = "euclidean")
+    } else {
+      dist_mat <- factoextra::get_dist(data, method = dist_method)
+    }
     hctree <- hclust(dist_mat, method = "ward.D2")
     cutree(hctree, group)
   }
   
   # Perform hierarchical clustering
-  object@cluster.result$hc <- lapply(dat.list, function(x) hc(x, k))
+  object@cluster.result$hc[[distance]] <- lapply(dat.list, function(x) hc(x, k, distance))
   
   return(object)
 }
@@ -120,14 +128,18 @@ cluster.mnm <- function(object, k = NULL) {
   return(object)
 }
 
-#' Perform PAM clustering with Euclidean distance on harmonized data
+#' Perform PAM clustering with specified distance measure on harmonized data
 #' 
 #' @param object An object containing harmonized training data
 #' @param k Integer. Number of clusters. If NULL, uses the number of unique labels in training data
+#' @param distance Character. Distance measure to use: "euclidean", "pearson", or "spearman"
 #' 
-#' @return Updated object with PAM clustering results using Euclidean distance
+#' @return Updated object with PAM clustering results using specified distance measure
 #' @export
-cluster.pam.euclidean <- function(object, k = NULL) {
+cluster.pam <- function(object, k = NULL, distance = "euclidean") {
+  # Validate distance parameter
+  distance <- match.arg(distance, c("euclidean", "pearson", "spearman"))
+  
   # Get k from labels if not specified
   if (is.null(k)) {
     k <- length(unique(object@raw.train.data$label))
@@ -136,60 +148,20 @@ cluster.pam.euclidean <- function(object, k = NULL) {
   # Reuse preprocessing function
   dat.list <- .preprocess.data(object@harmon.train.data)
   
-  # Perform PAM clustering with Euclidean distance
-  object@cluster.result$pam.euclidean <- lapply(dat.list, function(x) {
-    cluster::pam(x, k, nstart = 100)$clustering
-  })
+  # Perform PAM clustering with specified distance measure
+  if (distance == "euclidean") {
+    object@cluster.result$pam[[distance]] <- lapply(dat.list, function(x) {
+      cluster::pam(x, k, nstart = 100)$clustering
+    })
+  } else {
+    frame.cor <- lapply(dat.list, function(x) factoextra::get_dist(x, method = distance))
+    object@cluster.result$pam[[distance]] <- lapply(frame.cor, function(x) {
+      cluster::pam(x, k, nstart = 100)$clustering
+    })
+  }
   
   return(object)
 }
 
-#' Perform PAM clustering with Pearson correlation distance on harmonized data
-#' 
-#' @param object An object containing harmonized training data
-#' @param k Integer. Number of clusters. If NULL, uses the number of unique labels in training data
-#' 
-#' @return Updated object with PAM clustering results using Pearson correlation distance
-#' @export
-cluster.pam.pearson <- function(object, k = NULL) {
-  # Get k from labels if not specified
-  if (is.null(k)) {
-    k <- length(unique(object@raw.train.data$label))
-  }
-  
-  # Reuse preprocessing function
-  dat.list <- .preprocess.data(object@harmon.train.data)
-  
-  # Calculate Pearson correlation distance and perform PAM clustering
-  frame.cor <- lapply(dat.list, function(x) factoextra::get_dist(x, method = "pearson"))
-  object@cluster.result$pam.pearson <- lapply(frame.cor, function(x) {
-    cluster::pam(x, k, nstart = 100)$clustering
-  })
-  
-  return(object)
-}
 
-#' Perform PAM clustering with Spearman correlation distance on harmonized data
-#' 
-#' @param object An object containing harmonized training data
-#' @param k Integer. Number of clusters. If NULL, uses the number of unique labels in training data
-#' 
-#' @return Updated object with PAM clustering results using Spearman correlation distance
-#' @export
-cluster.pam.spearman <- function(object, k = NULL) {
-  # Get k from labels if not specified
-  if (is.null(k)) {
-    k <- length(unique(object@raw.train.data$label))
-  }
-  
-  # Reuse preprocessing function
-  dat.list <- .preprocess.data(object@harmon.train.data)
-  
-  # Calculate Spearman correlation distance and perform PAM clustering
-  frame.cor <- lapply(dat.list, function(x) factoextra::get_dist(x, method = "spearman"))
-  object@cluster.result$pam.spearman <- lapply(frame.cor, function(x) {
-    cluster::pam(x, k, nstart = 100)$clustering
-  })
-  
-  return(object)
-}
+
