@@ -67,9 +67,9 @@ cluster.all <- function(object){
   object <- cluster.hc(object)
   object <- cluster.som(object)
   object <- cluster.mnm(object)
-  object <- cluster.pam.euclidean(object)
-  object <- cluster.pam.pearson(object)
-  object <- cluster.pam.spearman(object)
+  object <- cluster.pam(object, distance="euclidean")
+  object <- cluster.pam(object, distance="pearson")
+  object <- cluster.pam(object, distance="spearman")
   return(object)
 }
 ```    

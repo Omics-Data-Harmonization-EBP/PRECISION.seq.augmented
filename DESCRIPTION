@@ -25,4 +25,7 @@ Imports:
     RSKC,
     cluster,
     factoextra,
-    limma
+    limma,
+    preprocessCore,
+    pamr,
+    som
