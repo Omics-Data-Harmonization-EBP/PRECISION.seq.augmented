@@ -9,6 +9,8 @@
 #' @import DESeq2
 #' @import preprocessCore
 #' @import PoissonSeq
+#' @importFrom magrittr %>%
+NULL
 
 ##########################################################
 # Precision Class
@@ -28,7 +30,7 @@
 precision <- methods::setClass(
   "precision",
   slots = c(
-    raw.train.data = "ANY",  # For clustering, only consider train data
+    raw.train.data = "ANY", # For clustering, only consider train data
     raw.test1.data = "ANY",
     raw.test2.data = "ANY",
     harmon.train.data = "list",
@@ -50,7 +52,7 @@ precision <- methods::setClass(
 #' @return A precision object
 #' @export
 create.precision.classification <- function(traindata, testdata1, testdata2,
-                                         trainlabel, testlabel1, testlabel2) {
+                                            trainlabel, testlabel1, testlabel2) {
   object <- methods::new(
     Class = "precision",
     raw.train.data = list(data = traindata, label = trainlabel),
@@ -67,8 +69,10 @@ create.precision.classification <- function(traindata, testdata1, testdata2,
 #' @return A precision object
 #' @export
 create.precision.cluster <- function(data, label) {
-  object <- methods::new(Class = "precision",
-                         raw.train.data = list(data = data, label = label))
+  object <- methods::new(
+    Class = "precision",
+    raw.train.data = list(data = data, label = label)
+  )
   return(object)
 }
 
@@ -78,10 +82,12 @@ create.precision.cluster <- function(data, label) {
 
 # Internal helper functions for TMM normalization
 .harmon.method.TMM <- function(raw, groups) {
-  d <- DGEList(counts = raw,
-               group = factor(groups),
-               genes = rownames(raw)) %>%
-       calcNormFactors(method = "TMM", refColumn = 1)
+  d <- DGEList(
+    counts = raw,
+    group = factor(groups),
+    genes = rownames(raw)
+  ) %>%
+    calcNormFactors(method = "TMM", refColumn = 1)
 
   list(
     dat.harmonized = cpm(d),
@@ -90,13 +96,15 @@ create.precision.cluster <- function(data, label) {
 }
 
 .harmon.method.TMM.frozen <- function(train.data, train.group, test.data, test.group) {
-  d <- DGEList(counts = cbind(train.data[,1], test.data),
-               group = factor(c(train.group[1], test.group)),
-               genes = rownames(test.data)) %>%
-       calcNormFactors(method = "TMM", refColumn = 1)
+  d <- DGEList(
+    counts = cbind(train.data[, 1], test.data),
+    group = factor(c(train.group[1], test.group)),
+    genes = rownames(test.data)
+  ) %>%
+    calcNormFactors(method = "TMM", refColumn = 1)
 
   list(
-    dat.harmonized = cpm(d)[,-1],
+    dat.harmonized = cpm(d)[, -1],
     scaling.factor = (d$samples$norm.factors * d$samples$lib.size / 1e6)[-1]
   )
 }
@@ -108,9 +116,9 @@ create.precision.cluster <- function(data, label) {
 #' @export
 harmon.TMM <- function(object) {
   # Process all datasets if they exist
-  for(dataset in c("train", "test1", "test2")) {
+  for (dataset in c("train", "test1", "test2")) {
     raw_data <- slot(object, paste0("raw.", dataset, ".data"))
-    if(!is.null(raw_data)) {
+    if (!is.null(raw_data)) {
       slot(object, paste0("harmon.", dataset, ".data"))$TMM <-
         .harmon.method.TMM(
           raw_data$data,
@@ -134,9 +142,9 @@ harmon.TMM.frozen <- function(object) {
   )
 
   # Process test datasets if they exist
-  for(test_set in c("test1", "test2")) {
+  for (test_set in c("test1", "test2")) {
     raw_data <- slot(object, paste0("raw.", test_set, ".data"))
-    if(!is.null(raw_data)) {
+    if (!is.null(raw_data)) {
       slot(object, paste0("harmon.", test_set, ".data"))$TMM.frozen <-
         .harmon.method.TMM.frozen(
           object@raw.train.data$data,
@@ -151,9 +159,11 @@ harmon.TMM.frozen <- function(object) {
 
 # Internal helper function for total count harmonization
 .harmon.method.TC <- function(raw, groups) {
-  d <- DGEList(counts = raw,
-               group = factor(groups),
-               genes = rownames(raw))
+  d <- DGEList(
+    counts = raw,
+    group = factor(groups),
+    genes = rownames(raw)
+  )
 
   list(
     dat.harmonized = cpm(d, normalized.lib.sizes = FALSE),
@@ -168,9 +178,9 @@ harmon.TMM.frozen <- function(object) {
 #' @export
 harmon.TC <- function(object) {
   # Process all datasets if they exist
-  for(dataset in c("train", "test1", "test2")) {
+  for (dataset in c("train", "test1", "test2")) {
     raw_data <- slot(object, paste0("raw.", dataset, ".data"))
-    if(!is.null(raw_data)) {
+    if (!is.null(raw_data)) {
       slot(object, paste0("harmon.", dataset, ".data"))$TC <-
         .harmon.method.TC(
           raw_data$data,
@@ -183,15 +193,17 @@ harmon.TC <- function(object) {
 
 # Internal helper function for upper quartile harmonization
 .harmon.method.UQ <- function(raw, groups) {
-  d <- DGEList(counts = raw,
-               group = factor(groups),
-               genes = rownames(raw))
+  d <- DGEList(
+    counts = raw,
+    group = factor(groups),
+    genes = rownames(raw)
+  )
 
   q.factor <- apply(d$counts, 2, function(x) quantile(x[x != 0], probs = 0.75))
-  scaling.factor <- q.factor/1e6
+  scaling.factor <- q.factor / 1e6
 
   list(
-    dat.harmonized = t(t(raw)/scaling.factor),
+    dat.harmonized = t(t(raw) / scaling.factor),
     scaling.factor = scaling.factor
   )
 }
@@ -203,9 +215,9 @@ harmon.TC <- function(object) {
 #' @export
 harmon.UQ <- function(object) {
   # Process all datasets if they exist
-  for(dataset in c("train", "test1", "test2")) {
+  for (dataset in c("train", "test1", "test2")) {
     raw_data <- slot(object, paste0("raw.", dataset, ".data"))
-    if(!is.null(raw_data)) {
+    if (!is.null(raw_data)) {
       slot(object, paste0("harmon.", dataset, ".data"))$UQ <-
         .harmon.method.UQ(
           raw_data$data,
@@ -218,15 +230,17 @@ harmon.UQ <- function(object) {
 
 # Internal helper function for median harmonization
 .harmon.method.med <- function(raw, groups) {
-  d <- DGEList(counts = raw,
-               group = factor(groups),
-               genes = rownames(raw))
+  d <- DGEList(
+    counts = raw,
+    group = factor(groups),
+    genes = rownames(raw)
+  )
 
   m.factor <- apply(d$counts, 2, function(x) median(x[x != 0]))
-  scaling.factor <- m.factor/1e6
+  scaling.factor <- m.factor / 1e6
 
   list(
-    dat.harmonized = t(t(raw)/scaling.factor),
+    dat.harmonized = t(t(raw) / scaling.factor),
     scaling.factor = scaling.factor
   )
 }
@@ -238,9 +252,9 @@ harmon.UQ <- function(object) {
 #' @export
 harmon.med <- function(object) {
   # Process all datasets if they exist
-  for(dataset in c("train", "test1", "test2")) {
+  for (dataset in c("train", "test1", "test2")) {
     raw_data <- slot(object, paste0("raw.", dataset, ".data"))
-    if(!is.null(raw_data)) {
+    if (!is.null(raw_data)) {
       slot(object, paste0("harmon.", dataset, ".data"))$med <-
         .harmon.method.med(
           raw_data$data,
@@ -265,7 +279,7 @@ harmon.med <- function(object) {
   d <- DESeq2::DESeqDataSetFromMatrix(
     countData = raw,
     colData = condition,
-    design = ~ Condition
+    design = ~Condition
   ) %>%
     DESeq2::estimateSizeFactors()
 
@@ -282,9 +296,9 @@ harmon.med <- function(object) {
 #' @export
 harmon.DESeq <- function(object) {
   # Process all datasets if they exist
-  for(dataset in c("train", "test1", "test2")) {
+  for (dataset in c("train", "test1", "test2")) {
     raw_data <- slot(object, paste0("raw.", dataset, ".data"))
-    if(!is.null(raw_data)) {
+    if (!is.null(raw_data)) {
       slot(object, paste0("harmon.", dataset, ".data"))$DESeq <-
         .harmon.method.DESeq(
           raw_data$data,
@@ -300,7 +314,7 @@ harmon.DESeq <- function(object) {
   scaling.factor <- PoissonSeq::PS.Est.Depth(raw)
 
   list(
-    dat.harmonized = t(t(raw)/scaling.factor),
+    dat.harmonized = t(t(raw) / scaling.factor),
     scaling.factor = scaling.factor
   )
 }
@@ -312,9 +326,9 @@ harmon.DESeq <- function(object) {
 #' @export
 harmon.PoissonSeq <- function(object) {
   # Process all datasets if they exist
-  for(dataset in c("train", "test1", "test2")) {
+  for (dataset in c("train", "test1", "test2")) {
     raw_data <- slot(object, paste0("raw.", dataset, ".data"))
-    if(!is.null(raw_data)) {
+    if (!is.null(raw_data)) {
       slot(object, paste0("harmon.", dataset, ".data"))$PoissonSeq <-
         .harmon.method.PoissonSeq(
           raw_data$data
@@ -361,9 +375,9 @@ harmon.PoissonSeq <- function(object) {
 #' @export
 harmon.QN <- function(object) {
   # Process all datasets if they exist
-  for(dataset in c("train", "test1", "test2")) {
+  for (dataset in c("train", "test1", "test2")) {
     raw_data <- slot(object, paste0("raw.", dataset, ".data"))
-    if(!is.null(raw_data)) {
+    if (!is.null(raw_data)) {
       slot(object, paste0("harmon.", dataset, ".data"))$QN <-
         .harmon.method.QN(
           raw_data$data
@@ -385,9 +399,9 @@ harmon.QN.frozen <- function(object) {
   )
 
   # Process test datasets if they exist
-  for(test_set in c("test1", "test2")) {
+  for (test_set in c("test1", "test2")) {
     raw_data <- slot(object, paste0("raw.", test_set, ".data"))
-    if(!is.null(raw_data)) {
+    if (!is.null(raw_data)) {
       slot(object, paste0("harmon.", test_set, ".data"))$QN.frozen <-
         .harmon.method.QN.frozen(
           object@raw.train.data$data,
@@ -401,11 +415,11 @@ harmon.QN.frozen <- function(object) {
 # Internal helper function for SVA
 .harmon.method.SVA <- function(raw, groups) {
   # Filter out rows with zero sums
-  dat.sva <- raw[rowSums(raw) > 0,]
+  dat.sva <- raw[rowSums(raw) > 0, ]
 
   # Create model matrices
-  mod1 <- model.matrix(~ groups)
-  mod0 <- model.matrix(~ 1, data.frame(mod1))
+  mod1 <- model.matrix(~groups)
+  mod0 <- model.matrix(~1, data.frame(mod1))
   dat0 <- as.matrix(dat.sva)
 
   # Calculate surrogate variables
@@ -421,7 +435,7 @@ harmon.QN.frozen <- function(object) {
   P <- ncol(mod1)
 
   list(
-    dat.harmonized = dat.sva - t(as.matrix(adjust[,-c(1:P)]) %*% beta[-c(1:P),]),
+    dat.harmonized = dat.sva - t(as.matrix(adjust[, -c(1:P)]) %*% beta[-c(1:P), ]),
     adjust.factor = svseq
   )
 }
@@ -433,9 +447,9 @@ harmon.QN.frozen <- function(object) {
 #' @export
 harmon.SVA <- function(object) {
   # Process all datasets if they exist
-  for(dataset in c("train", "test1", "test2")) {
+  for (dataset in c("train", "test1", "test2")) {
     raw_data <- slot(object, paste0("raw.", dataset, ".data"))
-    if(!is.null(raw_data)) {
+    if (!is.null(raw_data)) {
       slot(object, paste0("harmon.", dataset, ".data"))$SVA <-
         .harmon.method.SVA(
           raw_data$data,
@@ -455,28 +469,29 @@ harmon.SVA <- function(object) {
     as.matrix(raw),
     phenoData = data.frame(condition, row.names = colnames(raw))
   )
-  design <- model.matrix(~ condition,
-                        data = data.frame(condition, row.names = colnames(raw)))
+  design <- model.matrix(~condition,
+    data = data.frame(condition, row.names = colnames(raw))
+  )
 
   # Prepare DGE analysis
   y <- DGEList(counts = DESeq2::counts(set), group = condition) %>%
-       calcNormFactors(method = "upperquartile")
+    calcNormFactors(method = "upperquartile")
 
-  if(any(is.infinite(y$samples$norm.factors))) {
+  if (any(is.infinite(y$samples$norm.factors))) {
     y <- DGEList(counts = DESeq2::counts(set), group = condition) %>%
-         calcNormFactors(method = "none")
+      calcNormFactors(method = "none")
   }
 
   # Estimate dispersions and fit model
   y <- y %>%
-       estimateGLMCommonDisp(design) %>%
-       estimateGLMTagwiseDisp(design)
+    estimateGLMCommonDisp(design) %>%
+    estimateGLMTagwiseDisp(design)
 
   # Identify control genes
   fit <- glmFit(y, design)
   lrt <- glmLRT(fit, coef = 2)
   top <- topTags(lrt, n = nrow(set))$table
-  spikes <- rownames(set)[which(!(rownames(set) %in% rownames(top)[1:(0.15*nrow(raw))]))]
+  spikes <- rownames(set)[which(!(rownames(set) %in% rownames(top)[1:(0.15 * nrow(raw))]))]
 
   # Apply RUVg harmonization
   t <- RUVg(set, spikes, k = 1)
@@ -495,28 +510,29 @@ harmon.SVA <- function(object) {
     as.matrix(raw),
     phenoData = data.frame(condition, row.names = colnames(raw))
   )
-  design <- model.matrix(~ condition,
-                        data = data.frame(condition, row.names = colnames(raw)))
+  design <- model.matrix(~condition,
+    data = data.frame(condition, row.names = colnames(raw))
+  )
 
   # Prepare DGE analysis
   y <- DGEList(counts = DESeq2::counts(set), group = condition) %>%
-       calcNormFactors(method = "upperquartile")
+    calcNormFactors(method = "upperquartile")
 
-  if(any(is.infinite(y$samples$norm.factors))) {
+  if (any(is.infinite(y$samples$norm.factors))) {
     y <- DGEList(counts = DESeq2::counts(set), group = condition) %>%
-         calcNormFactors(method = "none")
+      calcNormFactors(method = "none")
   }
 
   # Estimate dispersions and fit model
   y <- y %>%
-       estimateGLMCommonDisp(design) %>%
-       estimateGLMTagwiseDisp(design)
+    estimateGLMCommonDisp(design) %>%
+    estimateGLMTagwiseDisp(design)
 
   # Identify control genes and differences
   fit <- glmFit(y, design)
   lrt <- glmLRT(fit, coef = 2)
   top <- topTags(lrt, n = nrow(set))$table
-  spikes <- rownames(set)[which(!(rownames(set) %in% rownames(top)[1:(0.15*nrow(raw))]))]
+  spikes <- rownames(set)[which(!(rownames(set) %in% rownames(top)[1:(0.15 * nrow(raw))]))]
   differences <- makeGroups(condition)
 
   # Apply RUVs harmonization
@@ -536,21 +552,21 @@ harmon.SVA <- function(object) {
     as.matrix(raw),
     phenoData = data.frame(condition, row.names = colnames(raw))
   )
-  design <- model.matrix(~ condition, data = pData(set))
+  design <- model.matrix(~condition, data = pData(set))
 
   # Prepare DGE analysis
   y <- DGEList(counts = DESeq2::counts(set), group = condition) %>%
-       calcNormFactors(method = "upperquartile")
+    calcNormFactors(method = "upperquartile")
 
-  if(any(is.infinite(y$samples$norm.factors))) {
+  if (any(is.infinite(y$samples$norm.factors))) {
     y <- DGEList(counts = DESeq2::counts(set), group = condition) %>%
-         calcNormFactors(method = "none")
+      calcNormFactors(method = "none")
   }
 
   # Estimate dispersions and get residuals
   y <- y %>%
-       estimateGLMCommonDisp(design) %>%
-       estimateGLMTagwiseDisp(design)
+    estimateGLMCommonDisp(design) %>%
+    estimateGLMTagwiseDisp(design)
 
   fit <- glmFit(y, design)
   residuals <- residuals(fit, type = "deviance")
@@ -572,9 +588,9 @@ harmon.SVA <- function(object) {
 #' @export
 harmon.RUVg <- function(object) {
   # Process all datasets if they exist
-  for(dataset in c("train", "test1", "test2")) {
+  for (dataset in c("train", "test1", "test2")) {
     raw_data <- slot(object, paste0("raw.", dataset, ".data"))
-    if(!is.null(raw_data)) {
+    if (!is.null(raw_data)) {
       slot(object, paste0("harmon.", dataset, ".data"))$RUVg <-
         .harmon.method.RUVg(
           raw_data$data,
@@ -592,9 +608,9 @@ harmon.RUVg <- function(object) {
 #' @export
 harmon.RUVs <- function(object) {
   # Process all datasets if they exist
-  for(dataset in c("train", "test1", "test2")) {
+  for (dataset in c("train", "test1", "test2")) {
     raw_data <- slot(object, paste0("raw.", dataset, ".data"))
-    if(!is.null(raw_data)) {
+    if (!is.null(raw_data)) {
       slot(object, paste0("harmon.", dataset, ".data"))$RUVs <-
         .harmon.method.RUVs(
           raw_data$data,
@@ -612,9 +628,9 @@ harmon.RUVs <- function(object) {
 #' @export
 harmon.RUVr <- function(object) {
   # Process all datasets if they exist
-  for(dataset in c("train", "test1", "test2")) {
+  for (dataset in c("train", "test1", "test2")) {
     raw_data <- slot(object, paste0("raw.", dataset, ".data"))
-    if(!is.null(raw_data)) {
+    if (!is.null(raw_data)) {
       slot(object, paste0("harmon.", dataset, ".data"))$RUVr <-
         .harmon.method.RUVr(
           raw_data$data,
@@ -643,9 +659,9 @@ harmon.RUVr <- function(object) {
 #' @export
 harmon.ComBat.Seq <- function(object, batches) {
   # Process all datasets if they exist
-  for(dataset in c("train", "test1", "test2")) {
+  for (dataset in c("train", "test1", "test2")) {
     raw_data <- slot(object, paste0("raw.", dataset, ".data"))
-    if(!is.null(raw_data)) {
+    if (!is.null(raw_data)) {
       slot(object, paste0("harmon.", dataset, ".data"))$ComBat.Seq <-
         .harmon.method.ComBat.Seq(
           raw_data$data,
@@ -655,4 +671,3 @@ harmon.ComBat.Seq <- function(object, batches) {
   }
   object
 }
-

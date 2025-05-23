@@ -47,7 +47,7 @@ we have 9 different data harmonization methods, including:
 ## Combination of all the methods
 
 ```{r eval = FALSE, message = FALSE}
-harmon.all <- function(object){
+harmon.all <- function(object) {
   object@harmon.train.data$Raw$dat.harmonized <- object@raw.train.data$data
   object <- harmon.TC(object)
   object <- harmon.UQ(object)
@@ -62,14 +62,14 @@ harmon.all <- function(object){
   return(object)
 }
 
-cluster.all <- function(object){
+cluster.all <- function(object) {
   object <- cluster.kmeans(object)
   object <- cluster.hc(object)
   object <- cluster.som(object)
   object <- cluster.mnm(object)
-  object <- cluster.pam(object, distance="euclidean")
-  object <- cluster.pam(object, distance="pearson")
-  object <- cluster.pam(object, distance="spearman")
+  object <- cluster.pam(object, distance = "euclidean")
+  object <- cluster.pam(object, distance = "pearson")
+  object <- cluster.pam(object, distance = "spearman")
   return(object)
 }
 ```    
@@ -90,14 +90,14 @@ example_cluster <- harmon.all(example_cluster)
 example_cluster <- cluster.all(example_cluster)
 
 # Step 4: Measure the consistency between the clustering labels and the true labels
-cluster <- c('kmeans','hc','som','mnm', 'pam.euclidean','pam.pearson','pam.spearman')
-harmon <- c('Raw','TC','UQ','med','TMM','DESeq','PoissonSeq','QN', 'RUVg','RUVs','RUVr')
-ari_indexes <- data.frame(matrix(nrow=length(cluster),ncol=length(harmon)))
-true_label <- as.factor(c(rep('MXF',27),rep('PMFH',27)))
-for (i in 1:length(cluster)){
-  for (j in 1:length(harmon)){
-    eval(parse(text=paste0('est_cluster <-', 'example_cluster@cluster.result','$',cluster[i],'$',harmon[j])))
-    ari_indexes[i,j] <- mclust::adjustedRandIndex(true_label, est_cluster)
+cluster <- c("kmeans", "hc", "som", "mnm", "pam.euclidean", "pam.pearson", "pam.spearman")
+harmon <- c("Raw", "TC", "UQ", "med", "TMM", "DESeq", "PoissonSeq", "QN", "RUVg", "RUVs", "RUVr")
+ari_indexes <- data.frame(matrix(nrow = length(cluster), ncol = length(harmon)))
+true_label <- as.factor(c(rep("MXF", 27), rep("PMFH", 27)))
+for (i in seq_along(cluster)) {
+  for (j in seq_along(harmon)) {
+    eval(parse(text = paste0("est_cluster <-", "example_cluster@cluster.result", "$", cluster[i], "$", harmon[j])))
+    ari_indexes[i, j] <- mclust::adjustedRandIndex(true_label, est_cluster)
   }
 }
 rownames(ari_indexes) <- cluster

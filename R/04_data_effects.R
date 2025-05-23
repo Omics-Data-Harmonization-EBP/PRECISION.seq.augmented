@@ -1,24 +1,27 @@
 #' @import limma
+NULL
 
 #' Add biological effects to benchmark data
-#' 
+#'
 #' @param benchmark Numeric matrix of expression values
 #' @param group Factor or vector defining sample groups
 #' @param c Numeric amplification factor
 #' @return List containing modified data and group information
 #' @export
-biological.effects <- function(benchmark, group, c){
+biological.effects <- function(benchmark, group, c) {
   log.benchmark <- log2(benchmark + 1)
   log.benchmark[log.benchmark > 25] <- 25
   group.level <- levels(factor(group))
-  sample.g1 <- rowMeans(log.benchmark[,group == group.level[1]])
-  sample.g2 <- rowMeans(log.benchmark[,group == group.level[2]])
+  sample.g1 <- rowMeans(log.benchmark[, group == group.level[1]])
+  sample.g2 <- rowMeans(log.benchmark[, group == group.level[2]])
 
-  amplify_ind = (sample.g2 > sample.g1) + 1
-  signal.amplify = abs(sample.g1 - sample.g2)*c
+  amplify_ind <- (sample.g2 > sample.g1) + 1
+  signal.amplify <- abs(sample.g1 - sample.g2) * c
 
-  log.benchmark[, group == group.level[1]] <- log.benchmark[, group == group.level[1]] + (signal.amplify * (amplify_ind == 1))
-  log.benchmark[, group == group.level[2]] <- log.benchmark[, group == group.level[2]] + (signal.amplify * (amplify_ind == 2))
+  log.benchmark[, group == group.level[1]] <-
+    log.benchmark[, group == group.level[1]] + (signal.amplify * (amplify_ind == 1))
+  log.benchmark[, group == group.level[2]] <-
+    log.benchmark[, group == group.level[2]] + (signal.amplify * (amplify_ind == 2))
   log.benchmark[log.benchmark > 25] <- 25
   log.benchmark[log.benchmark < 0] <- 0
 
@@ -32,7 +35,7 @@ biological.effects <- function(benchmark, group, c){
 }
 
 #' Add handling effects to benchmark data
-#' 
+#'
 #' @param clean.input Numeric matrix of clean input data
 #' @param benchmark Numeric matrix of benchmark data
 #' @param test Numeric matrix of test data
@@ -40,7 +43,7 @@ biological.effects <- function(benchmark, group, c){
 #' @param d Numeric effect size factor
 #' @return List containing modified data and group information
 #' @export
-handling.effects <- function(clean.input, benchmark, test, group, d){
+handling.effects <- function(clean.input, benchmark, test, group, d) {
   log.benchmark <- log2(benchmark + 1)
   log.benchmark[log.benchmark > 25] <- 25
   log.benchmark[log.benchmark < 0] <- 0
@@ -50,7 +53,7 @@ handling.effects <- function(clean.input, benchmark, test, group, d){
 
   effects <- log.test - log.benchmark
   log.benchmark.handled <- log2(clean.input + 1)
-  log.benchmark.handled <- log.benchmark.handled + effects[,sample(ncol(effects))] * d
+  log.benchmark.handled <- log.benchmark.handled + effects[, sample(ncol(effects))] * d
   log.benchmark.handled[log.benchmark.handled > 25] <- 25
   log.benchmark.handled[log.benchmark.handled < 0] <- 0
 

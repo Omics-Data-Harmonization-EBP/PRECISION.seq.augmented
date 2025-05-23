@@ -20,6 +20,7 @@ Imports:
     Biobase,
     BiocGenerics,
     tidyverse,
+    magrittr,
     mclust,
     aricode,
     RSKC,
