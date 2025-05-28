@@ -6,6 +6,7 @@
 #' @importFrom stats kmeans dist hclust cutree scale
 #' @importFrom som som
 #' @importFrom magrittr %>%
+NULL
 
 #' Preprocess harmonized training data
 #' @param harmon.train.data List of harmonized training data
