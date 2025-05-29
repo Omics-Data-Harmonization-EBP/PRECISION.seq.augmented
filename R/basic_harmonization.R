@@ -9,7 +9,7 @@
 #' @import DESeq2
 #' @import preprocessCore
 #' @import PoissonSeq
-#' @importFrom magrittr %>%
+#' @importFrom tidyverse %>%
 NULL
 
 ##########################################################

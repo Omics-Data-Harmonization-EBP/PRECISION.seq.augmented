@@ -3,9 +3,9 @@
 #' @import RSKC
 #' @import cluster
 #' @import factoextra
-#' @importFrom stats kmeans dist hclust cutree scale
+#' @importFrom stats kmeans dist hclust cutree
 #' @importFrom som som
-#' @importFrom magrittr %>%
+#' @importFrom tidyverse %>%
 NULL
 
 #' Preprocess harmonized training data
