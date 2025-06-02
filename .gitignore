@@ -3,3 +3,9 @@ docs/
 .Rhistory
 .RData
 .Ruserdata
+
+# big data files
+data/data_source/
+
+# Local files for testing
+test/
