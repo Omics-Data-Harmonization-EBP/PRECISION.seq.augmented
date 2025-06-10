@@ -9,3 +9,5 @@ data/data_source/
 
 # Local files for testing
 test/
+docs
+_pkgdown.yml

@@ -5,7 +5,7 @@
 #' @import factoextra
 #' @importFrom stats kmeans dist hclust cutree
 #' @importFrom som som
-#' @importFrom tidyverse %>%
+#' @importFrom magrittr %>%
 NULL
 
 #' Preprocess harmonized training data
