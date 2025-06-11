@@ -3,6 +3,7 @@ docs/
 .Rhistory
 .RData
 .Ruserdata
+_pkgdown.yml
 
 # big data files
 data/data_source/
@@ -10,4 +11,3 @@ data/data_source/
 # Local files for testing
 test/
 docs
-_pkgdown.yml

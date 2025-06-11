@@ -2,16 +2,27 @@
 % Please edit documentation in R/harmonization.R
 \name{harmon.RUVg}
 \alias{harmon.RUVg}
-\title{Apply RUVg harmonization}
+\title{Apply RUVg Harmonization to Precision Object}
 \usage{
 harmon.RUVg(object)
 }
 \arguments{
-\item{object}{A precision object containing raw data}
+\item{object}{A precision object containing raw data. The object must have
+slots named \code{raw.train.data}, \code{raw.test1.data}, and \code{raw.test2.data}
+(if applicable), each containing a list with \code{data} and \code{label} elements.}
 }
 \value{
-A precision object with RUVg harmonization results added
+A precision object with RUVg harmonization results added to the
+  slots \code{harmon.train.data}, \code{harmon.test1.data}, and \code{harmon.test2.data}
+  (if applicable).
 }
 \description{
-Apply RUVg harmonization
+RUV normalization for miRNA-Seq data using the RUV package.
+For more information, visit the documentation on the
+\href{https://bioconductor.org/packages/release/bioc/html/RUVSeq.html}{RUVSeq package website}.
+}
+\details{
+This function applies RUVg (gene-wise) harmonization to the raw data contained in a
+precision object. The harmonization results are added to the corresponding
+slots in the object for each dataset ("train", "test1", "test2") if they exist.
 }

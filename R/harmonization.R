@@ -109,10 +109,22 @@ create.precision.cluster <- function(data, label) {
   )
 }
 
-#' Apply standard TMM normalization
+#' Apply TMM Harmonization to Precision Object
 #'
-#' @param object A precision object containing raw data
-#' @return A precision object with TMM harmonization results added
+#' Trimmed Mean of M-values (TMM) normalization for miRNA-Seq data using the edgeR package.
+#' For more information, visit the documentation on the
+#' \href{https://bioconductor.org/packages/release/bioc/html/edgeR.html}{edgeR package website}.
+#'
+#' This function applies TMM harmonization to the raw data contained in a
+#' precision object. The harmonization results are added to the corresponding
+#' slots in the object for each dataset ("train", "test1", "test2") if they exist.
+#'
+#' @param object A precision object containing raw data. The object must have
+#'   slots named \code{raw.train.data}, \code{raw.test1.data}, and \code{raw.test2.data}
+#'   (if applicable), each containing a list with \code{data} and \code{label} elements.
+#' @return A precision object with TMM harmonization results added to the
+#'   slots \code{harmon.train.data}, \code{harmon.test1.data}, and \code{harmon.test2.data}
+#'   (if applicable).
 #' @export
 harmon.TMM <- function(object) {
   # Process all datasets if they exist
@@ -129,10 +141,23 @@ harmon.TMM <- function(object) {
   object
 }
 
-#' Apply TMM normalization with frozen parameters
+#' Apply TMM Harmonization with frozen parameters to Precision Object
 #'
-#' @param object A precision object containing raw data
-#' @return A precision object with TMM frozen harmonization results added
+#' Trimmed Mean of M-values (TMM) normalization for miRNA-Seq data using the edgeR package.
+#' For more information, visit the documentation on the
+#' \href{https://bioconductor.org/packages/release/bioc/html/edgeR.html}{edgeR package website}.
+#'
+#' This function applies TMM harmonization using frozen parameters
+#' to the raw data contained in a precision object.
+#' The harmonization results are added to the corresponding
+#' slots in the object for each dataset ("train", "test1", "test2") if they exist.
+#'
+#' @param object A precision object containing raw data. The object must have
+#'   slots named \code{raw.train.data}, \code{raw.test1.data}, and \code{raw.test2.data}
+#'   (if applicable), each containing a list with \code{data} and \code{label} elements.
+#' @return A precision object with TMM harmonization results added to the
+#'   slots \code{harmon.train.data}, \code{harmon.test1.data}, and \code{harmon.test2.data}
+#'   (if applicable).
 #' @export
 harmon.TMM.frozen <- function(object) {
   # Process training data
@@ -171,10 +196,24 @@ harmon.TMM.frozen <- function(object) {
   )
 }
 
-#' Apply total count harmonization
+#' Apply Total Count (TC) Normalization to Precision Object
 #'
-#' @param object A precision object containing raw data
-#' @return A precision object with total count (TC) harmonization results added
+#' This function applies total count normalization to miRNA-Seq data
+#' contained within a precision object. The normalization scales the raw
+#' read counts of each sample by the total number of reads in the sample,
+#' ensuring consistency across datasets.
+#'
+#' The function processes multiple datasets (e.g., "train", "test1", "test2")
+#' if they are present in the precision object. The normalized data is stored
+#' in the corresponding harmonization slots of the object.
+#'
+#' @param object A precision object. This object must contain raw data in
+#'   slots named \code{raw.train.data}, \code{raw.test1.data}, and/or \code{raw.test2.data}.
+#'   Each of these slots should include a \code{data} component (the dataset)
+#'   and a \code{label} component (associated labels).
+#' @return The input precision object with total count (TC) harmonization
+#'   results added to the slots \code{harmon.train.data}, \code{harmon.test1.data},
+#'   and/or \code{harmon.test2.data} under the \code{TC} component.
 #' @export
 harmon.TC <- function(object) {
   # Process all datasets if they exist
@@ -208,10 +247,21 @@ harmon.TC <- function(object) {
   )
 }
 
-#' Apply upper quartile harmonization
+#' Perform Upper Quartile (UQ) Normalization
 #'
-#' @param object A precision object containing raw data
-#' @return A precision object with upper quartile (UQ) harmonization results added
+#' This function applies upper quartile normalization to miRNA-Seq data
+#' contained within a precision object. The normalization scales the raw
+#' read counts of each sample by the upper quartile value, ensuring
+#' consistency across datasets.
+#'
+#' The function processes multiple datasets (e.g., "train", "test1", "test2")
+#' if they are present in the precision object. The normalized data is stored
+#' in the corresponding harmonization slots of the object.
+#'
+#' @param object A precision object containing raw miRNA-Seq data.
+#' @return A precision object with upper quartile (UQ) normalization results
+#'   added to the harmonization slots (e.g., \code{harmon.train.data},
+#'   \code{harmon.test1.data}, \code{harmon.test2.data}).
 #' @export
 harmon.UQ <- function(object) {
   # Process all datasets if they exist
@@ -245,10 +295,24 @@ harmon.UQ <- function(object) {
   )
 }
 
-#' Apply median harmonization
+#' Apply Median Harmonization to Precision Object
 #'
-#' @param object A precision object containing raw data
-#' @return A precision object with median harmonization results added
+#' This function applies upper quartile normalization to miRNA-Seq data
+#' contained within a precision object. The normalization scales the raw
+#' read counts of each sample by the upper quartile value, ensuring
+#' consistency across datasets.
+#'
+#' The function processes multiple datasets (e.g., "train", "test1", "test2")
+#' if they are present in the precision object. The normalized data is stored
+#' in the corresponding harmonization slots of the object.
+#'
+#' @param object A precision object. This object must contain raw data in
+#'   slots named \code{raw.train.data}, \code{raw.test1.data}, and/or \code{raw.test2.data}.
+#'   Each of these slots should include a \code{data} component (the dataset)
+#'   and a \code{label} component (associated labels).
+#' @return The input precision object with median harmonization results
+#'   added to the slots \code{harmon.train.data}, \code{harmon.test1.data}, and/or
+#'   \code{harmon.test2.data} under the \code{med} component.
 #' @export
 harmon.med <- function(object) {
   # Process all datasets if they exist
@@ -289,10 +353,22 @@ harmon.med <- function(object) {
   )
 }
 
-#' Apply DESeq harmonization
+#' Apply DESeq Harmonization to Precision Object
 #'
-#' @param object A precision object containing raw data
-#' @return A precision object with DESeq harmonization results added
+#' DESeq normalization for miRNA-Seq data using the DESeq2 package.
+#' For more information, visit the documentation on the
+#' \href{https://bioconductor.org/packages/release/bioc/html/DESeq2.html}{DESeq2 package website}.
+#'
+#' This function applies DESeq harmonization to the raw data contained in a
+#' precision object. The harmonization results are added to the corresponding
+#' slots in the object for each dataset ("train", "test1", "test2") if they exist.
+#'
+#' @param object A precision object containing raw data. The object must have
+#'   slots named \code{raw.train.data}, \code{raw.test1.data}, and \code{raw.test2.data}
+#'   (if applicable), each containing a list with \code{data} and \code{label} elements.
+#' @return A precision object with DESeq harmonization results added to the
+#'   slots \code{harmon.train.data}, \code{harmon.test1.data}, and \code{harmon.test2.data}
+#'   (if applicable).
 #' @export
 harmon.DESeq <- function(object) {
   # Process all datasets if they exist
@@ -319,10 +395,22 @@ harmon.DESeq <- function(object) {
   )
 }
 
-#' Apply PoissonSeq harmonization
+#' Apply PoissonSeq to Precision Object
 #'
-#' @param object A precision object containing raw data
-#' @return A precision object with PoissonSeq harmonization results added
+#' PoissonSeq normalization for miRNA-Seq data using the PoissonSeq package.
+#' For more information, visit the
+#' \href{https://github.com/cran/PoissonSeq}{PoissonSeq GitHub repository}.
+#'
+#' This function applies PoissonSeq harmonization to the raw data contained in a
+#' precision object. The harmonization results are added to the corresponding
+#' slots in the object for each dataset ("train", "test1", "test2") if they exist.
+#'
+#' @param object A precision object containing raw data. The object must have
+#'   slots named \code{raw.train.data}, \code{raw.test1.data}, and \code{raw.test2.data}
+#'   (if applicable), each containing a list with \code{data} and \code{label} elements.
+#' @return A precision object with PoissonSeq harmonization results added to the
+#'   slots \code{harmon.train.data}, \code{harmon.test1.data}, and \code{harmon.test2.data}
+#'   (if applicable).
 #' @export
 harmon.PoissonSeq <- function(object) {
   # Process all datasets if they exist
@@ -368,10 +456,22 @@ harmon.PoissonSeq <- function(object) {
   )
 }
 
-#' Apply standard quantile normalization
+#' Apply Standard Quantile normalization to Precision Object
 #'
-#' @param object A precision object containing raw data
-#' @return A precision object with quantile normalization (QN) results added
+#' Quantile normalization for miRNA-Seq data using the preprocessCore package.
+#' For more information, visit documentation on the
+#' \href{https://bioconductor.org/packages/release/bioc/html/preprocessCore.html}{preprocessCore Bioconductor page}.
+#'
+#' This function applies quantile normalization to the raw data contained in a
+#' precision object. The harmonization results are added to the corresponding
+#' slots in the object for each dataset ("train", "test1", "test2") if they exist.
+#'
+#' @param object A precision object containing raw data. The object must have
+#'   slots named \code{raw.train.data}, \code{raw.test1.data}, and \code{raw.test2.data}
+#'   (if applicable), each containing a list with \code{data} and \code{label} elements.
+#' @return A precision object with QN harmonization results added to the
+#'   slots \code{harmon.train.data}, \code{harmon.test1.data}, and \code{harmon.test2.data}
+#'   (if applicable).
 #' @export
 harmon.QN <- function(object) {
   # Process all datasets if they exist
@@ -387,10 +487,24 @@ harmon.QN <- function(object) {
   object
 }
 
-#' Apply quantile normalization with frozen parameters
+
+#' Apply Standard Quantile normalization with frozen parameters
 #'
-#' @param object A precision object containing raw data
-#' @return A precision object with frozen quantile normalization (QN) results added
+#' Quantile normalization for miRNA-Seq data using the preprocessCore package.
+#' For more information, visit documentation on the
+#' \href{https://bioconductor.org/packages/release/bioc/html/preprocessCore.html}{preprocessCore Bioconductor page}.
+#'
+#' This function applies quantile normalization with frozen parameters to the
+#' raw data contained in a precision object. The harmonization results are added
+#' to the corresponding slots in the object for each dataset
+#' ("train", "test1", "test2") if they exist.
+#'
+#' @param object A precision object containing raw data. The object must have
+#'   slots named \code{raw.train.data}, \code{raw.test1.data}, and \code{raw.test2.data}
+#'   (if applicable), each containing a list with \code{data} and \code{label} elements.
+#' @return A precision object with QN harmonization results added to the
+#'   slots \code{harmon.train.data}, \code{harmon.test1.data}, and \code{harmon.test2.data}
+#'   (if applicable).
 #' @export
 harmon.QN.frozen <- function(object) {
   # Process training data
@@ -440,10 +554,22 @@ harmon.QN.frozen <- function(object) {
   )
 }
 
-#' Apply SVA harmonization
+#' Apply SVA Harmonization to Precision Object
 #'
-#' @param object A precision object containing raw data
-#' @return A precision object with SVA harmonization results added
+#' SVA normalization for miRNA-Seq data using the sva package.
+#' For more information, visit the documentation on the
+#' \href{https://bioconductor.org/packages/release/bioc/html/sva.html}{sva package website}.
+#'
+#' This function applies SVA harmonization to the raw data contained in a
+#' precision object. The harmonization results are added to the corresponding
+#' slots in the object for each dataset ("train", "test1", "test2") if they exist.
+#'
+#' @param object A precision object containing raw data. The object must have
+#'   slots named \code{raw.train.data}, \code{raw.test1.data}, and \code{raw.test2.data}
+#'   (if applicable), each containing a list with \code{data} and \code{label} elements.
+#' @return A precision object with SVA harmonization results added to the
+#'   slots \code{harmon.train.data}, \code{harmon.test1.data}, and \code{harmon.test2.data}
+#'   (if applicable).
 #' @export
 harmon.SVA <- function(object) {
   # Process all datasets if they exist
@@ -581,10 +707,22 @@ harmon.SVA <- function(object) {
   )
 }
 
-#' Apply RUVg harmonization
+#' Apply RUVg Harmonization to Precision Object
 #'
-#' @param object A precision object containing raw data
-#' @return A precision object with RUVg harmonization results added
+#' RUV normalization for miRNA-Seq data using the RUV package.
+#' For more information, visit the documentation on the
+#' \href{https://bioconductor.org/packages/release/bioc/html/RUVSeq.html}{RUVSeq package website}.
+#'
+#' This function applies RUVg (gene-wise) harmonization to the raw data contained in a
+#' precision object. The harmonization results are added to the corresponding
+#' slots in the object for each dataset ("train", "test1", "test2") if they exist.
+#'
+#' @param object A precision object containing raw data. The object must have
+#'   slots named \code{raw.train.data}, \code{raw.test1.data}, and \code{raw.test2.data}
+#'   (if applicable), each containing a list with \code{data} and \code{label} elements.
+#' @return A precision object with RUVg harmonization results added to the
+#'   slots \code{harmon.train.data}, \code{harmon.test1.data}, and \code{harmon.test2.data}
+#'   (if applicable).
 #' @export
 harmon.RUVg <- function(object) {
   # Process all datasets if they exist
@@ -601,10 +739,23 @@ harmon.RUVg <- function(object) {
   object
 }
 
-#' Apply RUVs harmonization
+#' Apply RUVs Harmonization to Precision Object
 #'
-#' @param object A precision object containing raw data
-#' @return A precision object with RUVs harmonization results added
+#' RUV normalization for miRNA-Seq data using the RUV package.
+#' For more information, visit the documentation on the
+#' \href{https://bioconductor.org/packages/release/bioc/html/RUVSeq.html}{RUVSeq package website}.
+#'
+#' This function applies RUVs (centered (technical) replicate/negative control
+#' samples) harmonization to the raw data contained in a
+#' precision object. The harmonization results are added to the corresponding
+#' slots in the object for each dataset ("train", "test1", "test2") if they exist.
+#'
+#' @param object A precision object containing raw data. The object must have
+#'   slots named \code{raw.train.data}, \code{raw.test1.data}, and \code{raw.test2.data}
+#'   (if applicable), each containing a list with \code{data} and \code{label} elements.
+#' @return A precision object with RUVs harmonization results added to the
+#'   slots \code{harmon.train.data}, \code{harmon.test1.data}, and \code{harmon.test2.data}
+#'   (if applicable).
 #' @export
 harmon.RUVs <- function(object) {
   # Process all datasets if they exist
@@ -621,10 +772,22 @@ harmon.RUVs <- function(object) {
   object
 }
 
-#' Apply RUVr harmonization
+#' Apply RUVr Harmonization to Precision Object
 #'
-#' @param object A precision object containing raw data
-#' @return A precision object with RUVr harmonization results added
+#' RUV normalization for miRNA-Seq data using the RUV package.
+#' For more information, visit the documentation on the
+#' \href{https://bioconductor.org/packages/release/bioc/html/RUVSeq.html}{RUVSeq package website}.
+#'
+#' This function applies RUVr (using residuals) harmonization to the raw data contained in a
+#' precision object. The harmonization results are added to the corresponding
+#' slots in the object for each dataset ("train", "test1", "test2") if they exist.
+#'
+#' @param object A precision object containing raw data. The object must have
+#'   slots named \code{raw.train.data}, \code{raw.test1.data}, and \code{raw.test2.data}
+#'   (if applicable), each containing a list with \code{data} and \code{label} elements.
+#' @return A precision object with RUVr harmonization results added to the
+#'   slots \code{harmon.train.data}, \code{harmon.test1.data}, and \code{harmon.test2.data}
+#'   (if applicable).
 #' @export
 harmon.RUVr <- function(object) {
   # Process all datasets if they exist
@@ -651,11 +814,22 @@ harmon.RUVr <- function(object) {
   )
 }
 
-#' Apply ComBat-Seq normalization
+#' Apply ComBat-Seq to Precision Object
 #'
-#' @param object A precision object containing raw data
-#' @param batches A vector of batch labels for the samples
-#' @return A precision object with ComBat-Seq normalization results added
+#' ComBat-Seq batch effect adjustment for miRNA-Seq data using the ComBat-Seq method.
+#' For more information, visit the documentation on the
+#' \href{https://github.com/zhangyuqing/ComBat-seq}{ComBat-Seq documentation}.
+#'
+#' This function applies ComBat-Seq harmonization to the raw data contained in a
+#' precision object. The harmonization results are added to the corresponding
+#' slots in the object for each dataset ("train", "test1", "test2") if they exist.
+#'
+#' @param object A precision object containing raw data. The object must have
+#'   slots named \code{raw.train.data}, \code{raw.test1.data}, and \code{raw.test2.data}
+#'   (if applicable), each containing a list with \code{data} and \code{label} elements.
+#' @return A precision object with ComBat-Seq harmonization results added to the
+#'   slots \code{harmon.train.data}, \code{harmon.test1.data}, and \code{harmon.test2.data}
+#'   (if applicable).
 #' @export
 harmon.ComBat.Seq <- function(object, batches) {
   # Process all datasets if they exist

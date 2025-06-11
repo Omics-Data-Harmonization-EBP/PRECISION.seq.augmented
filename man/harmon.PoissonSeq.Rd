@@ -2,16 +2,27 @@
 % Please edit documentation in R/harmonization.R
 \name{harmon.PoissonSeq}
 \alias{harmon.PoissonSeq}
-\title{Apply PoissonSeq harmonization}
+\title{Apply PoissonSeq to Precision Object}
 \usage{
 harmon.PoissonSeq(object)
 }
 \arguments{
-\item{object}{A precision object containing raw data}
+\item{object}{A precision object containing raw data. The object must have
+slots named \code{raw.train.data}, \code{raw.test1.data}, and \code{raw.test2.data}
+(if applicable), each containing a list with \code{data} and \code{label} elements.}
 }
 \value{
-A precision object with PoissonSeq harmonization results added
+A precision object with PoissonSeq harmonization results added to the
+  slots \code{harmon.train.data}, \code{harmon.test1.data}, and \code{harmon.test2.data}
+  (if applicable).
 }
 \description{
-Apply PoissonSeq harmonization
+PoissonSeq normalization for miRNA-Seq data using the PoissonSeq package.
+For more information, visit the
+\href{https://github.com/cran/PoissonSeq}{PoissonSeq GitHub repository}.
+}
+\details{
+This function applies PoissonSeq harmonization to the raw data contained in a
+precision object. The harmonization results are added to the corresponding
+slots in the object for each dataset ("train", "test1", "test2") if they exist.
 }

@@ -2,16 +2,27 @@
 % Please edit documentation in R/harmonization.R
 \name{harmon.DESeq}
 \alias{harmon.DESeq}
-\title{Apply DESeq harmonization}
+\title{Apply DESeq Harmonization to Precision Object}
 \usage{
 harmon.DESeq(object)
 }
 \arguments{
-\item{object}{A precision object containing raw data}
+\item{object}{A precision object containing raw data. The object must have
+slots named \code{raw.train.data}, \code{raw.test1.data}, and \code{raw.test2.data}
+(if applicable), each containing a list with \code{data} and \code{label} elements.}
 }
 \value{
-A precision object with DESeq harmonization results added
+A precision object with DESeq harmonization results added to the
+  slots \code{harmon.train.data}, \code{harmon.test1.data}, and \code{harmon.test2.data}
+  (if applicable).
 }
 \description{
-Apply DESeq harmonization
+DESeq normalization for miRNA-Seq data using the DESeq2 package.
+For more information, visit the documentation on the
+\href{https://bioconductor.org/packages/release/bioc/html/DESeq2.html}{DESeq2 package website}.
+}
+\details{
+This function applies DESeq harmonization to the raw data contained in a
+precision object. The harmonization results are added to the corresponding
+slots in the object for each dataset ("train", "test1", "test2") if they exist.
 }

@@ -2,18 +2,27 @@
 % Please edit documentation in R/harmonization.R
 \name{harmon.ComBat.Seq}
 \alias{harmon.ComBat.Seq}
-\title{Apply ComBat-Seq normalization}
+\title{Apply ComBat-Seq to Precision Object}
 \usage{
 harmon.ComBat.Seq(object, batches)
 }
 \arguments{
-\item{object}{A precision object containing raw data}
-
-\item{batches}{A vector of batch labels for the samples}
+\item{object}{A precision object containing raw data. The object must have
+slots named \code{raw.train.data}, \code{raw.test1.data}, and \code{raw.test2.data}
+(if applicable), each containing a list with \code{data} and \code{label} elements.}
 }
 \value{
-A precision object with ComBat-Seq normalization results added
+A precision object with ComBat-Seq harmonization results added to the
+  slots \code{harmon.train.data}, \code{harmon.test1.data}, and \code{harmon.test2.data}
+  (if applicable).
 }
 \description{
-Apply ComBat-Seq normalization
+ComBat-Seq batch effect adjustment for miRNA-Seq data using the ComBat-Seq method.
+For more information, visit the documentation on the
+\href{https://github.com/zhangyuqing/ComBat-seq}{ComBat-Seq documentation}.
+}
+\details{
+This function applies ComBat-Seq harmonization to the raw data contained in a
+precision object. The harmonization results are added to the corresponding
+slots in the object for each dataset ("train", "test1", "test2") if they exist.
 }

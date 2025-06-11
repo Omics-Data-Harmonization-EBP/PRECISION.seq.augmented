@@ -2,16 +2,26 @@
 % Please edit documentation in R/harmonization.R
 \name{harmon.UQ}
 \alias{harmon.UQ}
-\title{Apply upper quartile harmonization}
+\title{Perform Upper Quartile (UQ) Normalization}
 \usage{
 harmon.UQ(object)
 }
 \arguments{
-\item{object}{A precision object containing raw data}
+\item{object}{A precision object containing raw miRNA-Seq data.}
 }
 \value{
-A precision object with upper quartile (UQ) harmonization results added
+A precision object with upper quartile (UQ) normalization results
+  added to the harmonization slots (e.g., \code{harmon.train.data},
+  \code{harmon.test1.data}, \code{harmon.test2.data}).
 }
 \description{
-Apply upper quartile harmonization
+This function applies upper quartile normalization to miRNA-Seq data
+contained within a precision object. The normalization scales the raw
+read counts of each sample by the upper quartile value, ensuring
+consistency across datasets.
+}
+\details{
+The function processes multiple datasets (e.g., "train", "test1", "test2")
+if they are present in the precision object. The normalized data is stored
+in the corresponding harmonization slots of the object.
 }

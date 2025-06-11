@@ -2,16 +2,29 @@
 % Please edit documentation in R/harmonization.R
 \name{harmon.med}
 \alias{harmon.med}
-\title{Apply median harmonization}
+\title{Apply Median Harmonization to Precision Object}
 \usage{
 harmon.med(object)
 }
 \arguments{
-\item{object}{A precision object containing raw data}
+\item{object}{A precision object. This object must contain raw data in
+slots named \code{raw.train.data}, \code{raw.test1.data}, and/or \code{raw.test2.data}.
+Each of these slots should include a \code{data} component (the dataset)
+and a \code{label} component (associated labels).}
 }
 \value{
-A precision object with median harmonization results added
+The input precision object with median harmonization results
+  added to the slots \code{harmon.train.data}, \code{harmon.test1.data}, and/or
+  \code{harmon.test2.data} under the \code{med} component.
 }
 \description{
-Apply median harmonization
+This function applies upper quartile normalization to miRNA-Seq data
+contained within a precision object. The normalization scales the raw
+read counts of each sample by the upper quartile value, ensuring
+consistency across datasets.
+}
+\details{
+The function processes multiple datasets (e.g., "train", "test1", "test2")
+if they are present in the precision object. The normalized data is stored
+in the corresponding harmonization slots of the object.
 }

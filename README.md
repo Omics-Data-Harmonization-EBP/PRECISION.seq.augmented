@@ -61,8 +61,8 @@ The package implements multiple data harmonization techniques:
 - `harmon.QN.frozen()` - Quantile normalization with frozen parameters
 - `harmon.sva()` - Surrogate Variable Analysis harmonization
 - `harmon.RUVr()` - Remove Unwanted Variation (residuals)
-- `harmon.RUVs()` - Remove Unwanted Variation (sample-wise)
-- `harmon.RUVg()` - Remove Unwanted Variation (gene-wise)
+- `harmon.RUVs()` - Remove Unwanted Variation (control samples)
+- `harmon.RUVg()` - Remove Unwanted Variation (control genes)
 - `harmon.ComBat.Seq()` - ComBat-seq batch effect adjustment
 
 ### Clustering Algorithms

@@ -2,16 +2,29 @@
 % Please edit documentation in R/harmonization.R
 \name{harmon.TC}
 \alias{harmon.TC}
-\title{Apply total count harmonization}
+\title{Apply Total Count (TC) Normalization to Precision Object}
 \usage{
 harmon.TC(object)
 }
 \arguments{
-\item{object}{A precision object containing raw data}
+\item{object}{A precision object. This object must contain raw data in
+slots named \code{raw.train.data}, \code{raw.test1.data}, and/or \code{raw.test2.data}.
+Each of these slots should include a \code{data} component (the dataset)
+and a \code{label} component (associated labels).}
 }
 \value{
-A precision object with total count (TC) harmonization results added
+The input precision object with total count (TC) harmonization
+  results added to the slots \code{harmon.train.data}, \code{harmon.test1.data},
+  and/or \code{harmon.test2.data} under the \code{TC} component.
 }
 \description{
-Apply total count harmonization
+This function applies total count normalization to miRNA-Seq data
+contained within a precision object. The normalization scales the raw
+read counts of each sample by the total number of reads in the sample,
+ensuring consistency across datasets.
+}
+\details{
+The function processes multiple datasets (e.g., "train", "test1", "test2")
+if they are present in the precision object. The normalized data is stored
+in the corresponding harmonization slots of the object.
 }
