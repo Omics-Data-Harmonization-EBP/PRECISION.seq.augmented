@@ -9,8 +9,13 @@
 NULL
 
 #' Preprocess harmonized training data
+#'
+#' This function preprocesses the harmonized training data by applying modified
+#' log2 transformation and scaling to each given dataset.
+#'
 #' @param harmon.train.data List of harmonized training data
 #' @return List of preprocessed data matrices
+#' @importFrom magrittr %>%
 #' @noRd
 .preprocess.data <- function(harmon.train.data) {
   dat.list <- lapply(harmon.train.data, function(x) {
@@ -20,20 +25,29 @@ NULL
       log2(x$dat.harmonized + 1)
     }
   })
+  # Scale and transpose the data matrices
   lapply(dat.list, function(x) {
+    # t(na.omit(t(scale(t(x)))))
     scale(t(x)) %>%
       t() %>%
       na.omit() %>%
       t()
   })
+  return(dat.list)
 }
 
-#' Perform K-means clustering on harmonized data
+#' K-means clustering for harmonized data
 #'
-#' @param object An object containing harmonized training data
-#' @param k Integer. Number of clusters. If NULL, uses the number of unique labels in training data
+#' This function performs K-means clustering on the harmonized training data
+#' and returns the clustering results.
 #'
-#' @return Updated object with k-means clustering results
+#' @param object A \link{precision} object containing harmonized training data
+#'  in the slot \code{harmon.train.data}.
+#' @param k \emph{Integer.} Number of clusters. If NULL or not given,
+#' uses the number of unique labels in training data.
+#' @return Updated precision object with k-means clustering results added to
+#' the \code{cluster.result} slot.
+#' @importFrom stats kmeans
 #' @export
 cluster.kmeans <- function(object, k = NULL) {
   # Get k from labels if not specified
@@ -41,7 +55,7 @@ cluster.kmeans <- function(object, k = NULL) {
     k <- length(unique(object@raw.train.data$label))
   }
 
-  # Reuse preprocessing function
+  # Preprocess data
   dat.list <- .preprocess.data(object@harmon.train.data)
 
   # Perform kmeans clustering
@@ -53,13 +67,21 @@ cluster.kmeans <- function(object, k = NULL) {
   return(object)
 }
 
-#' Perform hierarchical clustering on harmonized data
+#' Hierarchical clustering for harmonized data
 #'
-#' @param object An object containing harmonized training data
-#' @param k Integer. Number of clusters. If NULL, uses the number of unique labels in training data
-#' @param distance Character. Distance measure to use: "euclidean", "pearson", or "spearman"
+#' This function performs hierarchical clustering on the harmonized training data
+#' using euclidean, pearson, or spearman distance measures.
+#' It adds the clustering results to the \code{cluster.result} slot.
 #'
-#' @return Updated object with hierarchical clustering results
+#' @param object A \link{precision} object containing harmonized training data
+#'  in the slot \code{harmon.train.data}.
+#' @param k \emph{Integer.} Number of clusters. If NULL or not given,
+#' uses the number of unique labels in training data.
+#' @param distance Distance measure to use for clustering.
+#' Options are "euclidean", "pearson", or "spearman". Default is "euclidean".
+#'
+#' @return Updated precision object with hierarchical clustering results added to the
+#' \code{cluster.result} slot.
 #' @export
 cluster.hc <- function(object, k = NULL, distance = "euclidean") {
   # Validate distance parameter
@@ -90,12 +112,21 @@ cluster.hc <- function(object, k = NULL, distance = "euclidean") {
   return(object)
 }
 
-#' Perform Self-Organizing Map (SOM) clustering on harmonized data
+
+#' Self-Organizing Map (SOM) clustering for harmonized data
 #'
-#' @param object An object containing harmonized training data
-#' @param k Integer. Number of clusters. If NULL, uses the number of unique labels in training data
+#' This function performs Self-Organizing Map (SOM) clustering on the harmonized
+#' training data. It uses the `som` package to create a SOM model and returns
+#' the clustering results.
 #'
-#' @return Updated object with SOM clustering results
+#' @param object A \link{precision} object containing harmonized training data
+#'  in the slot \code{harmon.train.data}.
+#' @param k \emph{Integer.} Number of clusters. If NULL or not given,
+#' uses the number of unique labels in training data.
+#'
+#' @return Updated precision object with SOM clustering results added to the
+#' \code{cluster.result} slot.
+#' @importFrom som som
 #' @export
 cluster.som <- function(object, k = NULL) {
   # Get k from labels if not specified
@@ -114,12 +145,19 @@ cluster.som <- function(object, k = NULL) {
   return(object)
 }
 
-#' Perform Gaussian Mixture Model clustering on harmonized data
+#' Gaussian Mixture Model clustering for harmonized data
 #'
-#' @param object An object containing harmonized training data
-#' @param k Integer. Number of clusters. If NULL, uses the number of unique labels in training data
+#' This function performs Gaussian Mixture Model (GMM) clustering on the harmonized
+#' training data using the `mclust` package.
 #'
-#' @return Updated object with Gaussian Mixture Model clustering results
+#' @param object A \link{precision} object containing harmonized training data
+#'  in the slot \code{harmon.train.data}.
+#' @param k \emph{Integer.} Number of clusters. If NULL or not given,
+#' uses the number of unique labels in training data.
+#'
+#' @return Updated precision object with Gaussian Mixture Model clustering
+#' results added to the \code{cluster.result} slot.
+#' @importFrom mclust Mclust
 #' @export
 cluster.mnm <- function(object, k = NULL) {
   # Get k from labels if not specified
@@ -138,13 +176,24 @@ cluster.mnm <- function(object, k = NULL) {
   return(object)
 }
 
-#' Perform PAM clustering with specified distance measure on harmonized data
+#' Partitioning Around Medoids (PAM) clustering for harmonized data
 #'
-#' @param object An object containing harmonized training data
-#' @param k Integer. Number of clusters. If NULL, uses the number of unique labels in training data
-#' @param distance Character. Distance measure to use: "euclidean", "pearson", or "spearman"
+#' This function performs Partitioning Around Medoids (PAM) clustering on the harmonized
+#' training data using specified distance measures (euclidean, pearson, or spearman).
+#' It adds the clustering results to the \code{cluster.result} slot of the precision
+#' object.
 #'
-#' @return Updated object with PAM clustering results using specified distance measure
+#' @param object A \link{precision} object containing harmonized training data
+#'  in the slot \code{harmon.train.data}.
+#' @param k \emph{Integer.} Number of clusters. If NULL or not given,
+#'  uses the number of unique labels in training data.
+#' @param distance Distance measure to use for clustering.
+#' Options are "euclidean", "pearson", or "spearman". Default is "euclidean".
+#'
+#' @return Updated precision object with PAM clustering
+#' results added to the \code{cluster.result} slot.
+#' @importFrom cluster pam
+#' @importFrom factoextra get_dist
 #' @export
 cluster.pam <- function(object, k = NULL, distance = "euclidean") {
   # Validate distance parameter

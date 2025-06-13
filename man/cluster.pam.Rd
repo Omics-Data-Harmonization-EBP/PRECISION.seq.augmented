@@ -2,20 +2,27 @@
 % Please edit documentation in R/clustering.R
 \name{cluster.pam}
 \alias{cluster.pam}
-\title{Perform PAM clustering with specified distance measure on harmonized data}
+\title{Partitioning Around Medoids (PAM) clustering for harmonized data}
 \usage{
 cluster.pam(object, k = NULL, distance = "euclidean")
 }
 \arguments{
-\item{object}{An object containing harmonized training data}
+\item{object}{A \link{precision} object containing harmonized training data
+in the slot \code{harmon.train.data}.}
 
-\item{k}{Integer. Number of clusters. If NULL, uses the number of unique labels in training data}
+\item{k}{\emph{Integer.} Number of clusters. If NULL or not given,
+uses the number of unique labels in training data.}
 
-\item{distance}{Character. Distance measure to use: "euclidean", "pearson", or "spearman"}
+\item{distance}{Distance measure to use for clustering.
+Options are "euclidean", "pearson", or "spearman". Default is "euclidean".}
 }
 \value{
-Updated object with PAM clustering results using specified distance measure
+Updated precision object with PAM clustering
+results added to the \code{cluster.result} slot.
 }
 \description{
-Perform PAM clustering with specified distance measure on harmonized data
+This function performs Partitioning Around Medoids (PAM) clustering on the harmonized
+training data using specified distance measures (euclidean, pearson, or spearman).
+It adds the clustering results to the \code{cluster.result} slot of the precision
+object.
 }

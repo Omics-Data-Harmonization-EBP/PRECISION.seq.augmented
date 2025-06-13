@@ -2,18 +2,23 @@
 % Please edit documentation in R/clustering.R
 \name{cluster.som}
 \alias{cluster.som}
-\title{Perform Self-Organizing Map (SOM) clustering on harmonized data}
+\title{Self-Organizing Map (SOM) clustering for harmonized data}
 \usage{
 cluster.som(object, k = NULL)
 }
 \arguments{
-\item{object}{An object containing harmonized training data}
+\item{object}{A \link{precision} object containing harmonized training data
+in the slot \code{harmon.train.data}.}
 
-\item{k}{Integer. Number of clusters. If NULL, uses the number of unique labels in training data}
+\item{k}{\emph{Integer.} Number of clusters. If NULL or not given,
+uses the number of unique labels in training data.}
 }
 \value{
-Updated object with SOM clustering results
+Updated precision object with SOM clustering results added to the
+\code{cluster.result} slot.
 }
 \description{
-Perform Self-Organizing Map (SOM) clustering on harmonized data
+This function performs Self-Organizing Map (SOM) clustering on the harmonized
+training data. It uses the `som` package to create a SOM model and returns
+the clustering results.
 }

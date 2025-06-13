@@ -2,18 +2,22 @@
 % Please edit documentation in R/clustering.R
 \name{cluster.mnm}
 \alias{cluster.mnm}
-\title{Perform Gaussian Mixture Model clustering on harmonized data}
+\title{Gaussian Mixture Model clustering for harmonized data}
 \usage{
 cluster.mnm(object, k = NULL)
 }
 \arguments{
-\item{object}{An object containing harmonized training data}
+\item{object}{A \link{precision} object containing harmonized training data
+in the slot \code{harmon.train.data}.}
 
-\item{k}{Integer. Number of clusters. If NULL, uses the number of unique labels in training data}
+\item{k}{\emph{Integer.} Number of clusters. If NULL or not given,
+uses the number of unique labels in training data.}
 }
 \value{
-Updated object with Gaussian Mixture Model clustering results
+Updated precision object with Gaussian Mixture Model clustering
+results added to the \code{cluster.result} slot.
 }
 \description{
-Perform Gaussian Mixture Model clustering on harmonized data
+This function performs Gaussian Mixture Model (GMM) clustering on the harmonized
+training data using the `mclust` package.
 }

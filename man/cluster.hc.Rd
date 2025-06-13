@@ -2,20 +2,26 @@
 % Please edit documentation in R/clustering.R
 \name{cluster.hc}
 \alias{cluster.hc}
-\title{Perform hierarchical clustering on harmonized data}
+\title{Hierarchical clustering for harmonized data}
 \usage{
 cluster.hc(object, k = NULL, distance = "euclidean")
 }
 \arguments{
-\item{object}{An object containing harmonized training data}
+\item{object}{A \link{precision} object containing harmonized training data
+in the slot \code{harmon.train.data}.}
 
-\item{k}{Integer. Number of clusters. If NULL, uses the number of unique labels in training data}
+\item{k}{\emph{Integer.} Number of clusters. If NULL or not given,
+uses the number of unique labels in training data.}
 
-\item{distance}{Character. Distance measure to use: "euclidean", "pearson", or "spearman"}
+\item{distance}{Distance measure to use for clustering.
+Options are "euclidean", "pearson", or "spearman". Default is "euclidean".}
 }
 \value{
-Updated object with hierarchical clustering results
+Updated precision object with hierarchical clustering results added to the
+\code{cluster.result} slot.
 }
 \description{
-Perform hierarchical clustering on harmonized data
+This function performs hierarchical clustering on the harmonized training data
+using euclidean, pearson, or spearman distance measures.
+It adds the clustering results to the \code{cluster.result} slot.
 }
