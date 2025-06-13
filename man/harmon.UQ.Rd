@@ -7,7 +7,7 @@
 harmon.UQ(object)
 }
 \arguments{
-\item{object}{A precision object containing raw miRNA-Seq data.}
+\item{object}{A \link{precision} object containing raw miRNA-Seq data.}
 }
 \value{
 A precision object with upper quartile (UQ) normalization results

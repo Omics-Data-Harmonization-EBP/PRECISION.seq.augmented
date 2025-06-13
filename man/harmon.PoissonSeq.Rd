@@ -7,7 +7,7 @@
 harmon.PoissonSeq(object)
 }
 \arguments{
-\item{object}{A precision object containing raw data. The object must have
+\item{object}{A \link{precision} object containing raw data. The object must have
 slots named \code{raw.train.data}, \code{raw.test1.data}, and \code{raw.test2.data}
 (if applicable), each containing a list with \code{data} and \code{label} elements.}
 }

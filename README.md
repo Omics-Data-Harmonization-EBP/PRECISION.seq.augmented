@@ -50,7 +50,7 @@ The full *package documentation* can be found [here](TODO).
 ### Harmonization Methods
 The package implements multiple data harmonization techniques:
 
-- `harmon.all()` - Apply all of the following harmonization methods sequentially
+<!-- - `harmon.all()` - Apply all of the following harmonization methods sequentially -->
 - `harmon.TC()` - Total Count normalization
 - `harmon.UQ()` - Upper Quartile normalization  
 - `harmon.med()` - Median normalization
@@ -73,7 +73,7 @@ Multiple clustering approaches with various distance metrics:
 - `cluster.kmeans()` - K-means clustering
 - `cluster.pam()` - Partitioning Around Medoids (euclidean, pearson, spearman distances)
 - `cluster.som()` - Self-Organizing Maps
-- `cluster.mnm()` - Mixture model clustering
+- `cluster.mnm()` - Gaussian Mixture model clustering
 
 ### Classification Algorithms
 Multiple classification approaches:

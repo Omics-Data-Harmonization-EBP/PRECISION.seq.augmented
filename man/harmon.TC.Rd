@@ -7,7 +7,7 @@
 harmon.TC(object)
 }
 \arguments{
-\item{object}{A precision object. This object must contain raw data in
+\item{object}{A \link{precision} object. This object must contain raw data in
 slots named \code{raw.train.data}, \code{raw.test1.data}, and/or \code{raw.test2.data}.
 Each of these slots should include a \code{data} component (the dataset)
 and a \code{label} component (associated labels).}

@@ -2,16 +2,28 @@
 % Please edit documentation in R/harmonization.R
 \name{harmon.TMM.frozen}
 \alias{harmon.TMM.frozen}
-\title{Apply TMM normalization with frozen parameters}
+\title{Apply TMM Harmonization with frozen parameters to Precision Object}
 \usage{
 harmon.TMM.frozen(object)
 }
 \arguments{
-\item{object}{A precision object containing raw data}
+\item{object}{A \link{precision} object containing raw data. The object must have
+slots named \code{raw.train.data}, \code{raw.test1.data}, and \code{raw.test2.data}
+(if applicable), each containing a list with \code{data} and \code{label} elements.}
 }
 \value{
-A precision object with TMM frozen harmonization results added
+A precision object with TMM harmonization results added to the
+  slots \code{harmon.train.data}, \code{harmon.test1.data}, and \code{harmon.test2.data}
+  (if applicable).
 }
 \description{
-Apply TMM normalization with frozen parameters
+Trimmed Mean of M-values (TMM) normalization for miRNA-Seq data using the edgeR package.
+For more information, visit the documentation on the
+\href{https://bioconductor.org/packages/release/bioc/html/edgeR.html}{edgeR package website}.
+}
+\details{
+This function applies TMM harmonization using frozen parameters
+to the raw data contained in a precision object.
+The harmonization results are added to the corresponding
+slots in the object for each dataset ("train", "test1", "test2") if they exist.
 }
