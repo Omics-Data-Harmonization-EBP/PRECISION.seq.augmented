@@ -2,20 +2,33 @@
 % Please edit documentation in R/classification.R
 \name{classification.lasso}
 \alias{classification.lasso}
-\title{LASSO Classification Function}
+\title{Classification with LASSO Logistic Regression}
 \usage{
 classification.lasso(object, threshold_method = "cv", kfold = 5)
 }
 \arguments{
-\item{object}{Input object containing harmonized data}
+\item{object}{A \link{precision} object containing harmonized data.
+Must contain the slots \code{harmon.train.data} with harmonized training data
+and \code{harmon.test1.data} and \code{harmon.test2.data} with harmonized test data.}
 
-\item{threshold_method}{Character. Either "cv" for cross-validation optimized lambda or "none" for using all genes}
+\item{threshold_method}{A character string specifying the thresholding method.
+Use \code{"cv"} for cross-validation to determine the optimal k,
+or \code{"none"} to use all genes without thresholding.
+If \code{"none"} is used, a very small lambda value is applied
+to effectively include all genes in the model, which may be useful for
+datasets where all genes are relevant.}
 
-\item{kfold}{Number of folds for cross-validation (only used if threshold_method = "cv")}
+\item{kfold}{An integer specifying the number of folds for cross-validation.
+This parameter is only used if \code{threshold_method} is set to \code{"cv"}.}
 }
 \value{
-Updated object with LASSO classification results
+The input object updated with LASSO classification results added to the
+ \code{classification.result} slot, including predicted classes and
+ associated metrics.
 }
 \description{
-LASSO Classification Function
+This function applies LASSO classification to the harmonized data in the
+input \link{precision} object containing.
+It supports two thresholding methods: cross-validation to optimize the lambda
+parameter or using all genes without thresholding.
 }

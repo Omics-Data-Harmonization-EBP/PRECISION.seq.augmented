@@ -2,20 +2,30 @@
 % Please edit documentation in R/classification.R
 \name{classification.ranfor}
 \alias{classification.ranfor}
-\title{Random Forest Classification Function}
+\title{Random Forest Classification}
 \usage{
 classification.ranfor(object, threshold_method = "cv", kfold = 5)
 }
 \arguments{
-\item{object}{Input object containing harmonized data}
+\item{object}{A \link{precision} object containing harmonized data.
+Must contain the slots \code{harmon.train.data} with harmonized training data
+and \code{harmon.test1.data} and \code{harmon.test2.data} with harmonized test data.}
 
-\item{threshold_method}{Character. Either "cv" for cross-validation tuned parameters or "none" for default parameters}
+\item{threshold_method}{A character string specifying the thresholding method.
+Use \code{"cv"} for cross-validation to determine the optimal k,
+or \code{"none"} to use default parameters without tuning.}
 
-\item{kfold}{Number of folds for cross-validation (only used if threshold_method = "cv")}
+\item{kfold}{An integer specifying the number of folds for cross-validation.
+This parameter is only used if \code{threshold_method} is set to \code{"cv"}.}
 }
 \value{
-Updated object with Random Forest classification results
+The input object updated with Random Forest classification results added to the
+ \code{classification.result} slot, including predicted classes and
+ associated metrics.
 }
 \description{
-Random Forest Classification Function
+This function applies Random Forest classification to the harmonized data in the
+input \link{precision} object containing.
+It supports two thresholding methods: cross-validation to optimize the tuning parameter
+or using default parameters without tuning.
 }

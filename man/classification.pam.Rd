@@ -2,22 +2,32 @@
 % Please edit documentation in R/classification.R
 \name{classification.pam}
 \alias{classification.pam}
-\title{Main PAM classification function}
+\title{PAM Classification}
 \usage{
 classification.pam(object, threshold_method = "cv", vt.k = NULL, kfold = 5)
 }
 \arguments{
-\item{object}{Input object containing harmonized data}
+\item{object}{A \link{precision} object containing harmonized data.
+Must contain the slots \code{harmon.train.data} with harmonized training data
+and \code{harmon.test1.data} and \code{harmon.test2.data} with harmonized test data.}
 
-\item{threshold_method}{Character. Either "cv" for cross-validation optimized threshold or "none" for using all genes}
+\item{threshold_method}{A character string specifying the thresholding method.
+Options are:
+- \code{"cv"}: Use cross-validation to optimize the threshold.
+- \code{"none"}: Use all genes without applying a threshold.}
 
-\item{vt.k}{Threshold values (only used if threshold_method = "cv")}
+\item{vt.k}{A numeric vector of threshold values to evaluate during cross-validation.
+Only used if \code{threshold_method = "cv"}.}
 
-\item{kfold}{Number of folds}
+\item{kfold}{An integer specifying the number of folds for cross-validation.}
 }
 \value{
-Updated object with classification results
+The input object updated with PAM classification results added to the
+ \code{classification.result} slot, including predicted classes and
+ associated metrics.
 }
 \description{
-Main PAM classification function
+This function applies classification using Prediction Analysis for Microarrays (PAM)
+on the provided input object. It supports threshold optimization using
+cross-validation or the use of all genes without thresholding.
 }

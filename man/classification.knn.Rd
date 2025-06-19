@@ -2,22 +2,33 @@
 % Please edit documentation in R/classification.R
 \name{classification.knn}
 \alias{classification.knn}
-\title{KNN Classification Function}
+\title{K-Nearest Neighbors (KNN) Classification}
 \usage{
 classification.knn(object, threshold_method = "cv", kfold = 5, folds = NULL)
 }
 \arguments{
-\item{object}{Input object containing harmonized data}
+\item{object}{A \link{precision} object containing harmonized data.
+Must contain the slots \code{harmon.train.data} with harmonized training data
+and \code{harmon.test1.data} and \code{harmon.test2.data} with harmonized test data.}
 
-\item{threshold_method}{Character. Either "cv" for cross-validation optimized k or "none" for fixed k=1}
+\item{threshold_method}{A character string specifying the thresholding method.
+Use \code{"cv"} for cross-validation to determine the optimal k,
+or \code{"none"} to use a fixed k = 1.}
 
-\item{kfold}{Number of folds for cross-validation (only used if threshold_method = "cv")}
+\item{kfold}{An integer specifying the number of folds for cross-validation.
+This parameter is only used if \code{threshold_method} is set to \code{"cv"}.}
 
-\item{folds}{Pre-specified folds (optional)}
+\item{folds}{An optional list of pre-specified folds for cross-validation.
+If provided, these folds will be used instead of generating new ones.}
 }
 \value{
-Updated object with KNN classification results
+The input object updated with KNN classification results added to the
+ \code{classification.result} slot, including predicted classes and
+ associated metrics.
 }
 \description{
-KNN Classification Function
+This function applies KNN classification to the harmonized data in the
+input \link{precision} object containing.
+It supports two thresholding methods: cross-validation to optimize the number of neighbors (k)
+or a fixed k value of 1.
 }
