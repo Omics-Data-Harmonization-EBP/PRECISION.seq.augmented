@@ -1,25 +1,28 @@
 # PRECISION.seq.augmented: An R Package for Performance Assessment of Depth Normalization Methods in MicroRNA Sequencing using Augmented Data
 
 
-PRECISION.seq.augmented is an R package designed for assessing the performance of depth normalization methods in microRNA sequencing using AI-augmented data.
-The package provides a unified framework for applying multiple normalization techniques and clustering and classification algorithms, enabling researchers to systematically evaluate and compare different normalization methods.
+The PRECISION.seq.augmented R package offers a comprehensive framework for evaluating depth normalization methods in microRNA sequencing data analysis. 
+It allows investigating normalization performance in both clustering and classification contexts and provides researchers with tools to assess how different normalization approaches affect analytical outcomes. 
+Using AI-augmented miRNA-seq data derived from paired benchmark and test datasets, the package enables systematic comparison across controlled conditions with varying biological signal strengths and technical artifact magnitudes. 
+PRECISION.seq.augmented implements multiple normalization techniques, clustering approaches, and classification algorithms, allowing researchers to identify optimal strategies for their specific analytical needs and reproduce findings from our publications. 
+This package represents an essential resource for researchers seeking to maximize the reliability and reproducibility of insights derived from miRNA sequencing data.
 
 
 ## Installation
 
-You can install the released version of *PRECISION.seq.augmented* directly from GitHub using `devtools` by:
+You can install the released version of *PRECISION.seq.augmented* directly from GitHub using `devtools`:
 
 ```R
-devtools::install_github(Omics-Data-Harmonization-EBP/PRECISION.seq.augmented")
+devtools::install_github("Omics-Data-Harmonization-EBP/PRECISION.seq.augmented")
 ```
 
-The R package `PoissonSeq` for PoissonSeq normalization was removed from CRAN, but you can install the archived version from github using:
+The R package `PoissonSeq` for PoissonSeq normalization was removed from CRAN, but you can install the archived version from GitHub:
 
 ```R
 devtools::install_github("cran/PoissonSeq")
 ```
 
-If the package cannot be installed successfully, please ensure that the dependency packages are installed. This package is based on R 4.2, and the R codes for installing the dependent packages are:
+For successful installation, ensure all dependencies are properly installed. This package is based on R 4.2, and the following helper functions will install all required dependencies:
 
 ```R
 ## from CRAN
@@ -42,50 +45,57 @@ Bioconductor.packages(c("Biobase", "BiocGenerics","preprocessCore", "edgeR", "DE
 ## Main Functions
 
 <!-- TODO Add link to documentation -->
-The full *package documentation* can be found [here](TODO).
+The full *package documentation* with detailed function parameters and examples can be found on the [package documentation website](TODO).
 
-### Core Object Creation
-- `create.precision.cluster()` - Creates the main analysis object with data and labels
+
+<!-- TODO ### Data Access Functions
+- `load.augmented.data()` - Load pre-generated augmented miRNA-seq datasets with specific signal strengths and artifact magnitudes
+- `generate.scenario()` - Create customized datasets with user-defined parameters for biological signal and technical artifacts -->
+
+### Core Object and Data Modulation
+- `create.precision.cluster()` - Creates the main analysis object for clustering evaluation handling data and results
+- `create.precision.classification()` - Creates the main analysis object for classification evaluation handling data and results
+- `biological.effects()` - Apply biological effects with amplification factors
+- `handling.effects()` - Modulate handling artifacts in test datasets
 
 ### Harmonization Methods
-The package implements multiple data harmonization techniques:
+The package implements multiple data harmonization techniques applicable to both clustering and classification:
 
 <!-- - `harmon.all()` - Apply all of the following harmonization methods sequentially -->
-- `harmon.TC()` - Total Count normalization
-- `harmon.UQ()` - Upper Quartile normalization  
-- `harmon.med()` - Median normalization
-- `harmon.TMM()` - Trimmed Mean of M-values (edgeR) normalization
-- `harmon.DESeq()` - DESeq2 normalization
-- `harmon.PoissonSeq()` - PoissonSeq normalization
+- `harmon.TC()` - Total Count normalization (scaling by library size)
+- `harmon.UQ()` - Upper Quartile normalization (scaling by 75th percentile)
+- `harmon.med()` - Median normalization (scaling by median count)
+- `harmon.TMM()` - Trimmed Mean of M-values normalization (edgeR) 
+- `harmon.DESeq()` - DESeq2 normalization (geometric mean approach)
+- `harmon.PoissonSeq()` - PoissonSeq normalization (robust over-dispersed Poisson model)
 - `harmon.QN()` - Quantile normalization
-- `harmon.QN.frozen()` - Quantile normalization with frozen parameters
-- `harmon.sva()` - Surrogate Variable Analysis harmonization
+- `harmon.sva()` - Surrogate Variable Analysis batch correction
 - `harmon.RUVr()` - Remove Unwanted Variation (residuals)
 - `harmon.RUVs()` - Remove Unwanted Variation (control samples)
 - `harmon.RUVg()` - Remove Unwanted Variation (control genes)
 - `harmon.ComBat.Seq()` - ComBat-seq batch effect adjustment
 
 ### Clustering Algorithms
-Multiple clustering approaches with various distance metrics:
+The package implements multiple clustering approaches with various distance metrics:
 
 <!-- - `cluster.all()` - Apply all of the following clustering methods sequentially -->
-- `cluster.hc()` - Hierarchical clustering (euclidean, pearson, spearman distances)
-- `cluster.kmeans()` - K-means clustering
-- `cluster.pam()` - Partitioning Around Medoids (euclidean, pearson, spearman distances)
-- `cluster.som()` - Self-Organizing Maps
-- `cluster.mnm()` - Gaussian Mixture model clustering
+- `cluster.hc()` - Hierarchical clustering with multiple distance metrics(Euclidean distance, Pearson correlation, and Spearman correlation)
+- `cluster.kmeans()` - K-means clustering with configurable starting points and iteration parameters
+- `cluster.pam()` - Partitioning Around Medoids with the same distance metric options as hierarchical clustering (Euclidean, Pearson, Spearman).
+- `cluster.som()` - Self-Organizing Maps for non-linear dimensionality reduction and clustering, particularly suited for high-dimensional data
+- `cluster.mnm()` - Gaussian Mixture Model clustering with automated model selection using BIC.
 
 ### Classification Algorithms
-Multiple classification approaches:
+The package implements multiple learning methods for sample classification to evaluate how normalization affects predictive performance across training and validation datasets:
 
 <!-- - `classification.all()` - Apply all of the following clustering methods sequentially -->
 - `classification.knn()` - k-Nearest Neighbor classification
 - `classification.svm()` - Support Vector Machine classification
-- `classification.lasso()` - Logistic Regression classification using LASSO
+- `classification.pam()` - Prediction Analysis for Microarrays using nearest shrunken centroids, with built-in feature selection
+- `classification.lasso()` -  Logistic Regression with LASSO regularization for automatic feature selection and reduced overfitting
 - `classification.ranfor()` - Random Forest classification
 
-### Utility Functions
-- `biological.effects()` - Apply biological effects with amplification factors
+
 
 
 
