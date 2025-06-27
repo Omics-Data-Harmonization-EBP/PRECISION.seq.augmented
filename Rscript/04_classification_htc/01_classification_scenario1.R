@@ -135,10 +135,20 @@ measure <- function(k, datalist, threshold_method) {
   # Calculate metrics
   for (i in 1:length(base_methods)) {
     for (j in 1:length(harmon)) {
+      group.levels <- levels(factor(datalist$train.dataset[[k]]$group))
       # Get predicted labels
-      pred_train <- analysis@classification.result[[base_methods[i]]][[threshold_method]][[j]]$train_class
-      pred_test1 <- analysis@classification.result[[base_methods[i]]][[threshold_method]][[j]]$test1_class
-      pred_test2 <- analysis@classification.result[[base_methods[i]]][[threshold_method]][[j]]$test2_class
+      pred_train <- factor(
+        analysis@classification.result[[base_methods[i]]][[threshold_method]][[j]]$train_class,
+        levels = group.levels
+      )
+      pred_test1 <- factor(
+        analysis@classification.result[[base_methods[i]]][[threshold_method]][[j]]$test1_class,
+        levels = group.levels
+      )
+      pred_test2 <- factor(
+        analysis@classification.result[[base_methods[i]]][[threshold_method]][[j]]$test2_class,
+        levels = group.levels
+      )
 
       # Calculate confusion matrices
       cm_train <- table(

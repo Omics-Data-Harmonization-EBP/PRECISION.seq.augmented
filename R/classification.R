@@ -293,6 +293,7 @@ knn.intcv <- function(kfold = 5, X, y, threshold_method = "cv") {
       tuneLength = 5, # Try 5 different k values
       trControl = ctrl
     )
+    pred <- predict(knn_model, newdata = data.matrix(X))
     mc <- 1 - max(knn_model$results$Accuracy)
   } else {
     # Use fixed k=1 without cross-validation
@@ -698,6 +699,7 @@ ranfor.intcv <- function(kfold = 5, X, y, threshold_method = "cv", seed = 1) {
       trControl = control
     )
 
+    pred <- predict(rf, newdata = data.matrix(X))
     mc <- 1 - max(rf$results$Accuracy)
   } else {
     # Use default parameters without tuning
