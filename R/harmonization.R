@@ -80,32 +80,39 @@ create.precision.cluster <- function(data, label) {
 # Harmonization functions
 ##########################################################
 
-# Internal helper functions for TMM normalization
+#' Internal helper functions for TMM normalization
+#' @importFrom edgeR DGEList calcNormFactors cpm
+#' @importFrom magrittr %>%
+#' @noRd
 .harmon.method.TMM <- function(raw, groups) {
-  d <- DGEList(
+  d <- edgeR::DGEList(
     counts = raw,
     group = factor(groups),
     genes = rownames(raw)
   ) %>%
-    calcNormFactors(method = "TMM", refColumn = 1)
+    edgeR::calcNormFactors(method = "TMM", refColumn = 1)
 
   list(
-    dat.harmonized = cpm(d),
-    scaling.factor = d$samples$norm.factors * d$samples$lib.size / 1e6
+    dat.harmonized = edgeR::cpm(d),
+    scaling.factor = d$samples$norm.factors * d$samples$lib.size / 1.0e6
   )
 }
 
+#' Internal helper functions for TMM normalization (frozen parameters)
+#' @importFrom edgeR DGEList calcNormFactors cpm
+#' @importFrom magrittr %>%
+#' @noRd
 .harmon.method.TMM.frozen <- function(train.data, train.group, test.data, test.group) {
-  d <- DGEList(
+  d <- edgeR::DGEList(
     counts = cbind(train.data[, 1], test.data),
     group = factor(c(train.group[1], test.group)),
     genes = rownames(test.data)
   ) %>%
-    calcNormFactors(method = "TMM", refColumn = 1)
+    edgeR::calcNormFactors(method = "TMM", refColumn = 1)
 
   list(
-    dat.harmonized = cpm(d)[, -1],
-    scaling.factor = (d$samples$norm.factors * d$samples$lib.size / 1e6)[-1]
+    dat.harmonized = edgeR::cpm(d)[, -1],
+    scaling.factor = (d$samples$norm.factors * d$samples$lib.size / 1.0e6)[-1]
   )
 }
 
@@ -182,16 +189,18 @@ harmon.TMM.frozen <- function(object) {
   object
 }
 
-# Internal helper function for total count harmonization
+#' Internal helper function for total count harmonization
+#' @importFrom edgeR DGEList cpm
+#' @noRd
 .harmon.method.TC <- function(raw, groups) {
-  d <- DGEList(
+  d <- edgeR::DGEList(
     counts = raw,
     group = factor(groups),
     genes = rownames(raw)
   )
 
   list(
-    dat.harmonized = cpm(d, normalized.lib.sizes = FALSE),
+    dat.harmonized = edgeR::cpm(d, normalized.lib.sizes = FALSE),
     scaling.factor = d$samples$lib.size / 1e6
   )
 }
@@ -230,16 +239,18 @@ harmon.TC <- function(object) {
   object
 }
 
-# Internal helper function for upper quartile harmonization
+#' Internal helper function for upper quartile harmonization
+#' @importFrom edgeR DGEList
+#' @noRd
 .harmon.method.UQ <- function(raw, groups) {
-  d <- DGEList(
+  d <- edgeR::DGEList(
     counts = raw,
     group = factor(groups),
     genes = rownames(raw)
   )
 
   q.factor <- apply(d$counts, 2, function(x) quantile(x[x != 0], probs = 0.75))
-  scaling.factor <- q.factor / 1e6
+  scaling.factor <- q.factor / 1.0e6
 
   list(
     dat.harmonized = t(t(raw) / scaling.factor),
@@ -278,16 +289,18 @@ harmon.UQ <- function(object) {
   object
 }
 
-# Internal helper function for median harmonization
+#' Internal helper function for median harmonization
+#' @importFrom edgeR DGEList
+#' @noRd
 .harmon.method.med <- function(raw, groups) {
-  d <- DGEList(
+  d <- edgeR::DGEList(
     counts = raw,
     group = factor(groups),
     genes = rownames(raw)
   )
 
   m.factor <- apply(d$counts, 2, function(x) median(x[x != 0]))
-  scaling.factor <- m.factor / 1e6
+  scaling.factor <- m.factor / 1.0e6
 
   list(
     dat.harmonized = t(t(raw) / scaling.factor),
@@ -329,7 +342,10 @@ harmon.med <- function(object) {
   object
 }
 
-# Internal helper function for DESeq harmonization
+#' Internal helper function for DESeq harmonization
+#' @import DESeq2
+#' @importFrom magrittr %>%
+#' @noRd
 .harmon.method.DESeq <- function(raw, groups) {
   # Prepare data for DESeq2
   colnames(raw) <- paste0("V", 1:(dim(raw)[2]))
@@ -385,7 +401,9 @@ harmon.DESeq <- function(object) {
   object
 }
 
-# Internal helper function for PoissonSeq harmonization
+#' Internal helper function for PoissonSeq harmonization
+#' @import PoissonSeq
+#' @noRd
 .harmon.method.PoissonSeq <- function(raw) {
   scaling.factor <- PoissonSeq::PS.Est.Depth(raw)
 
@@ -426,7 +444,9 @@ harmon.PoissonSeq <- function(object) {
   object
 }
 
-# Internal helper functions for quantile normalization
+#' Internal helper functions for quantile normalization
+#' @importFrom preprocessCore normalize.quantiles
+#' @noRd
 .harmon.method.QN <- function(raw) {
   dat.harmonized <- preprocessCore::normalize.quantiles(as.matrix(raw))
   colnames(dat.harmonized) <- colnames(raw)
@@ -437,6 +457,9 @@ harmon.PoissonSeq <- function(object) {
   )
 }
 
+#' Internal helper functions for quantile normalization (frozen parameters)
+#' @importFrom preprocessCore normalize.quantiles
+#' @noRd
 .harmon.method.QN.frozen <- function(rawtrain, rawtest) {
   # Harmonize training data
   dat.harmonized <- preprocessCore::normalize.quantiles(as.matrix(rawtrain))
@@ -526,7 +549,9 @@ harmon.QN.frozen <- function(object) {
   object
 }
 
-# Internal helper function for SVA
+#' Internal helper function for SVA
+#' @import sva
+#' @noRd
 .harmon.method.SVA <- function(raw, groups) {
   # Filter out rows with zero sums
   dat.sva <- raw[rowSums(raw) > 0, ]
@@ -537,9 +562,9 @@ harmon.QN.frozen <- function(object) {
   dat0 <- as.matrix(dat.sva)
 
   # Calculate surrogate variables
-  n.sv <- num.sv(dat0, mod1)
+  n.sv <- sva::num.sv(dat0, mod1)
   invisible(capture.output(
-    svseq <- svaseq(dat0, mod1, mod0, n.sv = n.sv)$sv
+    svseq <- sva::svaseq(dat0, mod1, mod0, n.sv = n.sv)$sv
   ))
 
   # Adjust data using surrogate variables
@@ -586,12 +611,17 @@ harmon.SVA <- function(object) {
   object
 }
 
-# Internal helper functions for RUV harmonization
+#' Internal helper functions for RUVg harmonization
+#' @import RUVSeq
+#' @import EDASeq
+#' @import edgeR
+#' @importFrom magrittr %>%
+#' @noRd
 .harmon.method.RUVg <- function(raw, groups) {
   condition <- factor(groups)
 
   # Create expression set and design matrix
-  set <- newSeqExpressionSet(
+  set <- EDASeq::newSeqExpressionSet(
     as.matrix(raw),
     phenoData = data.frame(condition, row.names = colnames(raw))
   )
@@ -600,39 +630,45 @@ harmon.SVA <- function(object) {
   )
 
   # Prepare DGE analysis
-  y <- DGEList(counts = DESeq2::counts(set), group = condition) %>%
-    calcNormFactors(method = "upperquartile")
+  y <- edgeR::DGEList(counts = DESeq2::counts(set), group = condition) %>%
+    edgeR::calcNormFactors(method = "upperquartile")
 
   if (any(is.infinite(y$samples$norm.factors))) {
-    y <- DGEList(counts = DESeq2::counts(set), group = condition) %>%
-      calcNormFactors(method = "none")
+    y <- edgeR::DGEList(counts = DESeq2::counts(set), group = condition) %>%
+      edgeR::calcNormFactors(method = "none")
   }
 
   # Estimate dispersions and fit model
   y <- y %>%
-    estimateGLMCommonDisp(design) %>%
-    estimateGLMTagwiseDisp(design)
+    edgeR::estimateGLMCommonDisp(design) %>%
+    edgeR::estimateGLMTagwiseDisp(design)
 
   # Identify control genes
-  fit <- glmFit(y, design)
-  lrt <- glmLRT(fit, coef = 2)
-  top <- topTags(lrt, n = nrow(set))$table
+  fit <- edgeR::glmFit(y, design)
+  lrt <- edgeR::glmLRT(fit, coef = 2)
+  top <- edgeR::topTags(lrt, n = nrow(set))$table
   spikes <- rownames(set)[which(!(rownames(set) %in% rownames(top)[1:(0.15 * nrow(raw))]))]
 
   # Apply RUVg harmonization
-  t <- RUVg(set, spikes, k = 1)
+  t <- RUVSeq::RUVg(set, spikes, k = 1)
 
   list(
-    dat.harmonized = normCounts(t),
+    dat.harmonized = EDASeq::normCounts(t),
     adjust.factor = t$W
   )
 }
 
+#' Internal helper functions for RUVs harmonization
+#' @import RUVSeq
+#' @import EDASeq
+#' @import edgeR
+#' @importFrom magrittr %>%
+#' @noRd
 .harmon.method.RUVs <- function(raw, groups) {
   condition <- factor(groups)
 
   # Create expression set and design matrix
-  set <- newSeqExpressionSet(
+  set <- EDASeq::newSeqExpressionSet(
     as.matrix(raw),
     phenoData = data.frame(condition, row.names = colnames(raw))
   )
@@ -641,68 +677,75 @@ harmon.SVA <- function(object) {
   )
 
   # Prepare DGE analysis
-  y <- DGEList(counts = DESeq2::counts(set), group = condition) %>%
-    calcNormFactors(method = "upperquartile")
+  y <- edgeR::DGEList(counts = EDASeq::counts(set), group = condition) %>%
+    edgeR::calcNormFactors(method = "upperquartile")
 
   if (any(is.infinite(y$samples$norm.factors))) {
-    y <- DGEList(counts = DESeq2::counts(set), group = condition) %>%
-      calcNormFactors(method = "none")
+    y <- edgeR::DGEList(counts = EDASeq::counts(set), group = condition) %>%
+      edgeR::calcNormFactors(method = "none")
   }
 
   # Estimate dispersions and fit model
   y <- y %>%
-    estimateGLMCommonDisp(design) %>%
-    estimateGLMTagwiseDisp(design)
+    edgeR::estimateGLMCommonDisp(design) %>%
+    edgeR::estimateGLMTagwiseDisp(design)
 
   # Identify control genes and differences
-  fit <- glmFit(y, design)
-  lrt <- glmLRT(fit, coef = 2)
-  top <- topTags(lrt, n = nrow(set))$table
+  fit <- edgeR::glmFit(y, design)
+  lrt <- edgeR::glmLRT(fit, coef = 2)
+  top <- edgeR::topTags(lrt, n = nrow(set))$table
   spikes <- rownames(set)[which(!(rownames(set) %in% rownames(top)[1:(0.15 * nrow(raw))]))]
-  differences <- makeGroups(condition)
+  differences <- RUVSeq::makeGroups(condition)
 
   # Apply RUVs harmonization
-  t <- RUVs(set, rownames(raw), k = 1, differences)
+  t <- RUVSeq::RUVs(set, rownames(raw), k = 1, differences)
 
   list(
-    dat.harmonized = normCounts(t),
+    dat.harmonized = EDASeq::normCounts(t),
     adjust.factor = t$W
   )
 }
 
+#' Internal helper functions for RUVr harmonization
+#' @import RUVSeq
+#' @import EDASeq
+#' @import edgeR
+#' @importFrom Biobase pData
+#' @importFrom magrittr %>%
+#' @noRd
 .harmon.method.RUVr <- function(raw, groups) {
   condition <- factor(groups)
 
   # Create expression set and design matrix
-  set <- newSeqExpressionSet(
+  set <- EDASeq::newSeqExpressionSet(
     as.matrix(raw),
     phenoData = data.frame(condition, row.names = colnames(raw))
   )
-  design <- model.matrix(~condition, data = pData(set))
+  design <- model.matrix(~condition, data = Biobase::pData(set))
 
   # Prepare DGE analysis
-  y <- DGEList(counts = DESeq2::counts(set), group = condition) %>%
-    calcNormFactors(method = "upperquartile")
+  y <- edgeR::DGEList(counts = EDASeq::counts(set), group = condition) %>%
+    edgeR::calcNormFactors(method = "upperquartile")
 
   if (any(is.infinite(y$samples$norm.factors))) {
-    y <- DGEList(counts = DESeq2::counts(set), group = condition) %>%
-      calcNormFactors(method = "none")
+    y <- edgeR::DGEList(counts = EDASeq::counts(set), group = condition) %>%
+      edgeR::calcNormFactors(method = "none")
   }
 
   # Estimate dispersions and get residuals
   y <- y %>%
-    estimateGLMCommonDisp(design) %>%
-    estimateGLMTagwiseDisp(design)
+    edgeR::estimateGLMCommonDisp(design) %>%
+    edgeR::estimateGLMTagwiseDisp(design)
 
-  fit <- glmFit(y, design)
+  fit <- edgeR::glmFit(y, design)
   residuals <- residuals(fit, type = "deviance")
 
   # Apply RUVr harmonization
-  set <- betweenLaneNormalization(set, which = "upper")
-  t <- RUVr(set, rownames(raw), k = 1, residuals = residuals)
+  set <- EDASeq::betweenLaneNormalization(set, which = "upper")
+  t <- RUVSeq::RUVr(set, rownames(raw), k = 1, residuals = residuals)
 
   list(
-    dat.harmonized = normCounts(t),
+    dat.harmonized = EDASeq::normCounts(t),
     adjust.factor = t$W
   )
 }
@@ -804,7 +847,9 @@ harmon.RUVr <- function(object) {
   object
 }
 
-# Internal helper function for ComBat-Seq normalization
+#' Internal helper function for ComBat-Seq normalization
+#' @import sva
+#' @noRd
 .harmon.method.ComBat.Seq <- function(raw, batches) {
   # Apply ComBat-Seq normalization
   dat.harmonized <- sva::ComBat_seq(raw, batch = batches)
