@@ -19,21 +19,12 @@ NULL
 #' @noRd
 .preprocess.data <- function(harmon.train.data) {
   dat.list <- lapply(harmon.train.data, function(x) {
-    if (any(x$dat.harmonized < 0)) {
+    if(any(x$dat.harmonized < 0)){
       x$dat.harmonized
-    } else {
+    } else{
       log2(x$dat.harmonized + 1)
-    }
-  })
-  # Scale and transpose the data matrices
-  lapply(dat.list, function(x) {
-    # t(na.omit(t(scale(t(x)))))
-    scale(t(x)) %>%
-      t() %>%
-      na.omit() %>%
-      t()
-  })
-  return(dat.list)
+    }})
+  lapply(dat.list, function(x) scale(t(x)) %>% t %>% na.omit %>% t)
 }
 
 #' K-means clustering for harmonized data
@@ -82,6 +73,7 @@ cluster.kmeans <- function(object, k = NULL) {
 #'
 #' @return Updated precision object with hierarchical clustering results added to the
 #' \code{cluster.result} slot.
+#' @importFrom factoextra get_dist
 #' @export
 cluster.hc <- function(object, k = NULL, distance = "euclidean") {
   # Validate distance parameter
