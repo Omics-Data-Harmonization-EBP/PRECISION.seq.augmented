@@ -615,9 +615,16 @@ harmon.SVA <- function(object) {
 #' @import RUVSeq
 #' @import EDASeq
 #' @import edgeR
+#' @importFrom BiocGenerics counts
 #' @importFrom magrittr %>%
 #' @noRd
 .harmon.method.RUVg <- function(raw, groups) {
+  # Ensure required packages are available
+  if (!suppressMessages(require("Biobase"))) {
+    stop("Package \"Biobase\" needed for this function to work. Please install it.",
+         call. = FALSE
+    )
+  }
   condition <- factor(groups)
 
   # Create expression set and design matrix
@@ -630,11 +637,11 @@ harmon.SVA <- function(object) {
   )
 
   # Prepare DGE analysis
-  y <- edgeR::DGEList(counts = DESeq2::counts(set), group = condition) %>%
+  y <- edgeR::DGEList(counts = counts(set), group = condition) %>%
     edgeR::calcNormFactors(method = "upperquartile")
 
   if (any(is.infinite(y$samples$norm.factors))) {
-    y <- edgeR::DGEList(counts = DESeq2::counts(set), group = condition) %>%
+    y <- edgeR::DGEList(counts = counts(set), group = condition) %>%
       edgeR::calcNormFactors(method = "none")
   }
 
@@ -662,9 +669,16 @@ harmon.SVA <- function(object) {
 #' @import RUVSeq
 #' @import EDASeq
 #' @import edgeR
+#' @importFrom BiocGenerics counts
 #' @importFrom magrittr %>%
 #' @noRd
 .harmon.method.RUVs <- function(raw, groups) {
+  # Ensure required packages are available
+  if (!suppressMessages(require("Biobase"))) {
+    stop("Package \"Biobase\" needed for this function to work. Please install it.",
+         call. = FALSE
+    )
+  }
   condition <- factor(groups)
 
   # Create expression set and design matrix
@@ -677,11 +691,11 @@ harmon.SVA <- function(object) {
   )
 
   # Prepare DGE analysis
-  y <- edgeR::DGEList(counts = EDASeq::counts(set), group = condition) %>%
+  y <- edgeR::DGEList(counts = counts(set), group = condition) %>%
     edgeR::calcNormFactors(method = "upperquartile")
 
   if (any(is.infinite(y$samples$norm.factors))) {
-    y <- edgeR::DGEList(counts = EDASeq::counts(set), group = condition) %>%
+    y <- edgeR::DGEList(counts = counts(set), group = condition) %>%
       edgeR::calcNormFactors(method = "none")
   }
 
@@ -710,10 +724,16 @@ harmon.SVA <- function(object) {
 #' @import RUVSeq
 #' @import EDASeq
 #' @import edgeR
-#' @importFrom Biobase pData
+#' @importFrom BiocGenerics counts
 #' @importFrom magrittr %>%
 #' @noRd
 .harmon.method.RUVr <- function(raw, groups) {
+  # Ensure required packages are available
+  if (!suppressMessages(require("Biobase"))) {
+    stop("Package \"Biobase\" needed for this function to work. Please install it.",
+         call. = FALSE
+    )
+  }
   condition <- factor(groups)
 
   # Create expression set and design matrix
@@ -724,11 +744,11 @@ harmon.SVA <- function(object) {
   design <- model.matrix(~condition, data = Biobase::pData(set))
 
   # Prepare DGE analysis
-  y <- edgeR::DGEList(counts = EDASeq::counts(set), group = condition) %>%
+  y <- edgeR::DGEList(counts = counts(set), group = condition) %>%
     edgeR::calcNormFactors(method = "upperquartile")
 
   if (any(is.infinite(y$samples$norm.factors))) {
-    y <- edgeR::DGEList(counts = EDASeq::counts(set), group = condition) %>%
+    y <- edgeR::DGEList(counts = counts(set), group = condition) %>%
       edgeR::calcNormFactors(method = "none")
   }
 

@@ -149,13 +149,16 @@ cluster.som <- function(object, k = NULL) {
 #'
 #' @return Updated precision object with Gaussian Mixture Model clustering
 #' results added to the \code{cluster.result} slot.
-#' @importFrom mclust Mclust
+#' @import mclust
 #' @export
 cluster.mnm <- function(object, k = NULL) {
   # Get k from labels if not specified
   if (is.null(k)) {
     k <- length(unique(object@raw.train.data$label))
   }
+
+  # Fix for error: 'could not find function "mclustBIC"'
+  mclustBIC <- mclust::mclustBIC
 
   # Reuse preprocessing function
   dat.list <- .preprocess.data(object@harmon.train.data)
