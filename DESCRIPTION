@@ -1,11 +1,28 @@
 Package: PRECISION.seq.augmented
 Type: Package
-Title: What the Package Does (Title Case)
+Title: A Framework for Evaluating Depth Normalization Methods in miRNA Sequencing Data
 Version: 0.2.0
-Author: Who wrote it
+Author@R: c(
+    person("Jian", "Zou", role=c("aut", "cre")),
+    person("Ying", "Xiang", role=c("aut")),
+    person("Yilin", "Wu", role=c("aut")),
+    person("Yannick", "D\u00fcren", role=c("aut")),
+    person("Li-Xuan", "Qin", role=("fnd")))
 Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
+Description:The PRECISION.seq.augmented R package offers a comprehensive 
+    framework for evaluating depth normalization methods in microRNA sequencing 
+    data analysis. It allows investigating normalization performance in both 
+    clustering and classification contexts and provides researchers with tools 
+    to assess how different normalization approaches affect analytical outcomes. 
+    Using AI-augmented miRNA-seq data derived from paired benchmark and test 
+    datasets, the package enables systematic comparison across controlled 
+    conditions with varying biological signal strengths and technical artifact
+    magnitudes. PRECISION.seq.augmented implements multiple normalization 
+    techniques, clustering approaches, and classification algorithms, allowing 
+    researchers to identify optimal strategies for their specific analytical 
+    needs and reproduce findings from our publications. This package represents 
+    an essential resource for researchers seeking to maximize the reliability 
+    and reproducibility of insights derived from miRNA sequencing data.
 License: GPL-3 | file LICENSE
 Depends: R (>= 4.2)
 Encoding: UTF-8
