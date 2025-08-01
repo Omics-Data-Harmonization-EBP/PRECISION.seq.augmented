@@ -1,6 +1,3 @@
-#' @import limma
-NULL
-
 #' Add biological effects to benchmark data
 #'
 #' @param benchmark Numeric matrix of expression values

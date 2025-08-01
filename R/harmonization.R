@@ -1,15 +1,8 @@
-#' @import methods
 #' @import sva
 #' @import EDASeq
 #' @import edgeR
 #' @import RUVSeq
-#' @import Biobase
-#' @import BiocGenerics
-#' @import tidyverse
-#' @import DESeq2
-#' @import preprocessCore
-#' @import PoissonSeq
-#' @importFrom magrittr %>%
+#' @importFrom BiocGenerics counts
 NULL
 
 ##########################################################
@@ -26,6 +19,7 @@ NULL
 #' @slot harmon.test2.data List of harmonized test2 data
 #' @slot classification.result Classification results
 #' @slot cluster.result Clustering results
+#' @importFrom methods setClass
 #' @export
 precision <- methods::setClass(
   "precision",
@@ -50,6 +44,7 @@ precision <- methods::setClass(
 #' @param testlabel1 First test data labels
 #' @param testlabel2 Second test data labels
 #' @return A precision object
+#' @importFrom methods new
 #' @export
 create.precision.classification <- function(traindata, testdata1, testdata2,
                                             trainlabel, testlabel1, testlabel2) {
@@ -67,6 +62,7 @@ create.precision.classification <- function(traindata, testdata1, testdata2,
 #' @param data Data matrix
 #' @param label Labels
 #' @return A precision object
+#' @importFrom methods new
 #' @export
 create.precision.cluster <- function(data, label) {
   object <- methods::new(
@@ -82,15 +78,14 @@ create.precision.cluster <- function(data, label) {
 
 #' Internal helper functions for TMM normalization
 #' @importFrom edgeR DGEList calcNormFactors cpm
-#' @importFrom magrittr %>%
 #' @noRd
 .harmon.method.TMM <- function(raw, groups) {
-  d <- edgeR::DGEList(
+  dat.DGE <- edgeR::DGEList(
     counts = raw,
     group = factor(groups),
     genes = rownames(raw)
-  ) %>%
-    edgeR::calcNormFactors(method = "TMM", refColumn = 1)
+  )
+  d <- edgeR::calcNormFactors(dat.DGE, method = "TMM", refColumn = 1)
 
   list(
     dat.harmonized = edgeR::cpm(d),
@@ -100,15 +95,14 @@ create.precision.cluster <- function(data, label) {
 
 #' Internal helper functions for TMM normalization (frozen parameters)
 #' @importFrom edgeR DGEList calcNormFactors cpm
-#' @importFrom magrittr %>%
 #' @noRd
 .harmon.method.TMM.frozen <- function(train.data, train.group, test.data, test.group) {
-  d <- edgeR::DGEList(
+  dat.DGE <- edgeR::DGEList(
     counts = cbind(train.data[, 1], test.data),
     group = factor(c(train.group[1], test.group)),
     genes = rownames(test.data)
-  ) %>%
-    edgeR::calcNormFactors(method = "TMM", refColumn = 1)
+  )
+  d <- edgeR::calcNormFactors(dat.DGE, method = "TMM", refColumn = 1)
 
   list(
     dat.harmonized = edgeR::cpm(d)[, -1],
@@ -344,7 +338,6 @@ harmon.med <- function(object) {
 
 #' Internal helper function for DESeq harmonization
 #' @import DESeq2
-#' @importFrom magrittr %>%
 #' @noRd
 .harmon.method.DESeq <- function(raw, groups) {
   # Prepare data for DESeq2
@@ -356,12 +349,12 @@ harmon.med <- function(object) {
   )
 
   # Create and process DESeq dataset
-  d <- DESeq2::DESeqDataSetFromMatrix(
+  dataSet <- DESeq2::DESeqDataSetFromMatrix(
     countData = raw,
     colData = condition,
     design = ~Condition
-  ) %>%
-    DESeq2::estimateSizeFactors()
+  )
+  d <- DESeq2::estimateSizeFactors(dataSet)
 
   list(
     dat.harmonized = DESeq2::counts(d, normalized = TRUE),
@@ -402,7 +395,7 @@ harmon.DESeq <- function(object) {
 }
 
 #' Internal helper function for PoissonSeq harmonization
-#' @import PoissonSeq
+#' @importFrom PoissonSeq PS.Est.Depth
 #' @noRd
 .harmon.method.PoissonSeq <- function(raw) {
   scaling.factor <- PoissonSeq::PS.Est.Depth(raw)
@@ -616,15 +609,8 @@ harmon.SVA <- function(object) {
 #' @import EDASeq
 #' @import edgeR
 #' @importFrom BiocGenerics counts
-#' @importFrom magrittr %>%
 #' @noRd
 .harmon.method.RUVg <- function(raw, groups) {
-  # Ensure required packages are available
-  if (!suppressMessages(require("Biobase"))) {
-    stop("Package \"Biobase\" needed for this function to work. Please install it.",
-         call. = FALSE
-    )
-  }
   condition <- factor(groups)
 
   # Create expression set and design matrix
@@ -637,18 +623,17 @@ harmon.SVA <- function(object) {
   )
 
   # Prepare DGE analysis
-  y <- edgeR::DGEList(counts = counts(set), group = condition) %>%
-    edgeR::calcNormFactors(method = "upperquartile")
+  y <- edgeR::DGEList(counts = BiocGenerics::counts(set), group = condition)
+  y <- edgeR::calcNormFactors(y, method = "upperquartile")
 
   if (any(is.infinite(y$samples$norm.factors))) {
-    y <- edgeR::DGEList(counts = counts(set), group = condition) %>%
-      edgeR::calcNormFactors(method = "none")
+    y <- edgeR::DGEList(counts = BiocGenerics::counts(set), group = condition)
+    y <- edgeR::calcNormFactors(y, method = "none")
   }
 
   # Estimate dispersions and fit model
-  y <- y %>%
-    edgeR::estimateGLMCommonDisp(design) %>%
-    edgeR::estimateGLMTagwiseDisp(design)
+  y <- edgeR::estimateGLMCommonDisp(y, design)
+  y <- edgeR::estimateGLMTagwiseDisp(y, design)
 
   # Identify control genes
   fit <- edgeR::glmFit(y, design)
@@ -670,15 +655,8 @@ harmon.SVA <- function(object) {
 #' @import EDASeq
 #' @import edgeR
 #' @importFrom BiocGenerics counts
-#' @importFrom magrittr %>%
 #' @noRd
 .harmon.method.RUVs <- function(raw, groups) {
-  # Ensure required packages are available
-  if (!suppressMessages(require("Biobase"))) {
-    stop("Package \"Biobase\" needed for this function to work. Please install it.",
-         call. = FALSE
-    )
-  }
   condition <- factor(groups)
 
   # Create expression set and design matrix
@@ -691,18 +669,17 @@ harmon.SVA <- function(object) {
   )
 
   # Prepare DGE analysis
-  y <- edgeR::DGEList(counts = counts(set), group = condition) %>%
-    edgeR::calcNormFactors(method = "upperquartile")
+  y <- edgeR::DGEList(counts = BiocGenerics::counts(set), group = condition)
+  y <- edgeR::calcNormFactors(y, method = "upperquartile")
 
   if (any(is.infinite(y$samples$norm.factors))) {
-    y <- edgeR::DGEList(counts = counts(set), group = condition) %>%
-      edgeR::calcNormFactors(method = "none")
+    y <- edgeR::DGEList(counts = BiocGenerics::counts(set), group = condition)
+    y <- edgeR::calcNormFactors(y, method = "none")
   }
 
   # Estimate dispersions and fit model
-  y <- y %>%
-    edgeR::estimateGLMCommonDisp(design) %>%
-    edgeR::estimateGLMTagwiseDisp(design)
+  y <- edgeR::estimateGLMCommonDisp(y, design)
+  y <- edgeR::estimateGLMTagwiseDisp(y, design)
 
   # Identify control genes and differences
   fit <- edgeR::glmFit(y, design)
@@ -725,15 +702,9 @@ harmon.SVA <- function(object) {
 #' @import EDASeq
 #' @import edgeR
 #' @importFrom BiocGenerics counts
-#' @importFrom magrittr %>%
+#' @importFrom Biobase pData
 #' @noRd
 .harmon.method.RUVr <- function(raw, groups) {
-  # Ensure required packages are available
-  if (!suppressMessages(require("Biobase"))) {
-    stop("Package \"Biobase\" needed for this function to work. Please install it.",
-         call. = FALSE
-    )
-  }
   condition <- factor(groups)
 
   # Create expression set and design matrix
@@ -744,18 +715,17 @@ harmon.SVA <- function(object) {
   design <- model.matrix(~condition, data = Biobase::pData(set))
 
   # Prepare DGE analysis
-  y <- edgeR::DGEList(counts = counts(set), group = condition) %>%
-    edgeR::calcNormFactors(method = "upperquartile")
+  y <- edgeR::DGEList(counts = BiocGenerics::counts(set), group = condition)
+  y <- edgeR::calcNormFactors(y, method = "upperquartile")
 
   if (any(is.infinite(y$samples$norm.factors))) {
-    y <- edgeR::DGEList(counts = counts(set), group = condition) %>%
-      edgeR::calcNormFactors(method = "none")
+    y <- edgeR::DGEList(counts = BiocGenerics::counts(set), group = condition)
+    y <- edgeR::calcNormFactors(y, method = "none")
   }
 
   # Estimate dispersions and get residuals
-  y <- y %>%
-    edgeR::estimateGLMCommonDisp(design) %>%
-    edgeR::estimateGLMTagwiseDisp(design)
+  y <- edgeR::estimateGLMCommonDisp(y, design)
+  y <- edgeR::estimateGLMTagwiseDisp(y, design)
 
   fit <- edgeR::glmFit(y, design)
   residuals <- residuals(fit, type = "deviance")

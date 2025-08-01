@@ -4,7 +4,7 @@
 \alias{cluster.kmeans}
 \title{K-means clustering for harmonized data}
 \usage{
-cluster.kmeans(object, k = NULL)
+\method{cluster}{kmeans}(object, k = NULL)
 }
 \arguments{
 \item{object}{A \link{precision} object containing harmonized training data

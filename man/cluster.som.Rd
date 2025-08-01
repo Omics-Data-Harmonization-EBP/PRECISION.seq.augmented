@@ -4,7 +4,7 @@
 \alias{cluster.som}
 \title{Self-Organizing Map (SOM) clustering for harmonized data}
 \usage{
-cluster.som(object, k = NULL)
+\method{cluster}{som}(object, k = NULL)
 }
 \arguments{
 \item{object}{A \link{precision} object containing harmonized training data

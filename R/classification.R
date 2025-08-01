@@ -1,10 +1,4 @@
-#' @import e1071
-#' @import caret
-#' @import ranger
-#' @import pamr
-#' @import glmnet
 #' @importFrom stats predict coef
-#' @importFrom utils data
 NULL
 
 ### Internal utility functions
@@ -182,8 +176,8 @@ pam.intcv <- function(X, y, threshold_method = "cv", vt.k = NULL, kfold = 5) {
 #' @param pred.obj New data matrix for prediction
 #' @param pred.obj.group.id Group IDs for the new data
 #' @return List containing predicted classes and misclassification counts
+#' @import pamr
 #' @noRd
-#' @importFrom pamr pamr.predict
 pam.predict <- function(pam.intcv.model, pred.obj, pred.obj.group.id) {
   # Use threshold = 0 if model was trained without threshold selection
   threshold <- if (length(pam.intcv.model$model$threshold) == 1) 0 else pam.intcv.model$model$threshold
@@ -293,7 +287,7 @@ knn.intcv <- function(kfold = 5, X, y, threshold_method = "cv") {
       tuneLength = 5, # Try 5 different k values
       trControl = ctrl
     )
-    pred <- predict(knn_model, newdata = data.matrix(X))
+    pred <- stats::predict(knn_model, newdata = data.matrix(X))
     mc <- 1 - max(knn_model$results$Accuracy)
   } else {
     # Use fixed k=1 without cross-validation
@@ -306,7 +300,7 @@ knn.intcv <- function(kfold = 5, X, y, threshold_method = "cv") {
     )
 
     # Calculate error on training set
-    pred <- predict(knn_model, newdata = data.matrix(X))
+    pred <- stats::predict(knn_model, newdata = data.matrix(X))
     mc <- mean(pred != y)
   }
 
@@ -326,7 +320,7 @@ knn.intcv <- function(kfold = 5, X, y, threshold_method = "cv") {
 #' @return List containing predicted classes and misclassification counts
 #' @noRd
 knn.predict <- function(knn.intcv.model, pred.obj, pred.obj.group.id) {
-  pred <- predict(knn.intcv.model$model, newdata = data.matrix(pred.obj))
+  pred <- stats::predict(knn.intcv.model$model, newdata = data.matrix(pred.obj))
   mc <- tabulate.ext.err.func(pred, pred.obj.group.id)
   list(pred = pred, mc = mc)
 }
@@ -399,7 +393,7 @@ classification.svm <- function(object, threshold_method = "cv", kfold = 5) {
 #' @param y Labels for training data
 #' @param threshold_method Character. Either "cv" for cross-validation optimized
 #' threshold or "none" for using all genes
-#' @import e1071 tune.svm svm tune.control
+#' @importFrom e1071 tune.svm svm tune.control
 #' @noRd
 svm.intcv <- function(kfold = 5, X, y, threshold_method = "cv") {
   ptm <- proc.time()
@@ -425,11 +419,11 @@ svm.intcv <- function(kfold = 5, X, y, threshold_method = "cv") {
   }
 
   # Calculate error on training set
-  mc <- mean(predict(model, data.matrix(X)) != factor(y))
+  mc <- mean(stats::predict(model, data.matrix(X)) != factor(y))
   time <- proc.time() - ptm
 
   return(list(
-    pred = predict(model, data.matrix(X)),
+    pred = stats::predict(model, data.matrix(X)),
     mc = mc, time = time, model = model
   ))
 }
@@ -441,7 +435,7 @@ svm.intcv <- function(kfold = 5, X, y, threshold_method = "cv") {
 #' @return List containing predicted classes and misclassification counts
 #' @noRd
 svm.predict <- function(svm.intcv.model, pred.obj, pred.obj.group.id) {
-  pred <- predict(svm.intcv.model$model, newdata = pred.obj)
+  pred <- stats::predict(svm.intcv.model$model, newdata = pred.obj)
   mc <- tabulate.ext.err.func(pred, pred.obj.group.id)
 
   return(list(pred = pred, mc = mc))
@@ -525,7 +519,8 @@ classification.lasso <- function(object, threshold_method = "cv", kfold = 5) {
 #' threshold or "none" for using all genes
 #' @param seed Random seed for reproducibility
 #' @param alp Numeric. The alpha parameter for glmnet (1 for LASSO, 0 for Ridge)
-#' @import glmnet
+#' @importFrom glmnet cv.glmnet glmnet
+#' @importFrom stats predict coef
 #' @noRd
 lasso.intcv <- function(kfold = 5, X, y, threshold_method = "cv", seed = 1, alp = 1) {
   ptm <- proc.time()
@@ -542,7 +537,7 @@ lasso.intcv <- function(kfold = 5, X, y, threshold_method = "cv", seed = 1, alp 
       nfold = kfold
     )
     lambda_value <- cv.fit$lambda.min
-    pred <- predict(cv.fit, newx = data.matrix(X), s = lambda_value, type = "class")
+    pred <- stats::predict(cv.fit, newx = data.matrix(X), s = lambda_value, type = "class")
     mc <- mean(pred != y)
   } else {
     # Use very small lambda to effectively include all genes
@@ -557,14 +552,14 @@ lasso.intcv <- function(kfold = 5, X, y, threshold_method = "cv", seed = 1, alp 
     lambda_value <- tiny_lambda
 
     # Calculate error on training set
-    pred <- predict(cv.fit, newx = data.matrix(X), s = lambda_value, type = "class")
+    pred <- stats::predict(cv.fit, newx = data.matrix(X), s = lambda_value, type = "class")
     mc <- mean(pred != y)
   }
 
   coefs <- if (threshold_method == "cv") {
-    trycatch.func(coef(cv.fit, s = lambda_value))
+    trycatch.func(stats::coef(cv.fit, s = lambda_value))
   } else {
-    trycatch.func(coef(cv.fit, s = lambda_value))
+    trycatch.func(stats::coef(cv.fit, s = lambda_value))
   }
 
   return(list(
@@ -584,7 +579,7 @@ lasso.intcv <- function(kfold = 5, X, y, threshold_method = "cv", seed = 1, alp 
 #' @return List containing predicted classes and misclassification counts
 #' @noRd
 lasso.predict <- function(lasso.intcv.model, pred.obj, pred.obj.group.id) {
-  pred <- predict(
+  pred <- stats::predict(
     lasso.intcv.model$model,
     newx = pred.obj,
     s = lasso.intcv.model$lambda,
@@ -592,7 +587,7 @@ lasso.predict <- function(lasso.intcv.model, pred.obj, pred.obj.group.id) {
   )
 
   mc <- tabulate.ext.err.func(pred, pred.obj.group.id)
-  prob <- predict(
+  prob <- stats::predict(
     lasso.intcv.model$model,
     newx = pred.obj,
     s = lasso.intcv.model$lambda
@@ -699,7 +694,7 @@ ranfor.intcv <- function(kfold = 5, X, y, threshold_method = "cv", seed = 1) {
       trControl = control
     )
 
-    pred <- predict(rf, newdata = data.matrix(X))
+    pred <- stats::predict(rf, newdata = data.matrix(X))
     mc <- 1 - max(rf$results$Accuracy)
   } else {
     # Use default parameters without tuning
@@ -720,7 +715,7 @@ ranfor.intcv <- function(kfold = 5, X, y, threshold_method = "cv", seed = 1) {
     )
 
     # Calculate error on training set
-    pred <- predict(rf, newdata = data.matrix(X))
+    pred <- stats::predict(rf, newdata = data.matrix(X))
     mc <- mean(pred != y)
   }
 
@@ -740,7 +735,7 @@ ranfor.intcv <- function(kfold = 5, X, y, threshold_method = "cv", seed = 1) {
 #' @return List containing predicted classes and misclassification counts
 #' @noRd
 ranfor.predict <- function(ranfor.intcv.model, pred.obj, pred.obj.group.id) {
-  pred <- predict(ranfor.intcv.model$model, newdata = pred.obj)
+  pred <- stats::predict(ranfor.intcv.model$model, newdata = pred.obj)
   mc <- tabulate.ext.err.func(pred, pred.obj.group.id)
 
   return(list(pred = pred, mc = mc))

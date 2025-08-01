@@ -4,7 +4,7 @@
 \alias{cluster.pam}
 \title{Partitioning Around Medoids (PAM) clustering for harmonized data}
 \usage{
-cluster.pam(object, k = NULL, distance = "euclidean")
+\method{cluster}{pam}(object, k = NULL, distance = "euclidean")
 }
 \arguments{
 \item{object}{A \link{precision} object containing harmonized training data

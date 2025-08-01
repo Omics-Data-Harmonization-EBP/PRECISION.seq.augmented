@@ -4,7 +4,7 @@
 \alias{cluster.mnm}
 \title{Gaussian Mixture Model clustering for harmonized data}
 \usage{
-cluster.mnm(object, k = NULL)
+\method{cluster}{mnm}(object, k = NULL)
 }
 \arguments{
 \item{object}{A \link{precision} object containing harmonized training data

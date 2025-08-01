@@ -1,12 +1,3 @@
-#' @import mclust
-#' @import aricode
-#' @import RSKC
-#' @import cluster
-#' @import factoextra
-#' @importFrom stats kmeans dist hclust cutree
-#' @importFrom som som
-#' @importFrom magrittr %>%
-NULL
 
 #' Preprocess harmonized training data
 #'
@@ -15,7 +6,6 @@ NULL
 #'
 #' @param harmon.train.data List of harmonized training data
 #' @return List of preprocessed data matrices
-#' @importFrom magrittr %>%
 #' @noRd
 .preprocess.data <- function(harmon.train.data) {
   dat.list <- lapply(harmon.train.data, function(x) {
@@ -24,7 +14,7 @@ NULL
     } else{
       log2(x$dat.harmonized + 1)
     }})
-  lapply(dat.list, function(x) scale(t(x)) %>% t %>% na.omit %>% t)
+  lapply(dat.list, function(x) t(na.omit(t(scale(t(x))))))
 }
 
 #' K-means clustering for harmonized data
@@ -39,7 +29,7 @@ NULL
 #' @return Updated precision object with k-means clustering results added to
 #' the \code{cluster.result} slot.
 #' @importFrom stats kmeans
-#' @export
+#' @export cluster.kmeans
 cluster.kmeans <- function(object, k = NULL) {
   # Get k from labels if not specified
   if (is.null(k)) {
@@ -52,7 +42,7 @@ cluster.kmeans <- function(object, k = NULL) {
   # Perform kmeans clustering
   object@cluster.result$kmeans <- lapply(
     dat.list,
-    function(x) kmeans(x, k, nstart = 100)$cluster
+    function(x) stats::kmeans(x, k, nstart = 100)$cluster
   )
 
   return(object)
@@ -74,7 +64,8 @@ cluster.kmeans <- function(object, k = NULL) {
 #' @return Updated precision object with hierarchical clustering results added to the
 #' \code{cluster.result} slot.
 #' @importFrom factoextra get_dist
-#' @export
+#' @importFrom stats dist hclust cutree
+#' @export cluster.hc
 cluster.hc <- function(object, k = NULL, distance = "euclidean") {
   # Validate distance parameter
   distance <- match.arg(distance, c("euclidean", "pearson", "spearman"))
@@ -90,12 +81,12 @@ cluster.hc <- function(object, k = NULL, distance = "euclidean") {
   # Define internal hierarchical clustering function
   hc <- function(data, group, dist_method) {
     if (dist_method == "euclidean") {
-      dist_mat <- dist(data, method = "euclidean")
+      dist_mat <- stats::dist(data, method = "euclidean")
     } else {
       dist_mat <- factoextra::get_dist(data, method = dist_method)
     }
-    hctree <- hclust(dist_mat, method = "ward.D2")
-    cutree(hctree, group)
+    hctree <- stats::hclust(dist_mat, method = "ward.D2")
+    stats::cutree(hctree, group)
   }
 
   # Perform hierarchical clustering
@@ -119,7 +110,7 @@ cluster.hc <- function(object, k = NULL, distance = "euclidean") {
 #' @return Updated precision object with SOM clustering results added to the
 #' \code{cluster.result} slot.
 #' @importFrom som som
-#' @export
+#' @export cluster.som
 cluster.som <- function(object, k = NULL) {
   # Get k from labels if not specified
   if (is.null(k)) {
@@ -150,15 +141,15 @@ cluster.som <- function(object, k = NULL) {
 #' @return Updated precision object with Gaussian Mixture Model clustering
 #' results added to the \code{cluster.result} slot.
 #' @import mclust
-#' @export
+#' @export cluster.mnm
 cluster.mnm <- function(object, k = NULL) {
   # Get k from labels if not specified
   if (is.null(k)) {
     k <- length(unique(object@raw.train.data$label))
   }
 
-  # Fix for error: 'could not find function "mclustBIC"'
-  mclustBIC <- mclust::mclustBIC
+  # # Fix for error: 'could not find function "mclustBIC"'
+  # mclustBIC <- mclust::mclustBIC
 
   # Reuse preprocessing function
   dat.list <- .preprocess.data(object@harmon.train.data)
@@ -189,7 +180,7 @@ cluster.mnm <- function(object, k = NULL) {
 #' results added to the \code{cluster.result} slot.
 #' @importFrom cluster pam
 #' @importFrom factoextra get_dist
-#' @export
+#' @export cluster.pam
 cluster.pam <- function(object, k = NULL, distance = "euclidean") {
   # Validate distance parameter
   distance <- match.arg(distance, c("euclidean", "pearson", "spearman"))
