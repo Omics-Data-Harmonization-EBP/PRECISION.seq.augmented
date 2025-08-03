@@ -6,25 +6,41 @@
 \alias{precision}
 \title{Precision Class}
 \description{
-Precision Class
+This class handles the data and results for the PRECISION.seq.augmented
+package. It includes raw training and test data, harmonized data for
+various normalization methods, classification results, and clustering results.
+Use \code{\link{create.precision.classification}} to create an instance for classification tasks,
+and \code{\link{create.precision.cluster}} to create an instance for clustering tasks.
 }
 \section{Slots}{
 
 \describe{
-\item{\code{raw.train.data}}{Training data and labels}
+\item{\code{raw.train.data}}{A list containing the training data
+(\code{raw.train.data$data}) and labels (\code{raw.train.data$label})}
 
-\item{\code{raw.test1.data}}{First test dataset and labels}
+\item{\code{raw.test1.data}}{A list containing the first test dataset
+(\code{raw.test1.data$data}) and labels (\code{raw.test1.data$label})}
 
-\item{\code{raw.test2.data}}{Second test dataset and labels}
+\item{\code{raw.test2.data}}{A list containing the second test dataset
+(\code{raw.test2.data$data}) and labels (\code{raw.test2.data$label})}
 
-\item{\code{harmon.train.data}}{List of harmonized training data}
+\item{\code{harmon.train.data}}{A list of harmonized training data
+\code{raw.train.data} for various methods}
 
-\item{\code{harmon.test1.data}}{List of harmonized test1 data}
+\item{\code{harmon.test1.data}}{A list of harmonized first test data
+\code{raw.test1.data} for various methods}
 
-\item{\code{harmon.test2.data}}{List of harmonized test2 data}
+\item{\code{harmon.test2.data}}{A list of harmonized second test data
+\code{raw.test2.data} for various methods}
 
-\item{\code{classification.result}}{Classification results}
+\item{\code{classification.result}}{A list containing the results of classification tasks}
 
-\item{\code{cluster.result}}{Clustering results}
+\item{\code{cluster.result}}{A list containing the results of clustering tasks}
 }}
 
+\seealso{
+\code{\link{create.precision.classification}} for creating instances
+ of this class for classification,
+ \code{\link{create.precision.cluster}} for creating instances
+ of this class for clustering.
+}

@@ -1,9 +1,15 @@
 #' Add biological effects to benchmark data
 #'
-#' @param benchmark Numeric matrix of expression values
-#' @param group Factor or vector defining sample groups
+#' This function simulates biological effects on benchmark data by amplifying
+#' the signal between \emph{two} groups based on a specified amplification factor.
+#' It modifies the input data and returns the amplified data along with group information.
+#'
+#' @param benchmark Numeric matrix of expression values, (\code{p} by \code{n}), where
+#' \code{p} is the number of features and \code{n} is the number of samples.
+#' @param group Factor or vector of character strings defining sample groups
+#'  for each sample. Must have exactly two levels.
 #' @param c Numeric amplification factor
-#' @return List containing modified data and group information
+#' @return List containing modified data, group information, and amplification factor.
 #' @export
 biological.effects <- function(benchmark, group, c) {
   log.benchmark <- log2(benchmark + 1)
@@ -33,12 +39,19 @@ biological.effects <- function(benchmark, group, c) {
 
 #' Add handling effects to benchmark data
 #'
-#' @param clean.input Numeric matrix of clean input data
-#' @param benchmark Numeric matrix of benchmark data
-#' @param test Numeric matrix of test data
-#' @param group Factor or vector defining sample groups
-#' @param d Numeric effect size factor
-#' @return List containing modified data and group information
+#' This function simulates handling effects by modifying the
+#' clean input data based on the differences between the benchmark and test data.
+#'
+#' @param clean.input Numeric matrix of clean input data, (\code{p} by \code{n}), where
+#' \code{p} is the number of features and \code{n} is the number of samples.
+#' @param benchmark Numeric matrix of benchmark data, (\code{p} by \code{n}), where
+#' \code{p} is the number of features and \code{n} is the number of samples.
+#' @param test Numeric matrix of test data, (\code{p} by \code{n}), where
+#' \code{p} is the number of features and \code{n} is the number of samples.
+#' @param group Factor or vector of character strings defining sample groups
+#'  for each sample. Must have exactly two levels.
+#' @param d Numeric effect strength factor
+#' @return List containing modified data, group information, and effect size
 #' @export
 handling.effects <- function(clean.input, benchmark, test, group, d) {
   log.benchmark <- log2(benchmark + 1)

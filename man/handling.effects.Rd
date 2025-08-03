@@ -7,19 +7,24 @@
 handling.effects(clean.input, benchmark, test, group, d)
 }
 \arguments{
-\item{clean.input}{Numeric matrix of clean input data}
+\item{clean.input}{Numeric matrix of clean input data, (\code{p} by \code{n}), where
+\code{p} is the number of features and \code{n} is the number of samples.}
 
-\item{benchmark}{Numeric matrix of benchmark data}
+\item{benchmark}{Numeric matrix of benchmark data, (\code{p} by \code{n}), where
+\code{p} is the number of features and \code{n} is the number of samples.}
 
-\item{test}{Numeric matrix of test data}
+\item{test}{Numeric matrix of test data, (\code{p} by \code{n}), where
+\code{p} is the number of features and \code{n} is the number of samples.}
 
-\item{group}{Factor or vector defining sample groups}
+\item{group}{Factor or vector of character strings defining sample groups
+for each sample. Must have exactly two levels.}
 
-\item{d}{Numeric effect size factor}
+\item{d}{Numeric effect strength factor}
 }
 \value{
-List containing modified data and group information
+List containing modified data, group information, and effect size
 }
 \description{
-Add handling effects to benchmark data
+This function simulates handling effects by modifying the
+clean input data based on the differences between the benchmark and test data.
 }

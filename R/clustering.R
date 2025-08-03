@@ -1,4 +1,3 @@
-
 #' Preprocess harmonized training data
 #'
 #' This function preprocesses the harmonized training data by applying modified
@@ -9,11 +8,12 @@
 #' @noRd
 .preprocess.data <- function(harmon.train.data) {
   dat.list <- lapply(harmon.train.data, function(x) {
-    if(any(x$dat.harmonized < 0)){
+    if (any(x$dat.harmonized < 0)) {
       x$dat.harmonized
-    } else{
+    } else {
       log2(x$dat.harmonized + 1)
-    }})
+    }
+  })
   lapply(dat.list, function(x) t(na.omit(t(scale(t(x))))))
 }
 

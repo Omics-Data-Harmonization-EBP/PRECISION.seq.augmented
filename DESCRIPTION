@@ -2,8 +2,8 @@ Package: PRECISION.seq.augmented
 Type: Package
 Title: A Framework for Evaluating Depth Normalization Methods in miRNA Sequencing Data
 Version: 0.2.0
-Author@R: c(
-    person("Jian", "Zou", role=c("aut", "cre")),
+Authors@R: c(
+    person("Jian", "Zou", role=c("aut", "cre"), email="yourself@somewhere.net"),
     person("Ying", "Xiang", role=c("aut")),
     person("Yilin", "Wu", role=c("aut")),
     person("Yannick", "D\u00fcren", role=c("aut")),

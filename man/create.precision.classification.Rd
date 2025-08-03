@@ -14,21 +14,26 @@ create.precision.classification(
 )
 }
 \arguments{
-\item{traindata}{Training data matrix}
+\item{traindata}{Training data matrix, (\code{p} by \code{n}), where
+\code{p} is the number of features and \code{n} is the number of samples.}
 
-\item{testdata1}{First test data matrix}
+\item{testdata1}{First test data matrix, (\code{p} by \code{n}), where
+\code{p} is the number of features and \code{n} is the number of samples.}
 
-\item{testdata2}{Second test data matrix}
+\item{testdata2}{Second test data matrix, (\code{p} by \code{n}), where
+\code{p} is the number of features and \code{n} is the number of samples.}
 
-\item{trainlabel}{Training data labels}
+\item{trainlabel}{Training data labels, a vector of length \code{n} (number of samples).}
 
-\item{testlabel1}{First test data labels}
+\item{testlabel1}{First test data labels, a vector of length \code{n} (number of samples).}
 
-\item{testlabel2}{Second test data labels}
+\item{testlabel2}{Second test data labels, a vector of length \code{n} (number of samples).}
 }
 \value{
-A precision object
+A precision object for classification
 }
 \description{
-Create precision object for classification
+Use this function to create a \code{\link{precision}} object for classification tasks.
+This object will contain raw training and two sets of test data,
+along with their labels.
 }

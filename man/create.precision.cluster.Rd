@@ -12,8 +12,9 @@ create.precision.cluster(data, label)
 \item{label}{Labels}
 }
 \value{
-A precision object
+A precision object for clustering
 }
 \description{
-Create precision object for clustering
+Use this function to create a \code{\link{precision}} object for clustering tasks.
+This object will contain raw training data and its labels.
 }

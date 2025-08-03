@@ -11,14 +11,32 @@ NULL
 
 #' Precision Class
 #'
-#' @slot raw.train.data Training data and labels
-#' @slot raw.test1.data First test dataset and labels
-#' @slot raw.test2.data Second test dataset and labels
-#' @slot harmon.train.data List of harmonized training data
-#' @slot harmon.test1.data List of harmonized test1 data
-#' @slot harmon.test2.data List of harmonized test2 data
-#' @slot classification.result Classification results
-#' @slot cluster.result Clustering results
+#' This class handles the data and results for the PRECISION.seq.augmented
+#' package. It includes raw training and test data, harmonized data for
+#' various normalization methods, classification results, and clustering results.
+#' Use \code{\link{create.precision.classification}} to create an instance for classification tasks,
+#' and \code{\link{create.precision.cluster}} to create an instance for clustering tasks.
+#'
+#'
+#' @slot raw.train.data A list containing the training data
+#'  (\code{raw.train.data$data}) and labels (\code{raw.train.data$label})
+#' @slot raw.test1.data A list containing the first test dataset
+#'  (\code{raw.test1.data$data}) and labels (\code{raw.test1.data$label})
+#' @slot raw.test2.data A list containing the second test dataset
+#'  (\code{raw.test2.data$data}) and labels (\code{raw.test2.data$label})
+#' @slot harmon.train.data A list of harmonized training data
+#'  \code{raw.train.data} for various methods
+#' @slot harmon.test1.data A list of harmonized first test data
+#'  \code{raw.test1.data} for various methods
+#' @slot harmon.test2.data A list of harmonized second test data
+#'  \code{raw.test2.data} for various methods
+#' @slot classification.result A list containing the results of classification tasks
+#' @slot cluster.result A list containing the results of clustering tasks
+#' @seealso
+#'  \code{\link{create.precision.classification}} for creating instances
+#'  of this class for classification,
+#'  \code{\link{create.precision.cluster}} for creating instances
+#'  of this class for clustering.
 #' @importFrom methods setClass
 #' @export
 precision <- methods::setClass(
@@ -37,13 +55,20 @@ precision <- methods::setClass(
 
 #' Create precision object for classification
 #'
-#' @param traindata Training data matrix
-#' @param testdata1 First test data matrix
-#' @param testdata2 Second test data matrix
-#' @param trainlabel Training data labels
-#' @param testlabel1 First test data labels
-#' @param testlabel2 Second test data labels
-#' @return A precision object
+#' Use this function to create a \code{\link{precision}} object for classification tasks.
+#' This object will contain raw training and two sets of test data,
+#' along with their labels.
+#'
+#' @param traindata Training data matrix, (\code{p} by \code{n}), where
+#' \code{p} is the number of features and \code{n} is the number of samples.
+#' @param testdata1 First test data matrix, (\code{p} by \code{n}), where
+#' \code{p} is the number of features and \code{n} is the number of samples.
+#' @param testdata2 Second test data matrix, (\code{p} by \code{n}), where
+#' \code{p} is the number of features and \code{n} is the number of samples.
+#' @param trainlabel Training data labels, a vector of length \code{n} (number of samples).
+#' @param testlabel1 First test data labels, a vector of length \code{n} (number of samples).
+#' @param testlabel2 Second test data labels, a vector of length \code{n} (number of samples).
+#' @return A precision object for classification
 #' @importFrom methods new
 #' @export
 create.precision.classification <- function(traindata, testdata1, testdata2,
@@ -59,9 +84,12 @@ create.precision.classification <- function(traindata, testdata1, testdata2,
 
 #' Create precision object for clustering
 #'
+#' Use this function to create a \code{\link{precision}} object for clustering tasks.
+#' This object will contain raw training data and its labels.
+#'
 #' @param data Data matrix
 #' @param label Labels
-#' @return A precision object
+#' @return A precision object for clustering
 #' @importFrom methods new
 #' @export
 create.precision.cluster <- function(data, label) {
