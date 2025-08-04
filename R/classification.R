@@ -134,10 +134,12 @@ pam.intcv <- function(X, y, threshold_method = "cv", vt.k = NULL, kfold = 5) {
     raw_model <- pamr::pamr.train(data.pam, threshold = vt.k)
 
     # Perform cross-validation to find best threshold
-    cv_model <- pamr::pamr.cv(
-      fit = raw_model,
-      data = data.pam,
-      nfold = kfold
+    output <- capture.output( # Disable output messages from pamr.cv
+      cv_model <- pamr::pamr.cv(
+        fit = raw_model,
+        data = data.pam,
+        nfold = kfold
+      )
     )
 
     # Find best threshold (one with minimum CV error)
@@ -158,16 +160,19 @@ pam.intcv <- function(X, y, threshold_method = "cv", vt.k = NULL, kfold = 5) {
     mc <- mean(pred != y)
   }
 
+  cfs <- NULL
+  if (threshold_method == "cv") {
+    output <- capture.output( # Disable output messages from pamr.listgenes
+      cfs <- trycatch.func(pamr::pamr.listgenes(final_model, data.pam, threshold = best.threshold))
+    )
+  }
+
   list(
     pred = pred,
     mc = mc,
     time = proc.time() - start_time,
     model = final_model,
-    cfs = if (threshold_method == "cv") {
-      trycatch.func(pamr::pamr.listgenes(final_model, data.pam, threshold = best.threshold))
-    } else {
-      NULL
-    }
+    cfs = cfs
   )
 }
 

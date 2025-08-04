@@ -377,10 +377,12 @@ harmon.med <- function(object) {
   )
 
   # Create and process DESeq dataset
-  dataSet <- DESeq2::DESeqDataSetFromMatrix(
-    countData = raw,
-    colData = condition,
-    design = ~Condition
+  suppressMessages( # Suppress "converting counts to integer mode" message
+    dataSet <- DESeq2::DESeqDataSetFromMatrix(
+      countData = raw,
+      colData = condition,
+      design = ~Condition
+    )
   )
   d <- DESeq2::estimateSizeFactors(dataSet)
 
