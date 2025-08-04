@@ -12,6 +12,13 @@
 #' @return List containing modified data, group information, and amplification factor.
 #' @export
 biological.effects <- function(benchmark, group, c) {
+  if (any(benchmark < 0)) {
+    stop("Benchmark data contains negative values.")
+  }
+  if (length(unique(group)) != 2) {
+    stop("Group must have exactly two levels.")
+  }
+
   log.benchmark <- log2(benchmark + 1)
   log.benchmark[log.benchmark > 25] <- 25
   group.level <- levels(factor(group))
@@ -49,11 +56,20 @@ biological.effects <- function(benchmark, group, c) {
 #' @param test Numeric matrix of test data, (\code{p} by \code{n}), where
 #' \code{p} is the number of features and \code{n} is the number of samples.
 #' @param group Factor or vector of character strings defining sample groups
-#'  for each sample. Must have exactly two levels.
+#'  for each sample.
 #' @param d Numeric effect strength factor
 #' @return List containing modified data, group information, and effect size
 #' @export
 handling.effects <- function(clean.input, benchmark, test, group, d) {
+  if (any(clean.input < 0)) {
+    stop("Clean input data contains negative values.")
+  }
+  if (any(benchmark < 0)) {
+    stop("Benchmark data contains negative values.")
+  }
+  if (any(test < 0)) {
+    stop("Test data contains negative values.")
+  }
   log.benchmark <- log2(benchmark + 1)
   log.benchmark[log.benchmark > 25] <- 25
   log.benchmark[log.benchmark < 0] <- 0

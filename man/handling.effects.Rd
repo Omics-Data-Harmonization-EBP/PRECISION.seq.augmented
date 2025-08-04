@@ -17,7 +17,7 @@ handling.effects(clean.input, benchmark, test, group, d)
 \code{p} is the number of features and \code{n} is the number of samples.}
 
 \item{group}{Factor or vector of character strings defining sample groups
-for each sample. Must have exactly two levels.}
+for each sample.}
 
 \item{d}{Numeric effect strength factor}
 }
