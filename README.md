@@ -31,7 +31,7 @@ CRAN.packages <- function(pkg){
     if (length(new.pkg)) 
         install.packages(new.pkg, dependencies = TRUE)
 }
-CRAN.packages(c("BiocManager", "magrittr", "tidyverse", "mclust", "aricode", "RSKC", "cluster", "factoextra", "pamr", "som"))
+CRAN.packages(c("BiocManager", "caret", "e1071", "glmnet", "pamr", "mclust", "cluster", "factoextra", "som", "curl", "digest"))
 
 ## from Bioconductor
 Bioconductor.packages <- function(pkg){
@@ -39,18 +39,22 @@ Bioconductor.packages <- function(pkg){
     if (length(new.pkg)) 
         BiocManager::install(new.pkg, dependencies = TRUE)
 }
-Bioconductor.packages(c("Biobase", "BiocGenerics","preprocessCore", "edgeR", "DESeq2", "affy", "sva", "RUVSeq", "EDASeq", "limma", "vsn"))
+Bioconductor.packages(c("Biobase", "BiocGenerics", "edgeR", "EDASeq", "RUVSeq", "DESeq2", "preprocessCore", "sva"))
+
+## from GitHub
+devtools::install_github("cran/PoissonSeq")
 ```
 
 ## Main Functions
 
 <!-- TODO Add link to documentation -->
-The full *package documentation* with detailed function parameters and examples can be found on the [package documentation website](TODO).
+The full *package documentation* with detailed function parameters and examples can be found on the [TODO: package documentation website](TODO).
 
 
-<!-- TODO ### Data Access Functions
-- `load.augmented.data()` - Load pre-generated augmented miRNA-seq datasets with specific signal strengths and artifact magnitudes
-- `generate.scenario()` - Create customized datasets with user-defined parameters for biological signal and technical artifacts -->
+TODO ### Data Access Functions
+- `load.augmented.data()` - Load pre-generated augmented miRNA-seq datasets. Data will be downloaded from GitHub or loaded from storage if it was previously downloaded
+- `cleanup.augmented.data()` - Remove cached augmented data
+<!-- - `generate.scenario()` - Create customized datasets with user-defined parameters for biological signal and technical artifacts -->
 
 ### Core Object and Data Modulation
 - `create.precision.cluster()` - Creates the main analysis object for clustering evaluation handling data and results

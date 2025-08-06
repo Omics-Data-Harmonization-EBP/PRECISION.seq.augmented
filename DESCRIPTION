@@ -47,4 +47,6 @@ Imports:
     mclust,
     cluster,
     factoextra,
-    som
+    som,
+    curl,
+    digest
