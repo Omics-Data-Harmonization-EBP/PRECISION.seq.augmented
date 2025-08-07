@@ -43,3 +43,145 @@
 #' @format A set of labels for the test and benchmark samples, either "MXF"
 #' (myxofibrosarcoma) or "PMFH" (pleomorphic malignant fibrous histiocytoma).
 "data.group"
+
+
+#' Load augmented data from GitHub (with integrity check)
+#'
+#' This function loads the augmented dataset. If the dataset was not previously downloaded,
+#' it will download it from the package GitHub release.
+#' It checks the integrity of the downloaded file using SHA256 hash to ensure
+#' the file is not corrupted or tampered with.
+#' It supports both persistent storage in the user's R data directory and
+#' temporary (R-session) storage.
+#' The temporary storage is useful for testing purposes or when you do not want
+#' to keep the data after the R session ends.
+#' To delete the cached data, use the \code{\link{cleanup.augmented.data}} function.
+#' This function also allows for re-downloading the file even if it exists,
+#' based on the `force.redownload` parameter.
+#' \code{load.augmented.data()} returns the loaded R object, which is a list
+#' containing the augmented benchmark and test datasets.
+#'
+#'
+#' @param temp Logical. If TRUE, store file in temporary directory.
+#' Default is FALSE (persistent storage).
+#' @param force.redownload Logical. If TRUE, force re-download even if file
+#' exists and passes integrity check.
+#' @return The loaded R object, which is a list containing the augmented
+#' benchmark and test datasets.
+#' @importFrom digest digest
+#' @importFrom curl curl_download
+#' @importFrom tools R_user_dir
+#' @seealso \code{\link{cleanup.augmented.data}} for deleting cached data.
+#' @examples
+#' \dontrun{
+#' # First-time load: downloads & caches
+#' augmented.data <- load.augmented.data()
+#'
+#' # Uses cached file if valid
+#' augmented.data <- load.augmented.data()
+#'
+#' # Force re-download
+#' augmented.data <- load.augmented.data(force = TRUE)
+#'
+#' # Store in tempdir() instead of persistent
+#' augmented.data <- load.augmented.data(temp = TRUE)
+#'
+#' # Access benchmark and test datasets
+#' benchmark <- augmented.data$benchmark
+#' test <- augmented.data$test
+#'
+#' # Cleanup both locations and remove cached data
+#' cleanup.augmented.data()
+#' }
+#' @export
+load.augmented.data <- function(temp = FALSE, force.redownload = FALSE) {
+  ## Configuration
+
+  # Filename and URL of the augmented datasets
+  filename <- "MSKpair_augmented.rds"
+  url <- "https://github.com/Omics-Data-Harmonization-EBP/PRECISION.seq.augmented/releases/download/Data/MSKpair_augmented.rds"
+  # Precomputed SHA256 hash
+  expected.hash <- "9105e02ae4765b3b3561cd654777998c1244443067ed0981fab33130c0c214b4"
+
+  ## Storage directories
+  persistent.dir <- tools::R_user_dir("PRECISION.seq.augmented", which = "data")
+  temp.dir <- tempdir()
+
+  primary.dir <- if (temp) temp.dir else persistent.dir
+  dir.create(primary.dir, recursive = TRUE, showWarnings = FALSE)
+
+  primary.file <- file.path(primary.dir, filename)
+  persistent.file <- file.path(persistent.dir, filename)
+  temp.file <- file.path(temp.dir, filename)
+
+  # Helper function for integrity check
+  is.valid.file <- function(path) {
+    if (!file.exists(path)) {
+      return(FALSE)
+    }
+    actual.hash <- digest::digest(file = path, algo = "sha256")
+    identical(actual.hash, expected.hash)
+  }
+
+  ## Check if the file already exists and is valid
+  if (!force.redownload) {
+    # Check primary storage
+    if (is.valid.file(primary.file)) {
+      message("Loading data from ", primary.file)
+      return(readRDS(primary.file))
+    }
+    # Check persistent storage, if valid copy to temp
+    if (is.valid.file(persistent.file)) {
+      message("Copying from persistent storage to ", primary.file)
+      file.copy(persistent.file, primary.file, overwrite = TRUE)
+      return(readRDS(primary.file))
+    }
+    # Check temporary storage, if valid copy to persistent
+    if (is.valid.file(temp.file)) {
+      message("Copying from temporary storage to ", primary.file)
+      file.copy(temp.file, primary.file, overwrite = TRUE)
+      return(readRDS(primary.file))
+    }
+  }
+
+  ## Download the file if it doesn't exist or is invalid
+  message("Downloading augmented data from GitHub Release...")
+  curl::curl_download(url, primary.file, mode = "wb")
+  message("Download complete. Saved to: ", primary.file)
+
+  # Verify hash after download
+  if (!is.valid.file(primary.file)) {
+    stop("Downloaded file failed integrity check. The file may be corrupted or tampered with.")
+  }
+
+  return(readRDS(primary.file))
+}
+
+
+#' Clean Up Cached Augmented Data
+#'
+#' This function deletes the cached augmented data file from both the
+#' persistent storage and temporary directory.
+#'
+#' @return NULL. Used for side effects.
+#' @importFrom tools R_user_dir
+#' @seealso \code{\link{load.augmented.data}} for loading the data.
+#' @examples
+#' \dontrun{
+#' # Download and cache the augmented data
+#' augmented.data <- load.augmented.data()
+#' cleanup.augmented.data()
+#' }
+#' @export
+cleanup.augmented.data <- function() {
+  filename <- "MSKpair_augmented.rds"
+  dirs <- c(tools::R_user_dir("PRECISION.seq.augmented", which = "data"), tempdir())
+
+  for (d in dirs) {
+    f <- file.path(d, filename)
+    if (file.exists(f)) {
+      unlink(f, force = TRUE)
+      message("Deleted: ", f)
+    }
+  }
+}
