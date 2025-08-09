@@ -54,15 +54,15 @@
 #' It supports both persistent storage in the user's R data directory and
 #' temporary (R-session) storage.
 #' The temporary storage is useful for testing purposes or when you do not want
-#' to keep the data after the R session ends.
+#' to keep the data after the R session ends. When using temporary storage (\code{temp=TRUE}),
+#' the file will be automatically removed when the R session ends (using \code{quit()}).
 #' To delete the cached data, use the \code{\link{cleanup.augmented.data}} function.
 #' This function also allows for re-downloading the file even if it exists,
 #' based on the `force.redownload` parameter.
 #' \code{load.augmented.data()} returns the loaded R object, which is a list
 #' containing the augmented benchmark and test datasets.
 #'
-#'
-#' @param temp Logical. If TRUE, store file in temporary directory.
+#' @param temp Logical. If TRUE, store file in temporary directory and remove when R session ends.
 #' Default is FALSE (persistent storage).
 #' @param force.redownload Logical. If TRUE, force re-download even if file
 #' exists and passes integrity check.
@@ -72,25 +72,25 @@
 #' @importFrom curl curl_download
 #' @importFrom tools R_user_dir
 #' @seealso \code{\link{cleanup.augmented.data}} for deleting cached data.
-#' @examples
-#' \dontrun{
-#' # First-time load: downloads & caches
+#' @examples \dontrun{
+#'
+#' # First-time load: downloads & caches persistently
 #' augmented.data <- load.augmented.data()
 #'
 #' # Uses cached file if valid
 #' augmented.data <- load.augmented.data()
 #'
 #' # Force re-download
-#' augmented.data <- load.augmented.data(force = TRUE)
+#' augmented.data <- load.augmented.data(force.redownload = TRUE)
 #'
-#' # Store in tempdir() instead of persistent
+#' # Store in tempdir() instead of persistent (will be cleaned up when session ends)
 #' augmented.data <- load.augmented.data(temp = TRUE)
 #'
 #' # Access benchmark and test datasets
 #' benchmark <- augmented.data$benchmark
 #' test <- augmented.data$test
 #'
-#' # Cleanup both locations and remove cached data
+#' # Manually cleanup cached data
 #' cleanup.augmented.data()
 #' }
 #' @export
@@ -100,10 +100,8 @@ load.augmented.data <- function(temp = FALSE, force.redownload = FALSE) {
   # Filename and URL of the augmented datasets
   filename <- "MSKpair_augmented.rds"
   url <- "https://github.com/Omics-Data-Harmonization-EBP/PRECISION.seq.augmented/releases/download/Data/MSKpair_augmented.rds"
-  # Precomputed SHA256 hash
   expected.hash <- "9105e02ae4765b3b3561cd654777998c1244443067ed0981fab33130c0c214b4"
 
-  ## Storage directories
   persistent.dir <- tools::R_user_dir("PRECISION.seq.augmented", which = "data")
   temp.dir <- tempdir()
 
@@ -148,6 +146,7 @@ load.augmented.data <- function(temp = FALSE, force.redownload = FALSE) {
   message("Downloading augmented data from GitHub Release...")
   curl::curl_download(url, primary.file, mode = "wb")
   message("Download complete. Saved to: ", primary.file)
+  message("To clean up cached data, use: cleanup.augmented.data()")
 
   # Verify hash after download
   if (!is.valid.file(primary.file)) {

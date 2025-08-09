@@ -7,7 +7,7 @@
 load.augmented.data(temp = FALSE, force.redownload = FALSE)
 }
 \arguments{
-\item{temp}{Logical. If TRUE, store file in temporary directory.
+\item{temp}{Logical. If TRUE, store file in temporary directory and remove when R session ends.
 Default is FALSE (persistent storage).}
 
 \item{force.redownload}{Logical. If TRUE, force re-download even if file
@@ -25,7 +25,8 @@ the file is not corrupted or tampered with.
 It supports both persistent storage in the user's R data directory and
 temporary (R-session) storage.
 The temporary storage is useful for testing purposes or when you do not want
-to keep the data after the R session ends.
+to keep the data after the R session ends. When using temporary storage (\code{temp=TRUE}),
+the file will be automatically removed when the R session ends (using \code{quit()}).
 To delete the cached data, use the \code{\link{cleanup.augmented.data}} function.
 This function also allows for re-downloading the file even if it exists,
 based on the `force.redownload` parameter.
@@ -34,23 +35,24 @@ containing the augmented benchmark and test datasets.
 }
 \examples{
 \dontrun{
-# First-time load: downloads & caches
+
+# First-time load: downloads & caches persistently
 augmented.data <- load.augmented.data()
 
 # Uses cached file if valid
 augmented.data <- load.augmented.data()
 
 # Force re-download
-augmented.data <- load.augmented.data(force = TRUE)
+augmented.data <- load.augmented.data(force.redownload = TRUE)
 
-# Store in tempdir() instead of persistent
+# Store in tempdir() instead of persistent (will be cleaned up when session ends)
 augmented.data <- load.augmented.data(temp = TRUE)
 
 # Access benchmark and test datasets
 benchmark <- augmented.data$benchmark
 test <- augmented.data$test
 
-# Cleanup both locations and remove cached data
+# Manually cleanup cached data
 cleanup.augmented.data()
 }
 }

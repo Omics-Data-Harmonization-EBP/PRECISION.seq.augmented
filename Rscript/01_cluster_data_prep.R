@@ -1,4 +1,10 @@
-load("./data/data_source/MSKpair_60000_count.RData")
+library(PRECISION.seq.augmented)
+augmented.data <- load.augmented.data(temp = TRUE)
+benchmark <- augmented.data$benchmark
+test <- augmented.data$test
+rm(augmented.data)
+
+# load("./data/data_source/MSKpair_60000_count.RData")
 
 # For reproducibility:
 set.seed(42)

@@ -51,7 +51,7 @@ devtools::install_github("cran/PoissonSeq")
 The full *package documentation* with detailed function parameters and examples can be found on the [TODO: package documentation website](TODO).
 
 
-TODO ### Data Access Functions
+### Data Access Functions
 - `load.augmented.data()` - Load pre-generated augmented miRNA-seq datasets. Data will be downloaded from GitHub or loaded from storage if it was previously downloaded
 - `cleanup.augmented.data()` - Remove cached augmented data
 <!-- - `generate.scenario()` - Create customized datasets with user-defined parameters for biological signal and technical artifacts -->
@@ -73,7 +73,7 @@ The package implements multiple data harmonization techniques applicable to both
 - `harmon.DESeq()` - DESeq2 normalization (geometric mean approach)
 - `harmon.PoissonSeq()` - PoissonSeq normalization (robust over-dispersed Poisson model)
 - `harmon.QN()` - Quantile normalization
-- `harmon.sva()` - Surrogate Variable Analysis batch correction
+- `harmon.SVA()` - Surrogate Variable Analysis batch correction
 - `harmon.RUVr()` - Remove Unwanted Variation (residuals)
 - `harmon.RUVs()` - Remove Unwanted Variation (control samples)
 - `harmon.RUVg()` - Remove Unwanted Variation (control genes)
