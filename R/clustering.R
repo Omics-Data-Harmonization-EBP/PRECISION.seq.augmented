@@ -1,3 +1,43 @@
+#' Apply all clustering methods to a precision object
+#'
+#' This function applies all clustering methods to the training data
+#' contained in a precision object.
+#' The clustering results are added to the corresponding \code{cluster.result}
+#' slot in the object for each training dataset.
+#'
+#' The following clustering methods are applied to the data:
+#'   \itemize{
+#'     \item Hierarchical Clustering using multiple distance metrics
+#'       (Euclidean, Pearson, and Spearman)
+#'       (\code{\link{cluster.hc}})
+#'     \item Gaussian Mixture Models (MNM) (\code{\link{cluster.mnm}})
+#'     \item K-Means Clustering (\code{\link{cluster.kmeans}})
+#'     \item Self-Organizing Maps (\code{\link{cluster.som}})
+#'     \item Partitioning Around Medoids (Euclidean, Pearson, and Spearman)
+#'       (\code{\link{cluster.pam}})
+#'   }
+#'
+#' @param object A \code{\link{precision}} object containing harmonized training data
+#'  in the slot \code{harmon.train.data}.
+#' @param k \emph{Integer.} Number of clusters. If NULL or not given,
+#' uses the number of unique labels in training data.
+#' @return Updated precision object with all clustering results added to
+#' the \code{cluster.result} slot.
+#' @export cluster.all
+cluster.all <- function(object, k = NULL) {
+  object <- cluster.hc(object, k = k, distance = "euclidean")
+  object <- cluster.hc(object, k = k, distance = "pearson")
+  object <- cluster.hc(object, k = k, distance = "spearman")
+  object <- cluster.mnm(object, k = k)
+  object <- cluster.kmeans(object, k = k)
+  object <- cluster.som(object, k = k)
+  object <- cluster.pam(object, k = k, distance = "euclidean")
+  object <- cluster.pam(object, k = k, distance = "pearson")
+  object <- cluster.pam(object, k = k, distance = "spearman")
+  return(object)
+}
+
+
 #' Preprocess harmonized training data
 #'
 #' This function preprocesses the harmonized training data by applying modified
@@ -22,7 +62,7 @@
 #' This function performs K-means clustering on the harmonized training data
 #' and returns the clustering results.
 #'
-#' @param object A \link{precision} object containing harmonized training data
+#' @param object A \code{\link{precision}} object containing harmonized training data
 #'  in the slot \code{harmon.train.data}.
 #' @param k \emph{Integer.} Number of clusters. If NULL or not given,
 #' uses the number of unique labels in training data.
@@ -54,7 +94,7 @@ cluster.kmeans <- function(object, k = NULL) {
 #' using euclidean, pearson, or spearman distance measures.
 #' It adds the clustering results to the \code{cluster.result} slot.
 #'
-#' @param object A \link{precision} object containing harmonized training data
+#' @param object A \code{\link{precision}} object containing harmonized training data
 #'  in the slot \code{harmon.train.data}.
 #' @param k \emph{Integer.} Number of clusters. If NULL or not given,
 #' uses the number of unique labels in training data.
@@ -102,7 +142,7 @@ cluster.hc <- function(object, k = NULL, distance = "euclidean") {
 #' training data. It uses the `som` package to create a SOM model and returns
 #' the clustering results.
 #'
-#' @param object A \link{precision} object containing harmonized training data
+#' @param object A \code{\link{precision}} object containing harmonized training data
 #'  in the slot \code{harmon.train.data}.
 #' @param k \emph{Integer.} Number of clusters. If NULL or not given,
 #' uses the number of unique labels in training data.
@@ -133,7 +173,7 @@ cluster.som <- function(object, k = NULL) {
 #' This function performs Gaussian Mixture Model (GMM) clustering on the harmonized
 #' training data using the `mclust` package.
 #'
-#' @param object A \link{precision} object containing harmonized training data
+#' @param object A \code{\link{precision}} object containing harmonized training data
 #'  in the slot \code{harmon.train.data}.
 #' @param k \emph{Integer.} Number of clusters. If NULL or not given,
 #' uses the number of unique labels in training data.
@@ -169,7 +209,7 @@ cluster.mnm <- function(object, k = NULL) {
 #' It adds the clustering results to the \code{cluster.result} slot of the precision
 #' object.
 #'
-#' @param object A \link{precision} object containing harmonized training data
+#' @param object A \code{\link{precision}} object containing harmonized training data
 #'  in the slot \code{harmon.train.data}.
 #' @param k \emph{Integer.} Number of clusters. If NULL or not given,
 #'  uses the number of unique labels in training data.

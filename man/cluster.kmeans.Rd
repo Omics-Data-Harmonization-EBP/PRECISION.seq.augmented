@@ -7,7 +7,7 @@
 \method{cluster}{kmeans}(object, k = NULL)
 }
 \arguments{
-\item{object}{A \link{precision} object containing harmonized training data
+\item{object}{A \code{\link{precision}} object containing harmonized training data
 in the slot \code{harmon.train.data}.}
 
 \item{k}{\emph{Integer.} Number of clusters. If NULL or not given,
