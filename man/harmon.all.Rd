@@ -4,13 +4,15 @@
 \alias{harmon.all}
 \title{Apply all harmonization methods to a precision object}
 \usage{
-harmon.all(object)
+harmon.all(object, add.raw = TRUE)
 }
 \arguments{
 \item{object}{A \link{precision} object containing raw data.
 Harmonization is applied to the slots
 \code{raw.train.data}, \code{raw.test1.data}, and \code{raw.test2.data}
 (if applicable), each containing a list with \code{data} and \code{label} elements.}
+
+\item{add.raw}{Logical. If TRUE, add the raw data to the harmonized data}
 }
 \value{
 A precision object with harmonization results added to the
@@ -26,6 +28,7 @@ object for each dataset ("train", "test1", "test2") if they exist.
 \details{
 The following harmonization methods are applied to the data:
   \itemize{
+    \item No Harmonization (if \code{add.raw = TRUE})
     \item Total Count (TC) (\code{\link{harmon.TC}})
     \item Upper Quartile (UQ) (\code{\link{harmon.UQ}})
     \item Median (median) (\code{\link{harmon.med}})

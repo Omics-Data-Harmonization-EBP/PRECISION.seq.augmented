@@ -113,6 +113,7 @@ create.precision.cluster <- function(data, label) {
 #'
 #' The following harmonization methods are applied to the data:
 #'   \itemize{
+#'     \item No Harmonization (if \code{add.raw = TRUE})
 #'     \item Total Count (TC) (\code{\link{harmon.TC}})
 #'     \item Upper Quartile (UQ) (\code{\link{harmon.UQ}})
 #'     \item Median (median) (\code{\link{harmon.med}})
@@ -129,11 +130,21 @@ create.precision.cluster <- function(data, label) {
 #'   Harmonization is applied to the slots
 #'   \code{raw.train.data}, \code{raw.test1.data}, and \code{raw.test2.data}
 #'   (if applicable), each containing a list with \code{data} and \code{label} elements.
+#' @param add.raw Logical. If TRUE, add the raw data to the harmonized data
 #' @return A precision object with harmonization results added to the
 #'   slots \code{harmon.train.data}, \code{harmon.test1.data}, and \code{harmon.test2.data}
 #'   (if applicable).
 #' @export
-harmon.all <- function(object) {
+harmon.all <- function(object, add.raw = TRUE) {
+  if (add.raw) { # Add raw data to harmonized data
+    for (dataset in c("train", "test1", "test2")) {
+      raw_data <- slot(object, paste0("raw.", dataset, ".data"))
+      if (!is.null(raw_data)) {
+        slot(object, paste0("harmon.", dataset, ".data"))$Raw$dat.harmonized <-
+          slot(object, paste0("raw.", dataset, ".data"))$data
+      }
+    }
+  }
   object <- harmon.TC(object)
   object <- harmon.UQ(object)
   object <- harmon.med(object)
