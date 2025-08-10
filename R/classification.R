@@ -48,6 +48,37 @@ tabulate.ext.err.func <- function(pred.obj, obs.grp) {
 }
 
 ##########################################################
+# ALL METHODS
+##########################################################
+
+#' Apply all classification methods to a precision object
+#'
+#' This function applies all classification methods to the training data
+#' contained in a precision object.
+#' The classification results are added to the corresponding \code{classification.result}
+#' slot in the object for each harmonized training and testing dataset.
+#'
+#' @param object A \code{\link{precision}} object containing harmonized training
+#' and testing data in the slots \code{harmon.train.data},
+#' and \code{harmon.test1.data} and \code{harmon.test2.data}, respectively.
+#' @param threshold_method A character string specifying the thresholding method.
+#'   Options are:
+#'   - \code{"cv"}: Use cross-validation to optimize the threshold.
+#'   - \code{"none"}: Use all genes without applying a threshold.
+#' @return Updated precision object with all classification results added to
+#'   the \code{classification.result} slot.
+#' @export classification.all
+classification.all <- function(object, threshold_method = "cv") {
+  threshold_method <- match.arg(threshold_method, c("cv", "none"))
+  object <- classification.pam(object, threshold_method = threshold_method)
+  object <- classification.knn(object, threshold_method = threshold_method)
+  object <- classification.lasso(object, threshold_method = threshold_method)
+  object <- classification.svm(object, threshold_method = threshold_method)
+  object <- classification.ranfor(object, threshold_method = threshold_method)
+  return(object)
+}
+
+##########################################################
 # PAM
 ##########################################################
 
