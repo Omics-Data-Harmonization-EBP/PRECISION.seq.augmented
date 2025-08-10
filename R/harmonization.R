@@ -104,6 +104,49 @@ create.precision.cluster <- function(data, label) {
 # Harmonization functions
 ##########################################################
 
+#' Apply all harmonization methods to a precision object
+#'
+#' This function applies all harmonization methods to the raw data
+#' contained in a precision object.
+#' The harmonization results are added to the corresponding slots in the
+#' object for each dataset ("train", "test1", "test2") if they exist.
+#'
+#' The following harmonization methods are applied to the data:
+#'   \itemize{
+#'     \item Total Count (TC) (\code{\link{harmon.TC}})
+#'     \item Upper Quartile (UQ) (\code{\link{harmon.UQ}})
+#'     \item Median (median) (\code{\link{harmon.med}})
+#'     \item Trimmed Median of Means (TMM) (\code{\link{harmon.TMM}})
+#'     \item DESeq (\code{\link{harmon.DESeq}})
+#'     \item PoissonSeq (\code{\link{harmon.PoissonSeq}})
+#'     \item Quantile Normalization (QN) (\code{\link{harmon.QN}})
+#'     \item Remove Unwanted Variation (RUVg, RUVr, and RUVs)
+#'       (\code{\link{harmon.RUVg}}), (\code{\link{harmon.RUVr}}),
+#'    (\code{\link{harmon.RUVs}})
+#'   }
+#'
+#' @param object A \link{precision} object containing raw data.
+#'   Harmonization is applied to the slots
+#'   \code{raw.train.data}, \code{raw.test1.data}, and \code{raw.test2.data}
+#'   (if applicable), each containing a list with \code{data} and \code{label} elements.
+#' @return A precision object with harmonization results added to the
+#'   slots \code{harmon.train.data}, \code{harmon.test1.data}, and \code{harmon.test2.data}
+#'   (if applicable).
+#' @export
+harmon.all <- function(object) {
+  object <- harmon.TC(object)
+  object <- harmon.UQ(object)
+  object <- harmon.med(object)
+  object <- harmon.TMM(object)
+  object <- harmon.DESeq(object)
+  object <- harmon.PoissonSeq(object)
+  object <- harmon.QN(object)
+  object <- harmon.RUVr(object)
+  object <- harmon.RUVs(object)
+  object <- harmon.RUVg(object)
+  return(object)
+}
+
 #' Internal helper functions for TMM normalization
 #' @importFrom edgeR DGEList calcNormFactors cpm
 #' @noRd
@@ -148,8 +191,9 @@ create.precision.cluster <- function(data, label) {
 #' precision object. The harmonization results are added to the corresponding
 #' slots in the object for each dataset ("train", "test1", "test2") if they exist.
 #'
-#' @param object A \link{precision} object containing raw data. The object must have
-#'   slots named \code{raw.train.data}, \code{raw.test1.data}, and \code{raw.test2.data}
+#' @param object A \link{precision} object containing raw data.
+#'   Harmonization is applied to the slots
+#'   \code{raw.train.data}, \code{raw.test1.data}, and \code{raw.test2.data}
 #'   (if applicable), each containing a list with \code{data} and \code{label} elements.
 #' @return A precision object with TMM harmonization results added to the
 #'   slots \code{harmon.train.data}, \code{harmon.test1.data}, and \code{harmon.test2.data}
@@ -181,8 +225,9 @@ harmon.TMM <- function(object) {
 #' The harmonization results are added to the corresponding
 #' slots in the object for each dataset ("train", "test1", "test2") if they exist.
 #'
-#' @param object A \link{precision} object containing raw data. The object must have
-#'   slots named \code{raw.train.data}, \code{raw.test1.data}, and \code{raw.test2.data}
+#' @param object A \link{precision} object containing raw data.
+#'   Harmonization is applied to the slots
+#'   \code{raw.train.data}, \code{raw.test1.data}, and \code{raw.test2.data}
 #'   (if applicable), each containing a list with \code{data} and \code{label} elements.
 #' @return A precision object with TMM harmonization results added to the
 #'   slots \code{harmon.train.data}, \code{harmon.test1.data}, and \code{harmon.test2.data}
@@ -238,13 +283,12 @@ harmon.TMM.frozen <- function(object) {
 #' if they are present in the precision object. The normalized data is stored
 #' in the corresponding harmonization slots of the object.
 #'
-#' @param object A \link{precision} object. This object must contain raw data in
-#'   slots named \code{raw.train.data}, \code{raw.test1.data}, and/or \code{raw.test2.data}.
-#'   Each of these slots should include a \code{data} component (the dataset)
-#'   and a \code{label} component (associated labels).
-#' @return The input precision object with total count (TC) harmonization
-#'   results added to the slots \code{harmon.train.data}, \code{harmon.test1.data},
-#'   and/or \code{harmon.test2.data} under the \code{TC} component.
+#' @param object A \link{precision} object containing raw data. Harmonization is applied to the slots
+#'   \code{raw.train.data}, \code{raw.test1.data}, and \code{raw.test2.data}
+#'   (if applicable), each containing a list with \code{data} and \code{label} elements.
+#' @return A precision object with Total Count Normalization results added to the
+#'   slots \code{harmon.train.data}, \code{harmon.test1.data}, and \code{harmon.test2.data}
+#'   (if applicable).
 #' @export
 harmon.TC <- function(object) {
   # Process all datasets if they exist
@@ -291,10 +335,13 @@ harmon.TC <- function(object) {
 #' if they are present in the precision object. The normalized data is stored
 #' in the corresponding harmonization slots of the object.
 #'
-#' @param object A \link{precision} object containing raw miRNA-Seq data.
-#' @return A precision object with upper quartile (UQ) normalization results
-#'   added to the harmonization slots (e.g., \code{harmon.train.data},
-#'   \code{harmon.test1.data}, \code{harmon.test2.data}).
+#' @param object A \link{precision} object containing raw data.
+#'   Harmonization is applied to the slots
+#'   \code{raw.train.data}, \code{raw.test1.data}, and \code{raw.test2.data}
+#'   (if applicable), each containing a list with \code{data} and \code{label} elements.
+#' @return A precision object with Upper Quartile Normalization results added to the
+#'   slots \code{harmon.train.data}, \code{harmon.test1.data}, and \code{harmon.test2.data}
+#'   (if applicable).
 #' @export
 harmon.UQ <- function(object) {
   # Process all datasets if they exist
@@ -341,13 +388,13 @@ harmon.UQ <- function(object) {
 #' if they are present in the precision object. The normalized data is stored
 #' in the corresponding harmonization slots of the object.
 #'
-#' @param object A \link{precision} object. This object must contain raw data in
-#'   slots named \code{raw.train.data}, \code{raw.test1.data}, and/or \code{raw.test2.data}.
-#'   Each of these slots should include a \code{data} component (the dataset)
-#'   and a \code{label} component (associated labels).
-#' @return The input precision object with median harmonization results
-#'   added to the slots \code{harmon.train.data}, \code{harmon.test1.data}, and/or
-#'   \code{harmon.test2.data} under the \code{med} component.
+#' @param object A \link{precision} object containing raw data.
+#'   Harmonization is applied to the slots
+#'   \code{raw.train.data}, \code{raw.test1.data}, and \code{raw.test2.data}
+#'   (if applicable), each containing a list with \code{data} and \code{label} elements.
+#' @return A precision object with median normalization results added to the
+#'   slots \code{harmon.train.data}, \code{harmon.test1.data}, and \code{harmon.test2.data}
+#'   (if applicable).
 #' @export
 harmon.med <- function(object) {
   # Process all datasets if they exist
@@ -402,8 +449,9 @@ harmon.med <- function(object) {
 #' precision object. The harmonization results are added to the corresponding
 #' slots in the object for each dataset ("train", "test1", "test2") if they exist.
 #'
-#' @param object A \link{precision} object containing raw data. The object must have
-#'   slots named \code{raw.train.data}, \code{raw.test1.data}, and \code{raw.test2.data}
+#' @param object A \link{precision} object containing raw data.
+#'   Harmonization is applied to the slots
+#'   \code{raw.train.data}, \code{raw.test1.data}, and \code{raw.test2.data}
 #'   (if applicable), each containing a list with \code{data} and \code{label} elements.
 #' @return A precision object with DESeq harmonization results added to the
 #'   slots \code{harmon.train.data}, \code{harmon.test1.data}, and \code{harmon.test2.data}
@@ -446,8 +494,9 @@ harmon.DESeq <- function(object) {
 #' precision object. The harmonization results are added to the corresponding
 #' slots in the object for each dataset ("train", "test1", "test2") if they exist.
 #'
-#' @param object A \link{precision} object containing raw data. The object must have
-#'   slots named \code{raw.train.data}, \code{raw.test1.data}, and \code{raw.test2.data}
+#' @param object A \link{precision} object containing raw data.
+#'   Harmonization is applied to the slots
+#'   \code{raw.train.data}, \code{raw.test1.data}, and \code{raw.test2.data}
 #'   (if applicable), each containing a list with \code{data} and \code{label} elements.
 #' @return A precision object with PoissonSeq harmonization results added to the
 #'   slots \code{harmon.train.data}, \code{harmon.test1.data}, and \code{harmon.test2.data}
@@ -512,8 +561,9 @@ harmon.PoissonSeq <- function(object) {
 #' precision object. The harmonization results are added to the corresponding
 #' slots in the object for each dataset ("train", "test1", "test2") if they exist.
 #'
-#' @param object A \link{precision} object containing raw data. The object must have
-#'   slots named \code{raw.train.data}, \code{raw.test1.data}, and \code{raw.test2.data}
+#' @param object A \link{precision} object containing raw data.
+#'   Harmonization is applied to the slots
+#'   \code{raw.train.data}, \code{raw.test1.data}, and \code{raw.test2.data}
 #'   (if applicable), each containing a list with \code{data} and \code{label} elements.
 #' @return A precision object with QN harmonization results added to the
 #'   slots \code{harmon.train.data}, \code{harmon.test1.data}, and \code{harmon.test2.data}
@@ -545,8 +595,9 @@ harmon.QN <- function(object) {
 #' to the corresponding slots in the object for each dataset
 #' ("train", "test1", "test2") if they exist.
 #'
-#' @param object A \link{precision} object containing raw data. The object must have
-#'   slots named \code{raw.train.data}, \code{raw.test1.data}, and \code{raw.test2.data}
+#' @param object A \link{precision} object containing raw data.
+#'   Harmonization is applied to the slots
+#'   \code{raw.train.data}, \code{raw.test1.data}, and \code{raw.test2.data}
 #'   (if applicable), each containing a list with \code{data} and \code{label} elements.
 #' @return A precision object with QN harmonization results added to the
 #'   slots \code{harmon.train.data}, \code{harmon.test1.data}, and \code{harmon.test2.data}
@@ -612,8 +663,9 @@ harmon.QN.frozen <- function(object) {
 #' precision object. The harmonization results are added to the corresponding
 #' slots in the object for each dataset ("train", "test1", "test2") if they exist.
 #'
-#' @param object A \link{precision} object containing raw data. The object must have
-#'   slots named \code{raw.train.data}, \code{raw.test1.data}, and \code{raw.test2.data}
+#' @param object A \link{precision} object containing raw data.
+#'   Harmonization is applied to the slots
+#'   \code{raw.train.data}, \code{raw.test1.data}, and \code{raw.test2.data}
 #'   (if applicable), each containing a list with \code{data} and \code{label} elements.
 #' @return A precision object with SVA harmonization results added to the
 #'   slots \code{harmon.train.data}, \code{harmon.test1.data}, and \code{harmon.test2.data}
@@ -780,8 +832,9 @@ harmon.SVA <- function(object) {
 #' precision object. The harmonization results are added to the corresponding
 #' slots in the object for each dataset ("train", "test1", "test2") if they exist.
 #'
-#' @param object A \link{precision} object containing raw data. The object must have
-#'   slots named \code{raw.train.data}, \code{raw.test1.data}, and \code{raw.test2.data}
+#' @param object A \link{precision} object containing raw data.
+#'   Harmonization is applied to the slots
+#'   \code{raw.train.data}, \code{raw.test1.data}, and \code{raw.test2.data}
 #'   (if applicable), each containing a list with \code{data} and \code{label} elements.
 #' @return A precision object with RUVg harmonization results added to the
 #'   slots \code{harmon.train.data}, \code{harmon.test1.data}, and \code{harmon.test2.data}
@@ -813,8 +866,9 @@ harmon.RUVg <- function(object) {
 #' precision object. The harmonization results are added to the corresponding
 #' slots in the object for each dataset ("train", "test1", "test2") if they exist.
 #'
-#' @param object A \link{precision} object containing raw data. The object must have
-#'   slots named \code{raw.train.data}, \code{raw.test1.data}, and \code{raw.test2.data}
+#' @param object A \link{precision} object containing raw data.
+#'   Harmonization is applied to the slots
+#'   \code{raw.train.data}, \code{raw.test1.data}, and \code{raw.test2.data}
 #'   (if applicable), each containing a list with \code{data} and \code{label} elements.
 #' @return A precision object with RUVs harmonization results added to the
 #'   slots \code{harmon.train.data}, \code{harmon.test1.data}, and \code{harmon.test2.data}
@@ -845,8 +899,9 @@ harmon.RUVs <- function(object) {
 #' precision object. The harmonization results are added to the corresponding
 #' slots in the object for each dataset ("train", "test1", "test2") if they exist.
 #'
-#' @param object A \link{precision} object containing raw data. The object must have
-#'   slots named \code{raw.train.data}, \code{raw.test1.data}, and \code{raw.test2.data}
+#' @param object A \link{precision} object containing raw data.
+#'   Harmonization is applied to the slots
+#'   \code{raw.train.data}, \code{raw.test1.data}, and \code{raw.test2.data}
 #'   (if applicable), each containing a list with \code{data} and \code{label} elements.
 #' @return A precision object with RUVr harmonization results added to the
 #'   slots \code{harmon.train.data}, \code{harmon.test1.data}, and \code{harmon.test2.data}
@@ -889,8 +944,8 @@ harmon.RUVr <- function(object) {
 #' precision object. The harmonization results are added to the corresponding
 #' slots in the object for each dataset ("train", "test1", "test2") if they exist.
 #'
-#' @param object A \link{precision} object containing raw data. The object must have
-#'   slots named \code{raw.train.data}, \code{raw.test1.data}, and \code{raw.test2.data}
+#' @param object A \link{precision} object containing raw data. Harmonization is applied to the slots
+#'   \code{raw.train.data}, \code{raw.test1.data}, and \code{raw.test2.data}
 #'   (if applicable), each containing a list with \code{data} and \code{label} elements.
 #' @return A precision object with ComBat-Seq harmonization results added to the
 #'   slots \code{harmon.train.data}, \code{harmon.test1.data}, and \code{harmon.test2.data}

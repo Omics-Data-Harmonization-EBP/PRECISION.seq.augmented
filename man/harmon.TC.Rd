@@ -7,15 +7,14 @@
 harmon.TC(object)
 }
 \arguments{
-\item{object}{A \link{precision} object. This object must contain raw data in
-slots named \code{raw.train.data}, \code{raw.test1.data}, and/or \code{raw.test2.data}.
-Each of these slots should include a \code{data} component (the dataset)
-and a \code{label} component (associated labels).}
+\item{object}{A \link{precision} object containing raw data. Harmonization is applied to the slots
+\code{raw.train.data}, \code{raw.test1.data}, and \code{raw.test2.data}
+(if applicable), each containing a list with \code{data} and \code{label} elements.}
 }
 \value{
-The input precision object with total count (TC) harmonization
-  results added to the slots \code{harmon.train.data}, \code{harmon.test1.data},
-  and/or \code{harmon.test2.data} under the \code{TC} component.
+A precision object with Total Count Normalization results added to the
+  slots \code{harmon.train.data}, \code{harmon.test1.data}, and \code{harmon.test2.data}
+  (if applicable).
 }
 \description{
 This function applies total count normalization to miRNA-Seq data

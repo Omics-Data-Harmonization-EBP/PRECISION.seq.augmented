@@ -7,12 +7,15 @@
 harmon.UQ(object)
 }
 \arguments{
-\item{object}{A \link{precision} object containing raw miRNA-Seq data.}
+\item{object}{A \link{precision} object containing raw data.
+Harmonization is applied to the slots
+\code{raw.train.data}, \code{raw.test1.data}, and \code{raw.test2.data}
+(if applicable), each containing a list with \code{data} and \code{label} elements.}
 }
 \value{
-A precision object with upper quartile (UQ) normalization results
-  added to the harmonization slots (e.g., \code{harmon.train.data},
-  \code{harmon.test1.data}, \code{harmon.test2.data}).
+A precision object with Upper Quartile Normalization results added to the
+  slots \code{harmon.train.data}, \code{harmon.test1.data}, and \code{harmon.test2.data}
+  (if applicable).
 }
 \description{
 This function applies upper quartile normalization to miRNA-Seq data

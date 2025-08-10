@@ -83,7 +83,7 @@ The package implements multiple data harmonization techniques applicable to both
 The package implements multiple clustering approaches with various distance metrics:
 
 <!-- - `cluster.all()` - Apply all of the following clustering methods sequentially -->
-- `cluster.hc()` - Hierarchical clustering with multiple distance metrics(Euclidean distance, Pearson correlation, and Spearman correlation)
+- `cluster.hc()` - Hierarchical clustering with multiple distance metrics (Euclidean distance, Pearson correlation, and Spearman correlation)
 - `cluster.kmeans()` - K-means clustering with configurable starting points and iteration parameters
 - `cluster.pam()` - Partitioning Around Medoids with the same distance metric options as hierarchical clustering (Euclidean, Pearson, Spearman).
 - `cluster.som()` - Self-Organizing Maps for non-linear dimensionality reduction and clustering, particularly suited for high-dimensional data
