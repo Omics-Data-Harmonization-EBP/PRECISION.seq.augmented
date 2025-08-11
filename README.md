@@ -65,7 +65,7 @@ The full *package documentation* with detailed function parameters and examples 
 ### Harmonization Methods
 The package implements multiple data harmonization techniques applicable to both clustering and classification:
 
-<!-- - `harmon.all()` - Apply all of the following harmonization methods sequentially -->
+- `harmon.all()` - Apply all of the following harmonization methods sequentially
 - `harmon.TC()` - Total Count normalization (scaling by library size)
 - `harmon.UQ()` - Upper Quartile normalization (scaling by 75th percentile)
 - `harmon.med()` - Median normalization (scaling by median count)
@@ -82,7 +82,7 @@ The package implements multiple data harmonization techniques applicable to both
 ### Clustering Algorithms
 The package implements multiple clustering approaches with various distance metrics:
 
-<!-- - `cluster.all()` - Apply all of the following clustering methods sequentially -->
+- `cluster.all()` - Apply all of the following clustering methods sequentially
 - `cluster.hc()` - Hierarchical clustering with multiple distance metrics (Euclidean distance, Pearson correlation, and Spearman correlation)
 - `cluster.kmeans()` - K-means clustering with configurable starting points and iteration parameters
 - `cluster.pam()` - Partitioning Around Medoids with the same distance metric options as hierarchical clustering (Euclidean, Pearson, Spearman).
@@ -92,7 +92,7 @@ The package implements multiple clustering approaches with various distance metr
 ### Classification Algorithms
 The package implements multiple learning methods for sample classification to evaluate how normalization affects predictive performance across training and validation datasets:
 
-<!-- - `classification.all()` - Apply all of the following clustering methods sequentially -->
+- `classification.all()` - Apply all of the following clustering methods sequentially
 - `classification.knn()` - k-Nearest Neighbor classification
 - `classification.svm()` - Support Vector Machine classification
 - `classification.pam()` - Prediction Analysis for Microarrays using nearest shrunken centroids, with built-in feature selection
