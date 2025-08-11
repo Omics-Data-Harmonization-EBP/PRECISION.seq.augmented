@@ -9,7 +9,7 @@ rm(augmented.data)
 # For reproducibility:
 set.seed(42)
 
-# --- Step 1: Randomly select which 200 elements to keep ---
+# --- Step 1: Randomly select which 300 elements to keep ---
 selected_indices <- sample(seq_len(400), size = 300)
 
 # Initialize new lists to store the subsampled data
