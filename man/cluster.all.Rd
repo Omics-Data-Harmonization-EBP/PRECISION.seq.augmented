@@ -4,7 +4,7 @@
 \alias{cluster.all}
 \title{Apply all clustering methods to a precision object}
 \usage{
-\method{cluster}{all}(object, k = NULL)
+cluster.all(object, k = NULL)
 }
 \arguments{
 \item{object}{A \code{\link{precision}} object containing harmonized training data

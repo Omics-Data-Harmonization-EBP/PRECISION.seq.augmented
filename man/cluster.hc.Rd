@@ -4,7 +4,7 @@
 \alias{cluster.hc}
 \title{Hierarchical clustering for harmonized data}
 \usage{
-\method{cluster}{hc}(object, k = NULL, distance = "euclidean")
+cluster.hc(object, k = NULL, distance = "euclidean")
 }
 \arguments{
 \item{object}{A \code{\link{precision}} object containing harmonized training data
