@@ -9,7 +9,7 @@ Authors@R: c(
     person("Yannick", "D\u00fcren", role=c("aut")),
     person("Li-Xuan", "Qin", role=("fnd")))
 Maintainer: The package maintainer <yourself@somewhere.net>
-Description:The PRECISION.seq.augmented R package offers a comprehensive 
+Description: The PRECISION.seq.augmented R package offers a comprehensive 
     framework for evaluating depth normalization methods in microRNA sequencing 
     data analysis. It allows investigating normalization performance in both 
     clustering and classification contexts and provides researchers with tools 
@@ -49,3 +49,4 @@ Imports:
     factoextra,
     som,
     digest
+URL: https://omics-data-harmonization-ebp.github.io/PRECISION.seq.augmented/
