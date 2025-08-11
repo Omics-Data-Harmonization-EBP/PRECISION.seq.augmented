@@ -31,7 +31,7 @@ CRAN.packages <- function(pkg){
     if (length(new.pkg)) 
         install.packages(new.pkg, dependencies = TRUE)
 }
-CRAN.packages(c("BiocManager", "caret", "e1071", "glmnet", "pamr", "mclust", "cluster", "factoextra", "som", "curl", "digest"))
+CRAN.packages(c("BiocManager", "caret", "e1071", "glmnet", "pamr", "mclust", "cluster", "factoextra", "som", "digest"))
 
 ## from Bioconductor
 Bioconductor.packages <- function(pkg){

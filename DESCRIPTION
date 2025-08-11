@@ -48,5 +48,4 @@ Imports:
     cluster,
     factoextra,
     som,
-    curl,
     digest

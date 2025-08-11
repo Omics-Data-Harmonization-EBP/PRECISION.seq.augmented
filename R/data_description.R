@@ -69,7 +69,6 @@
 #' @return The loaded R object, which is a list containing the augmented
 #' benchmark and test datasets.
 #' @importFrom digest digest
-#' @importFrom curl curl_download
 #' @importFrom tools R_user_dir
 #' @seealso \code{\link{cleanup.augmented.data}} for deleting cached data.
 #' @examples \dontrun{
@@ -144,7 +143,7 @@ load.augmented.data <- function(temp = FALSE, force.redownload = FALSE) {
 
   ## Download the file if it doesn't exist or is invalid
   message("Downloading augmented data from GitHub Release...")
-  curl::curl_download(url, primary.file, mode = "wb")
+  download.file(url, destfile = primary.file, mode = "wb", method = "libcurl", quiet = FALSE)
   message("Download complete. Saved to: ", primary.file)
   message("To clean up cached data, use: cleanup.augmented.data()")
 
