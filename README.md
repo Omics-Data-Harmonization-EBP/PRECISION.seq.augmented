@@ -47,8 +47,7 @@ devtools::install_github("cran/PoissonSeq")
 
 ## Main Functions
 
-<!-- TODO Add link to documentation -->
-The full *package documentation* with detailed function parameters and examples can be found on the [TODO: package documentation website](TODO).
+The full *package documentation* with detailed function parameters and examples can be found on the [package documentation website](https://omics-data-harmonization-ebp.github.io/PRECISION.seq.augmented/).
 
 
 ### Data Access Functions

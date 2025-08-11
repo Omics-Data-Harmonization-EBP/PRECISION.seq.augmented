@@ -11,11 +11,6 @@ fig_height: 4
 
 ```{r setup, include = FALSE, message = FALSE}
 library(PRECISION.seq.augmented)
-library(tidyverse)
-library(edgeR)
-library(EDASeq)
-library(RUVSeq)
-library(mclust)
 ```
 
 ## Overview
@@ -42,37 +37,6 @@ we have 9 different data harmonization methods, including:
   - Self-organizing map (SOM)
   - Gaussian mixture model (MNM)
   - PAM clustering (pam.eucledian, pam.pearson, pam.spearman)
-
-  
-## Combination of all the methods
-
-```{r eval = FALSE, message = FALSE}
-harmon.all <- function(object) {
-  object@harmon.train.data$Raw$dat.harmonized <- object@raw.train.data$data
-  object <- harmon.TC(object)
-  object <- harmon.UQ(object)
-  object <- harmon.med(object)
-  object <- harmon.TMM(object)
-  object <- harmon.DESeq(object)
-  object <- harmon.PoissonSeq(object)
-  object <- harmon.QN(object)
-  object <- harmon.RUVg(object)
-  object <- harmon.RUVs(object)
-  object <- harmon.RUVr(object)
-  return(object)
-}
-
-cluster.all <- function(object) {
-  object <- cluster.kmeans(object)
-  object <- cluster.hc(object)
-  object <- cluster.som(object)
-  object <- cluster.mnm(object)
-  object <- cluster.pam(object, distance = "euclidean")
-  object <- cluster.pam(object, distance = "pearson")
-  object <- cluster.pam(object, distance = "spearman")
-  return(object)
-}
-```    
 
 
 ## Basic Usage
