@@ -1,9 +1,9 @@
 pandoc: 3.1.11
-pkgdown: 2.1.3
+pkgdown: 2.2.0
 pkgdown_sha: ~
 articles:
   introduction: introduction.html
-last_built: 2025-08-11T16:30Z
+last_built: 2025-11-21T08:16Z
 urls:
   reference: https://omics-data-harmonization-ebp.github.io/PRECISION.seq.augmented/reference
   article: https://omics-data-harmonization-ebp.github.io/PRECISION.seq.augmented/articles
